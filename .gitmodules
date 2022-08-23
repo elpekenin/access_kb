@@ -1,6 +1,4 @@
-[submodule "firmware/tinyusb"]
-	path = firmware/tinyusb
-	url = https://github.com/hathach/tinyusb
-[submodule "firmware/micropython"]
-	path = firmware/micropython
-	url = https://github.com/micropython/micropython
+[submodule "hardware/libraries/marbastlib"]
+	path = hardware/libraries/marbastlib
+  url = https://github.com/ebastler/marbastlib
+  branch = untested
