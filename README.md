@@ -4,13 +4,18 @@ This project's goal is to make a highly customizable keyboard with a bunch of ac
 
 File structure:
 ```
-📂 .
-├─ 📂firmware/ -- Code running on keyboard
-|  ├─  micropython/ -- Python implementation for microcontrollers
-|  └─  tinyusb/ -- USB stack
-├─ 📂hardware/ -- PCB files
-|  └─ 📂libraries/ -- References to KiCAD symbols and footprints 
-└─ 📂latex/ -- Sources used to create the PDF report
+📂 access_kb
+├─ 📂firmware/     - Code running on the keyboard
+|  ├─  micropython/   * Python implementation for microcontrollers
+|  └─  tinyusb/       * USB stack
+├─ 📂hardware/     - PCB files
+|  └─ 📂libraries/     * References to KiCAD symbols and footprints 
+└─ 📂latex/        - Sources used to create the PDF report
+   ├─ 📂images/        * Various visual resources 
+   ├─ 📂snippets/      * Relevant pieces of code and configuration
+   ├─ 📂tex/           * Fragments of the complete writing
+   ├─  conf.tex       * LaTeX configuration
+   └─  main.tex       * Wrapper file which joins everything together
 ```
 Firmware
 ========
