@@ -2,3 +2,9 @@
 	path = hardware/libraries/marbastlib
   url = https://github.com/ebastler/marbastlib
   branch = untested
+[submodule "firmware/micropython"]
+	path = firmware/micropython
+	url = https://github.com/elpekenin/micropython
+[submodule "firmware/tinyusb"]
+	path = firmware/tinyusb
+	url = https://github.com/elpekenin/tinyusb
