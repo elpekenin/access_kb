@@ -1,3 +1,9 @@
+---
+ _This file contains some icons that may not render with your font, **dont worry!**_
+ While all the source and documentation I've developed is written on English, the report is on Spanish to be presented at my University, I might translate it on the future
+
+---
+
 Access keyboard
 ===============
 This project's goal is to make a highly customizable keyboard with a bunch of accesibility add-ons, so that **most** people can use it.
@@ -15,7 +21,8 @@ File structure:
    ├─ 📂snippets/      * Relevant pieces of code and configuration
    ├─ 📂tex/           * Fragments of the complete writing
    ├─  conf.tex       * LaTeX configuration
-   └─  main.tex       * Wrapper file which joins everything together
+   ├─  main.tex       * Wrapper file which joins everything together 
+   └─  references.bib * Bibliography
 ```
 Firmware
 ========
