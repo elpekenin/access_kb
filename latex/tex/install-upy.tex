@@ -1,0 +1,24 @@
+Python es un lenguaje interpretado, por lo que existen distintas implementaciones del mismo, por nombrar algunas: 
+\begin{itemize}
+  \item Cython (C)
+  \item IronPython (.NET)
+  \item Jython (Java)
+  \item PyPy (Python)
+\end{itemize}
+Para este projecto voy a utilizar MicroPython, que también está escrito en C pero su objetivo es el de minimizar el uso de recursos (mayormente RAM) para que sea viable emplearlo en microcontroladores.
+
+\subsection{Preparar el compilador}
+Tras clonar el repositorio de MicroPython (\cli{git clone https://github.com/miropython/micropython}), hacemos \cli{make -C mpy-cross} para compilar el compilador cruzado de MicroPython que nos permitirá compilar nuestro código para ser ejecutado en diferentes arquitecturas
+
+\subsection{Compilar para Linux (Opcional)}
+Si queremos usar MicroPython en nuestro ordenador para hacer pruebas, en vez de CPython(que es la versión más común), usaremos el compilador que acabamos de construir para compilar el código fuente del intérprete y usarlo en nuestra máquina \cli{cd ports/unix \&\& make submodules \&\& make}
+
+Y ahora podemos ejecutarlo con \cli{cd build-standard}
+\code{upy-prompt}{bash}
+
+\subsection{Compilar para RP2040}
+Primero instalamos un compilador necesario para la arquitectura del procesador, en mi caso (Arch Linux), el comando es \cli{sudo pacman -S arm-none-eabi-gcc}. \newline
+Ahora,añadimos TinyUSB a la configuración del compilador, para que añada dicha libreria siguiendo la información de \textcite{tusb-rp2}
+\file{ports/rp2}{CMakeLists.txt}{make}
+
+Y añadimos/editamos los archivos necesarios (ver commits en su repositorio de GitHub). Por último, de forma análoga al paso anterior, hacemos \cli{cd ../../rp2 \&\& make submodules \&\& make}

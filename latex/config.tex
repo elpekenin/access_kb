@@ -1,218 +1,100 @@
 \documentclass[11pt]{report}
-% Imports
-\usepackage[utf8]{inputenc}
-\usepackage{tabto}
-\usepackage[margin=2cm, top=2cm, includefoot]{geometry}
-\usepackage{graphicx}
-\usepackage{float}
-\usepackage{tabularx}
-\usepackage{sectsty}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{caption}
-\usepackage[fancybox]{realboxes}
-\usepackage{framed}
-%\usepackage{url}
-\usepackage{csquotes}
-\usepackage{parskip}
-\usepackage[most]{tcolorbox}
-\usepackage{fancybox}
-\usepackage[export]{adjustbox}[2011/08/13]
-\usepackage{subcaption}
-\usepackage{enumitem}
-\usepackage{textcomp}
 \usepackage[T1]{fontenc}
+% \usepackage [latin1]{inputenc}
+\usepackage{fontawesome} %icons
+\usepackage{graphicx} %includegraphics
 
-\usepackage{tikz}
-    \usetikzlibrary{positioning}
-    
-\usepackage{xcolor}
-\definecolor{azul}{HTML}{117180}
+% Links
+\usepackage[hidelinks]{hyperref}
 
-\usepackage{listings}
-\lstset{
-    backgroundcolor=\color{black},
-    basicstyle=\color{white}
-}
-\lstdefinestyle {cli} {
-	backgroundcolor=\color{black},
-	basicstyle=\color{white},
-}
-\lstdefinestyle {files} {
-	backgroundcolor=\color{white},
-	basicstyle=\color{black},
-	commentstyle=\color{olive}
-}
-\DeclareCaptionFont{white}{\color{white}}
-\DeclareCaptionFormat{listing}{\vspace{-.45cm}\newline\hspace*{-.1cm}\colorbox{gray}{\parbox{\textwidth}{#3}}}
-\captionsetup[lstlisting]{
-    format=listing,
-    labelfont=white,
-    textfont=white,
-    justification=raggedright,
-    singlelinecheck=false,
-    width=\textwidth
-}
-
+% References
+\usepackage{csquotes}
 \usepackage[spanish,activeacute]{babel}
 \usepackage[
     backend=biber,
     sorting=none,
-    citestyle=reading,
-    bibstyle=numeric
-]{biblatex} \addbibresource{TFG.bib}
+    citestyle=numeric,
+    bibstyle=science
+]{biblatex}
+\addbibresource{references.bib}
 
-\DeclareFieldFormat{labelnumberwidth}{\mkbibbrackets{#1}}
-%\DeclareFieldFormat{labelnumberwidth}{} %borrar numeracion
-%\setlength{\biblabelsep}{0pt} %evitar el espacio en blanco
-\DeclareFieldFormat[online,software]{title}{\bfseries{#1} \nopunct} %formato del titulo 
-\DeclareFieldFormat[online,software]{url}{\newline \url{#1} \nopunct \newline} %formato de la url
+% Avoid indenting each line
+\setlength{\parindent}{0pt}
 
-\DeclareSourcemap{
-  \maps[datatype=bibtex]{
-    \map{
-        %\step[fieldsource=url,
-        %     notmatch=\regexp{wiki},
-        %     final=1]
-       \step[fieldset=urldate, null]
-       \step[fieldset=date, null]
-       \step[fieldset=note, null] %esto podría eliminar info importante en otras referencias
-    }
+% Custom colors
+\usepackage[dvipsnames]{xcolor}
+	\definecolor{white}{RGB}{255,255,255}
+	
+% Blocks of code
+\usepackage{listings}
+  \definecolor{codegreen}{rgb}{0,0.6,0}
+  \definecolor{codegray}{rgb}{0.5,0.5,0.5}
+  \definecolor{codepurple}{rgb}{0.58,0,0.82}
+  \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+  \lstdefinestyle{mystyle}{
+     backgroundcolor=\color{backcolour},   
+     commentstyle=\color{codegreen},
+     keywordstyle=\color{magenta},
+     numberstyle=\tiny\color{codegray},
+     stringstyle=\color{codepurple},
+     basicstyle=\ttfamily\footnotesize,
+     breakatwhitespace=false,         
+     breaklines=true,                 
+     captionpos=b,                    
+     keepspaces=true,                 
+     numbers=none,                    
+     numbersep=5pt,                  
+     showspaces=false,                
+     showstringspaces=false,
+     showtabs=false,                  
+     tabsize=2
   }
-}
+  \lstset{style=mystyle}
 
-\usepackage{chngcntr} 
-\counterwithout{figure}{chapter}
-\counterwithout{table}{chapter}
+% -- Front page
+% Image on the left
+\usepackage{tikzpagenodes}
+% Text on the right
+\usepackage{ragged2e}
 
-\usepackage[hidelinks]{hyperref}
-\hypersetup{pdftitle={Configurar skill Alexa - Pablo Martinez Bernal}}
+% Page format
+\usepackage[margin=3cm]{geometry}
+\addtolength{\topmargin}{-1cm}
 
-\usepackage{fancyhdr}
-\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
-\addto\captionsspanish{\renewcommand{\contentsname}{Índice}}
-\setlength{\headheight}{40pt}
-\pagestyle{fancy}
-\fancyhf{}
-\fancyfoot[C]{\thepage}
-\lhead{
-    \hyperref[chap:indice]{\includegraphics[height=40pt]{imagenes/UPCT/Logo-UPCT2.png}}
-    \ifnum\value{chapter}=0 {}
-    \else {{\hfill \Large \thechapter\ \itshape $\vert$ \leftmark \hspace{5cm} \hfill}}
-    \fi
-} 
-\rhead{\includegraphics[height=35pt]{imagenes/UPCT/Logo-ETSIT2.png}}
-\renewcommand{\headrulewidth}{3pt}
-\renewcommand{\headrule}{\hbox to\headwidth{\color{azul}\leaders\hrule height \headrulewidth\hfill}}
-
-
-\usepackage{titlesec}
-\usepackage{etoolbox}
+% -- Chapter format
+% Title style
+\usepackage[Glenn]{fncychap}
 \addto\captionsspanish{\renewcommand{\chaptername}{Sección}}
-\addto\captionsspanish{\renewcommand{\tablename}{Colección}}
-\makeatletter
-\titleformat{\chapter}[frame]
-    {\normalfont}{\filright\enspace \LARGE \itshape \@chapapp~\thechapter\enspace}{8pt}{\LARGE\bfseries\filcenter}
+% Remove numbering
+\usepackage{chngcntr}
+	\counterwithout{figure}{chapter}
+	\counterwithout{table}{chapter}
 
-\titlespacing*{\chapter}
-  {0pt}{-20pt}{20pt}
-\makeatother
-
-
-\makeatletter
-\def\@chapter[#1]#2{\ifnum \c@secnumdepth >\m@ne
-                         \refstepcounter{chapter}%
-                         \typeout{\@chapapp\space\thechapter.}%
-                         \addcontentsline{toc}{chapter}%
-                                   {\protect\numberline{\thechapter}#1}%
-                    \else
-                      \addcontentsline{toc}{chapter}{#1}%
-                    \fi
-                    \chaptermark{#1}%
-                    \if@twocolumn
-                      \@topnewpage[\@makechapterhead{#2}]%
-                    \else
-                      \@makechapterhead{#2}%
-                      \@afterheading
-                    \fi}
-\makeatother
-% •
-% Mis funciones
-\newcommand{\cli}[1]{
-    \vspace{.1cm}\colorbox{black}
-        {\lstinline| #1|}
+% -- Custom functions
+% CLItex
+\usepackage{soul}
+	\sethlcolor{black}
+\newcommand{\cli}[1]{%
+  \mbox{%
+		\textcolor{white}{\hl{#1}}%
+  }%
 }
 
-\newcommand{\route}[1]{
-    \vspace{.1cm}\colorbox{gray}
-        {\textcolor{white}{#1}}
+% Code
+\newcommand{\code}[2]{%
+  \lstinputlisting[language=#2]{snippets/#1}
 }
 
-\newcommand{\file}[3]{
-    \vspace{.5cm}
-    \newline\doublebox{%
-        \begin{minipage}{\linewidth}
-            \lstinputlisting[
-                title=#1,
-                style=files,
-                language={#3},
-                breaklines=true
-            ]{#2}
-        \end{minipage}}
+% Files
+\newcommand{\lined}[1]{\smash{\begin{tabular}{l} \hline #1 \\ \hline \end{tabular}\hspace*{-\tabcolsep}}} %lined 
+\newcommand{\file}[3]{%location, name, lang
+  \par%
+  \lined{%
+    \textbf{%
+      \faCode \ \color{gray}{\texttt{#1/#2}}%file path
+    }%
+  }%
+  \vspace{-.1cm}%
+  \code{#2}{#3}%file content
 }
-
-\newcommand{\link}[2]{%
-    \href{#1}{\color{blue}\underline{#2}}%
-}
-
-\newcommand{\nota}[1]{%
-    \vspace{0.3cm}\par%
-    {\slshape\scshape(#1)}%
-    \vspace{0.3cm}\par%
-}
-
-\newcommand{\punto}{$\bullet$\ }
-
-\newcommand{\mirefs}[2]{%
-    \textbf{\hyperref[#1]{#2 \ref{#1}-\nameref{#1}}}%
-}
-
-\newcommand{\mireff}[1]{%
-    \textbf{\hyperref[#1]{Figura \ref{#1}}}%
-}
-
-\newcommand{\micap}[1]{%
-    \color{cyan}\textit{#1}%
-}
-
-\usepackage{pifont}
-\newcommand{\tick}{\textcolor{green}{\ding{52}}}
-\newcommand{\cruz}{\textcolor{red}{\ding{54}}}
-\newcommand{\warning}{\textcolor{orange}{\ding{115}}}
-\newcommand{\tickc}{\ding{51}}
-
-\newcounter{micounter}
-\newcommand{\micite}[1]{%
-    \addtocounter{micounter}{1}%
-    {[\themicounter]} \cite{#1}%
-}
-
-\newcommand\blankpage{%
-    \null
-    \thispagestyle{empty}%
-    \addtocounter{page}{-1}%
-    \newpage}
-    
-\newcommand{\titulo}{Desarrollo de un asistente virtual para la \\\hspace*{2cm} UPCT mediante una skill de Alexa}
-\newcommand{\tituloa}{Desarrollo de un asistente virtual para la UPCT mediante una skill de Alexa}
-\newcommand{\autor}{Pablo Martínez Bernal}
-\newcommand{\email}{martinezbernalpablo@gmail.com}
-\newcommand{\fecha}{Noviembre de 2021}
-\newcommand{\grado}{Ingeniería Telemática}
-\newcommand{\resumen}{En este informe se documenta el proceso de creación de una skill de Alexa auto gestionada para facilitar la búsqueda de información relacionada con la Universidad. El archivo incluye desde la programación de la API encargada de gestionar peticiones, hasta la configuración de una Raspberry como servidor que ejecuta el servicio web. La funcionalidad de la Skill incluye la consulta de horarios, guías docentes o e-mail de los profesores, entre otros; con posibilidad de añadir más funcionalidad en un futuro.}
-
-\newcommand{\director}{María Francisca Rosique Contreras}
-\newcommand{\emaild}{paqui.rosique@upct.es}
-
-\title{\titulo}
-\author{\autor}

@@ -1,8 +1,16 @@
 \input{config.tex}
 
-
 \begin{document}
+	\input{tex/front-page.tex}
 
-	\chapter{References}
-		\printbibliography[heading=none]
+	\null\newpage % empty page
+
+	\tableofcontents
+	
+	\chapter{Implementación del firmware}
+		\section{Instalar MicroPython}
+	 	    \input{tex/install-upy.tex}
+	 	    
+  \chapter{Referencias}      
+    \printbibliography[heading=none]
 \end{document}
