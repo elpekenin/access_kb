@@ -1,5 +1,6 @@
 ---
  _This file contains some icons that may not render with your font, **dont worry!**_
+
  While all the source and documentation I've developed is written on English, the report is on Spanish to be presented at my University, I might translate it on the future
 
 ---
@@ -26,7 +27,9 @@ File structure:
 ```
 Firmware
 ========
-The firmware runs [MicroPython](https://micropython.org/) using [TinyUSB](https://docs.tinyusb.org/en/latest/) for HID emulation, this implementation was based upon `noobeepi`'s [work](https://github.com/noobee/micropython/tree/usb-hid). My code was made inspired by [QMK](https://github.com/qmk/qmk_firmware)(C) and [KMK](https://github.com/KMKfw/kmk_firmware)(CircuitPython, Adafruit's fork of MicroPython)
+The firmware runs [MicroPython](https://micropython.org/) using [TinyUSB](https://docs.tinyusb.org/en/latest/) for HID emulation.
+
+My code was made inspired by [QMK](https://github.com/qmk/qmk_firmware)(C) and [KMK](https://github.com/KMKfw/kmk_firmware)(CircuitPython, Adafruit's fork of MicroPython)
 
 Hardware
 ========
