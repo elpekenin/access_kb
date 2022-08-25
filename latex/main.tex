@@ -3,13 +3,22 @@
 \begin{document}
 	\input{tex/front-page.tex}
 
-	\null\newpage % empty page
+  % {\null\thispagestyle{empty}\newpage}
 
-	\tableofcontents
-	
+  \chapter*{Resumen}
+    \input{tex/abstract}
+
+  \tableofcontents \label{chapter:contents}
+
+  \chapter{Introducción}
+    \input{tex/intro}
+
+  \chapter{Estado del arte}
+    \input{tex/state}
+  
 	\chapter{Implementación del firmware}
     \section{Instalar MicroPython}
-	 	    \input{tex/install-upy.tex}
+	 	    \input{tex/install-upy}
 	 	    
   \chapter{Referencias}      
     \printbibliography[heading=none]

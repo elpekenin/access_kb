@@ -2,7 +2,12 @@
 \usepackage[T1]{fontenc}
 % \usepackage [latin1]{inputenc}
 \usepackage{fontawesome} %icons
-\usepackage{graphicx} %includegraphics
+
+% Images
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
 
 % Links
 \usepackage[hidelinks]{hyperref}
@@ -52,27 +57,46 @@
   }
   \lstset{style=mystyle}
 
-% -- Front page
-% Image on the left
+% - Front page
 \usepackage{tikzpagenodes}
-% Text on the right
 \usepackage{ragged2e}
+  \addto\captionsspanish{\renewcommand{\contentsname}{Índice}}
 
 % Page format
-\usepackage[margin=3cm]{geometry}
-\addtolength{\topmargin}{-1cm}
+\usepackage[margin=2cm, top=2cm, includefoot]{geometry}
+  \addtolength{\topmargin}{-1cm}
+\usepackage{fancyhdr}
+  \renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+  \setlength{\headheight}{80pt}
+  \pagestyle{fancy}
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \lhead{
+    \hyperref[chapter:contents]{\includegraphics[height=40pt]{images/UPCT-header.png}}
+    \ifnum\value{chapter}=0 {}
+    \else {{\hfill \Large \thechapter\ \itshape $\vert$ \leftmark \hspace{5cm} \hfill}}
+    \fi
+} 
+% \rhead{\includegraphics[height=35pt]{image.png}}
+\renewcommand{\headrulewidth}{3pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{RoyalBlue}\leaders\hrule height \headrulewidth\hfill}}
 
-% -- Chapter format
-% Title style
-\usepackage[Glenn]{fncychap}
-\addto\captionsspanish{\renewcommand{\chaptername}{Sección}}
-% Remove numbering
+% Chapter format
 \usepackage{chngcntr}
 	\counterwithout{figure}{chapter}
 	\counterwithout{table}{chapter}
+\usepackage{etoolbox}
+\usepackage[Glenn]{fncychap}
+  \addto\captionsspanish{\renewcommand{\chaptername}{Sección}}
+\makeatletter
+\patchcmd{\@makechapterhead}{\vspace*{50\p@}}{\vspace*{-20\p@}}{}{}
+\patchcmd{\@makeschapterhead}{\vspace*{50\p@}}{\vspace*{-20\p@}}{}{}
+\patchcmd{\DOTI}{\vskip 80\p@}{\vskip 40\p@}{}{}
+\patchcmd{\DOTIS}{\vskip 40\p@}{\vskip 0\p@}{}{}
+\makeatother
 
 % -- Custom functions
-% CLItex
+% CLI
 \usepackage{soul}
 	\sethlcolor{black}
 \newcommand{\cli}[1]{%
@@ -81,12 +105,27 @@
   }%
 }
 
-% Code
+% Code block
 \newcommand{\code}[2]{%
-  \lstinputlisting[language=#2]{snippets/#1}
+  \lstinputlisting[language=#2]{snippets/#1}%
 }
 
-% Files
+% Image
+\newcommand{\credit}[1]{%
+  \begin{flushright}%
+    \item #1%
+  \end{flushright}%
+}
+
+\newcommand{\image}[3]{%location, width, caption
+  \begin{figure}[H]%
+    \centering%
+    \includegraphics[width=#2]{images/#1}%
+    \caption{#3}%
+  \end{figure}%
+}
+
+% File
 \newcommand{\lined}[1]{\smash{\begin{tabular}{l} \hline #1 \\ \hline \end{tabular}\hspace*{-\tabcolsep}}} %lined 
 \newcommand{\file}[3]{%location, name, lang
   \par%
