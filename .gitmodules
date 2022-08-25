@@ -4,7 +4,8 @@
   branch = untested
 [submodule "firmware/micropython"]
 	path = firmware/micropython
-	url = https://github.com/elpekenin/micropython
+  url = https://github.com/elpekenin/micropython
+  branch = peke-devel
 [submodule "firmware/tinyusb"]
 	path = firmware/tinyusb
 	url = https://github.com/elpekenin/tinyusb
