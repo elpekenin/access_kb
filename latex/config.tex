@@ -105,6 +105,14 @@
   }%
 }
 
+% Inline code
+\usepackage{tikz}
+\newcommand{\icode}[1]{%
+  \begin{tikzpicture}%
+    \node[circle,draw,fill=black!30]{#1};%
+  \end{tikzpicture}%
+}
+
 % Code block
 \newcommand{\code}[2]{%
   \lstinputlisting[language=#2]{snippets/#1}%
