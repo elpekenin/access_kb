@@ -13,8 +13,7 @@ File structure:
 ```
 📂 access_kb
 ├─ 📂firmware/     - Code running on the keyboard
-|  ├─  micropython/   * Python implementation for microcontrollers
-|  └─  tinyusb/       * USB stack
+|  └─  micropython/   * Python implementation for microcontrollers
 ├─ 📂hardware/     - PCB files
 |  └─ 📂libraries/     * References to KiCAD symbols and footprints 
 └─ 📂latex/        - Sources used to create the PDF report
@@ -29,7 +28,7 @@ File structure:
 
 Firmware
 ========
-The firmware runs [MicroPython](https://micropython.org/) using [TinyUSB](https://docs.tinyusb.org/en/latest/), I modified the USB configuration so it can also use HID.
+The firmware runs [MicroPython](https://micropython.org/) using [TinyUSB](https://docs.tinyusb.org/en/latest/), but with a modified USB configuration so it can also use HID, this was based on [noobee's work](https://github.com/noobee/micropython/tree/usb-hid).
 
 My code was made inspired by [QMK](https://github.com/qmk/qmk_firmware)(C) and [KMK](https://github.com/KMKfw/kmk_firmware)(CircuitPython, Adafruit's fork of MicroPython)
 

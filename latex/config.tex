@@ -108,9 +108,11 @@
 % Inline code
 \usepackage{tikz}
 \newcommand{\icode}[1]{%
-  \begin{tikzpicture}%
-    \node[circle,draw,fill=black!30]{#1};%
-  \end{tikzpicture}%
+  \raisebox{-.1cm}{%
+    \begin{tikzpicture}%
+      \node[rectangle, rounded corners, fill=black!30]{#1};%
+    \end{tikzpicture}%
+  }%
 }
 
 % Code block
