@@ -18,7 +18,7 @@ Y ahora podemos ejecutarlo con \cli{cd build-standard}
 
 \subsection{Compilar para RP2040}
 Primero instalamos un compilador necesario para la arquitectura del procesador, en mi caso (Arch Linux), el comando es \cli{sudo pacman -S arm-none-eabi-gcc}. \newline
-Ahora,añadimos TinyUSB a la configuración del compilador, para que añada dicha libreria siguiendo la información de \textcite{tusb-rp2}
+Ahora, añadimos la configuración de TinyUSB necesaria para usar un puerto HID, y creamos el código en C que podremos importar en Python para usar como un módulo (librería) \textcite{tusb-rp2}
 \file{ports/rp2}{CMakeLists.txt}{make}
-
-Y añadimos/editamos los archivos necesarios (ver commits en su repositorio de GitHub). Por último, de forma análoga al paso anterior, hacemos \cli{cd ../../rp2 \&\& make submodules \&\& make}
+% !! Añadir cambios
+Para poder compilar la versión de RP2040, también he necesitado instalar otro paquete \cli{sudo pacman -S arm-none-eabi-newlib}. Por último, de forma análoga al paso anterior, hacemos \cli{cd ../../rp2 \&\& make submodules \&\& make}
