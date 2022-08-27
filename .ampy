@@ -1,0 +1,4 @@
+# Config for Adafruit's ampy, helper tool to copy/retrieve data from RP2040's storage
+AMPY_PORT=/dev/ttyACM0
+AMPY_BAUD=115200
+

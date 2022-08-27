@@ -13,9 +13,11 @@ File structure:
 ```
 📂 access_kb
 ├─ 📂firmware/     - Code running on the keyboard
+|  ├─ 📂code/          * My firmware implementation
 |  └─  micropython/   * Python implementation for microcontrollers
 ├─ 📂hardware/     - PCB files
 |  └─ 📂libraries/     * References to KiCAD symbols and footprints 
+├─ 📂helpers/      - Some scripts for repetitive tasks
 └─ 📂latex/        - Sources used to create the PDF report
    ├─ 📂images/        * Various visual resources 
    ├─ 📂snippets/      * Relevant pieces of code and configuration
