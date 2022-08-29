@@ -22,4 +22,4 @@ Ahora, añadimos la configuración necesaria para reportar y usar un endpoint HI
 \file{ports/rp2}{modusb\_hid.c}{c}{\centering Definimos lo que será el módulo \icode{usbhid} en Python}
 \file{ports/rp2}{CMakeLists.txt}{make}{\centering Le decimos al compilador que añada los archivos que hemos creado}
 % !! Añadir cambios
-Para poder compilar la versión de RP2040, también he necesitado instalar otro paquete \cli{sudo pacman -S arm-none-eabi-newlib}. Por último, de forma análoga al paso anterior, hacemos \cli{cd ../../rp2 \&\& make submodules \&\& make}
+Para poder compilar la versión de RP2040, también he necesitado instalar otro paquete \cli{sudo pacman -S arm-none-eabi-newlib}. Por último, de forma análoga al paso anterior, hacemos \cli{cd ../../rp2 \&\& make submodules \&\& make clean \&\& make}

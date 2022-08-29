@@ -13,18 +13,21 @@ File structure:
 ```
 📂 access_kb
 ├─ 📂firmware/     - Code running on the keyboard
-|  ├─ 📂code/          * My firmware implementation
-|  └─  micropython/   * Python implementation for microcontrollers
+|  ├─ 📂backups/       * Files saved by `download.sh` **Untracked**
+|  ├─  micropython/   * My fork of the Python implementation for microcontrollers
+|  ├─ 📂py-code/       * Custom firmware implementation from scratch
+|  └─ 📂qmk-code/      * QMK version of the firmware
 ├─ 📂hardware/     - PCB files
 |  └─ 📂libraries/     * References to KiCAD symbols and footprints 
-├─ 📂helpers/      - Some scripts for repetitive tasks
-└─ 📂latex/        - Sources used to create the PDF report
-   ├─ 📂images/        * Various visual resources 
-   ├─ 📂snippets/      * Relevant pieces of code and configuration
-   ├─ 📂tex/           * Fragments of the complete writing
-   ├─  conf.tex       * LaTeX configuration
-   ├─  main.tex       * Wrapper file which joins everything together 
-   └─  references.bib * Bibliography
+├─ 📂latex/        - Sources used to create the PDF report
+|  ├─ 📂images/        * Various visual resources 
+|  ├─ 📂snippets/      * Relevant pieces of code and configuration
+|  ├─ 📂tex/           * Fragments of the complete writing
+|  ├─  conf.tex       * LaTeX configuration
+|  ├─  main.tex       * Wrapper file which joins everything together 
+|  ├─  references.bib * Bibliography
+|  └─  report.pdf     * Output file 
+└─ 📂helpers/      - Some scripts for repetitive tasks
 ```
 
 
@@ -61,6 +64,15 @@ Features:
 - e-Ink display to show the current configuration
 - USB-A connector, so you can plug a device such a pen-drive
 - Debugging interface
+
+
+Utils
+=====
+This folder contains some bash scripts to make life easier:
+- download.sh -- Pulls the code from the RP2040's flash memory into a folder, and backups the code that was there before pulling 
+- pdf.sh      -- Compiles the latex file and opens the resulting file
+- rmswap.sh   -- Removes all .swp files in nvim's cache folder, as a bunch will be created upon SSH disconnecting 
+- upload.sh   -- Pushes a folder's content to the computer into the board
 
 
 <!--
