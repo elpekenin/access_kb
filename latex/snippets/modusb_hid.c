@@ -44,13 +44,14 @@ STATIC mp_obj_t usb_hid_report(mp_obj_t report_id_obj, mp_obj_t report_obj) {
 MP_DEFINE_CONST_FUN_OBJ_2(usb_hid_report_obj, usb_hid_report);
 
 STATIC const mp_rom_map_elem_t usb_hid_module_globals_table[] = {
-    { MP_ROM_QSTR(MP_QSTR___name__),                MP_ROM_QSTR(MP_QSTR_usb_hid) },
+    { MP_ROM_QSTR(MP_QSTR___name__),         MP_ROM_QSTR(MP_QSTR_usb_hid) },
 
-    { MP_ROM_QSTR(MP_QSTR_KEYBOARD),                MP_ROM_INT(REPORT_ID_KEYBOARD) },
-    { MP_ROM_QSTR(MP_QSTR_MOUSE),                   MP_ROM_INT(REPORT_ID_MOUSE) },
-    { MP_ROM_QSTR(MP_QSTR_CONSUMER_CONTROL),        MP_ROM_INT(REPORT_ID_CONSUMER_CONTROL) },
-    { MP_ROM_QSTR(MP_QSTR_GAMEPAD),                 MP_ROM_INT(REPORT_ID_GAMEPAD) },
-    { MP_ROM_QSTR(MP_QSTR_report),                  MP_ROM_PTR(&usb_hid_report_obj) },
+    { MP_ROM_QSTR(MP_QSTR_KEYBOARD),         MP_ROM_INT(REPORT_ID_KEYBOARD) },
+    { MP_ROM_QSTR(MP_QSTR_MOUSE),            MP_ROM_INT(REPORT_ID_MOUSE) },
+    { MP_ROM_QSTR(MP_QSTR_MOUSE_ABS),        MP_ROM_INT(REPORT_ID_MOUSE_ABS) },
+    { MP_ROM_QSTR(MP_QSTR_CONSUMER_CONTROL), MP_ROM_INT(REPORT_ID_CONSUMER_CONTROL) },
+    { MP_ROM_QSTR(MP_QSTR_GAMEPAD),          MP_ROM_INT(REPORT_ID_GAMEPAD) },
+    { MP_ROM_QSTR(MP_QSTR_report),           MP_ROM_PTR(&usb_hid_report_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(usb_hid_module_globals, usb_hid_module_globals_table);
 
@@ -58,3 +59,5 @@ const mp_obj_module_t mp_module_usb_hid = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&usb_hid_module_globals,
 };
+
+MP_REGISTER_MODULE(MP_QSTR_usb_hid, mp_module_usb_hid);

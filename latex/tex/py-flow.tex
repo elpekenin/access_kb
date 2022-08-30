@@ -1,0 +1,15 @@
+El programa hará uso de los dos núcleos del procesador, cuando sea necesario se comunicarán entre sí por medio unas simples clases que contienen un booleano que indica si hay información pendiente de leer, y una variable donde se almacena dicha información. Se podrían haber usado técnicas más avanzadas como candados o semáforos, pero dado que los dos procesos son bastante independientes entre sí, no considero que merezca la pena complicar más lo lógica del programa.
+
+\image{mcu1core1}{\textwidth}{Primer núcleo del controlador principal}
+% \image{mcu1core2}{\textwidth}{Segundo núcleo del controlador principal}
+
+% \image{mcu2core1}{\textwidth}{Primer núcleo del controlador secundario}
+% \image{mcu2core2}{\textwidth}{Segundo núcleo del controlador secundario}
+
+Como se puede observar, el primer núcleo será el encargado de escanear las teclas (y otro hardware) para detectar eventos y de controlar el puerto USB para enviar y recibir información intercambiando mensajes HID con el ordenador. \newline
+
+El segundo núcleo se encargará de gestionar los LEDs RGB y el piezoeléctrico, he tomado esta decisión porque el control de las animaciones y, sobre todo la señal PWM para generar el sonido, son bastante sensibles a los tiempos, por lo que he optado en usar \icode{time.sleep} en vez del módulo \icode{asyncio} para tener mayor precisión en estas tareas. La desventaja que tiene esta forma de afrontar el problema es que el controlador se pasará bastante tiempo sin hacer nada, por lo que tampoco debemos añadir mucha lógica aquí ya que se ejecutaría con una frecuencia bastante baja (del orden de algunos segundos). \newline
+
+El tercer núcleo se encargará de controlar el menu de ajustes, compuesto por una rueda y una pequeña pantalla OLED, con el objeto de poder representar imagenes a una mayor velocidad y tener animaciones más fluidas. \newline
+
+El último core se encargaría de cualquier otro periférico, tales como el solenoide que aporta mayor \textit{feedback} o la pantalla de tinta electrónica que muestre la configuración actual del teclado y la fecha.

@@ -1,3 +1,6 @@
+\newcommand{\myname}{Pablo Martínez Bernal}
+\newcommand{\mytitle}{Desarrollo de un teclado para el S.XXI, accesible y con MicroPython}
+
 \documentclass[11pt]{report}
 \usepackage[T1]{fontenc}
 % \usepackage [latin1]{inputenc}
@@ -11,6 +14,10 @@
 
 % Links
 \usepackage[hidelinks]{hyperref}
+  \hypersetup{
+    pdfauthor={\myname},
+    pdftitle={\mytitle}
+  }
 
 % References
 \usepackage{csquotes}
@@ -21,43 +28,54 @@
     citestyle=numeric,
     bibstyle=science
 ]{biblatex}
-\addbibresource{references.bib}
+  \addbibresource{references.bib}
 
 % Avoid indenting each line
-\setlength{\parindent}{0pt}
+  \setlength{\parindent}{0pt}
 
 % Custom colors
 \usepackage[dvipsnames]{xcolor}
-	\definecolor{white}{RGB}{255,255,255}
+  \definecolor{white}{RGB}{255,255,255}
+\usepackage[most]{tcolorbox}
 	
 % Blocks of code
 \usepackage{listings}
-  \definecolor{codegreen}{rgb}{0,0.6,0}
-  \definecolor{codegray}{rgb}{0.5,0.5,0.5}
-  \definecolor{codepurple}{rgb}{0.58,0,0.82}
-  \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-
-  \lstdefinestyle{mystyle}{
-     backgroundcolor=\color{backcolour},   
-     commentstyle=\color{codegreen},
-     keywordstyle=\color{magenta},
-     numberstyle=\tiny\color{codegray},
-     stringstyle=\color{codepurple},
-     basicstyle=\ttfamily\footnotesize,
-     breakatwhitespace=false,         
-     breaklines=true,                 
-     captionpos=b,                    
-     keepspaces=true,                 
-     numbers=none,                    
-     numbersep=5pt,                  
-     showspaces=false,                
-     showstringspaces=false,
-     showtabs=false,                  
-     tabsize=2
+  \definecolor{stringColor}{rgb}{0.16,0.00,1.00}
+  \definecolor{fieldColor}{rgb}{0.16,0.00,1.00}
+  \definecolor{annotationColor}{rgb}{0.39,0.39,0.39}
+  \definecolor{keywordColor}{rgb}{0.50,0.00,0.33}
+  \definecolor{commentColor}{rgb}{0.25,0.50,0.37}
+  \definecolor{lineNumberColor}{rgb}{0.47,0.47,0.47}
+  \lstset{
+    language=c,
+    basicstyle=\ttfamily\small\linespread{.5},
+    commentstyle=\color{commentColor}\itshape,
+    keywordstyle=\color{keywordColor}\bfseries,
+    stringstyle=\color{stringColor},
+    numberstyle=\color{lineNumberColor}\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    keepspaces=true,
+    numberbychapter=false,
+    numbers=left,
+    numbersep=10pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    keywords={set,ordered,var,binary,param,minimize,last,sum,first,subject,to,in},
+    % frame=tb,
+    frame=lines, %Así parece que las lineas cubren el codigo mejor
+    framerule=1pt,
+    rulesep=1pt,
+    framexleftmargin=2em,
+    captionpos=t,
+    belowcaptionskip=1em,
+    aboveskip=1.5em,
   }
-  \lstset{style=mystyle}
+  \renewcommand{\lstlistingname}{Código}%
 
-% - Front page
+% Front page
 \usepackage{tikzpagenodes}
 \usepackage{ragged2e}
   \addto\captionsspanish{\renewcommand{\contentsname}{Índice}}
@@ -67,12 +85,12 @@
   \addtolength{\topmargin}{-1cm}
 \usepackage{fancyhdr}
   \renewcommand{\chaptermark}[1]{\markboth{#1}{}}
-  \setlength{\headheight}{80pt}
+  \setlength{\headheight}{60pt}
   \pagestyle{fancy}
   \fancyhf{}
   \fancyfoot[C]{\thepage}
   \lhead{
-    \hyperref[chapter:contents]{\includegraphics[height=40pt]{images/UPCT-header.png}}
+    \hyperref[chapter:contents]{\includegraphics[height=20pt]{images/UPCT-header.png}}
     \ifnum\value{chapter}=0 {}
     \else {{\hfill \Large \thechapter\ \itshape $\vert$ \leftmark \hspace{5cm} \hfill}}
     \fi
@@ -84,7 +102,7 @@
 % Chapter format
 \usepackage{chngcntr}
 	\counterwithout{figure}{chapter}
-	\counterwithout{table}{chapter}
+  \counterwithout{table}{chapter}
 \usepackage{etoolbox}
 \usepackage[Glenn]{fncychap}
   \addto\captionsspanish{\renewcommand{\chaptername}{Sección}}
@@ -96,54 +114,59 @@
 \makeatother
 
 % -- Custom functions
+% Like break for CLI blocks
+\newcommand{\mybreak}{\newline\hspace*{.5cm}}
+
 % CLI
 \usepackage{soul}
 	\sethlcolor{black}
 \newcommand{\cli}[1]{%
-  \mbox{%
-		\textcolor{white}{\hl{#1}}%
-  }%
+  \mbox{
+    \textcolor{white}{\textbf{\hl{#1}}}
+  }
 }
 
 % Inline code
 \usepackage{tikz}
-\newcommand{\icode}[1]{%
-  \raisebox{-.1cm}{%
-    \begin{tikzpicture}%
-      \node[rectangle, rounded corners, fill=black!30]{#1};%
-    \end{tikzpicture}%
+\DeclareRobustCommand{\icode}[1]{%
+  \raisebox{-.2cm}{
+    \begin{tikzpicture}
+      \node[rectangle, rounded corners, fill=black!30]{#1};
+    \end{tikzpicture}
   }%
 }
 
 % Code block
-\newcommand{\code}[2]{%
-  \lstinputlisting[language=#2]{snippets/#1}%
+\newcommand{\code}[2]{%file, caption
+  \lstinputlisting[caption={#2}, captionpos=b]{snippets/#1}
+}
+
+% Crediting on the right
+\newcommand{\credit}[1]{%
+  \begin{flushright}
+    \item #1
+  \end{flushright}
 }
 
 % Image
-\newcommand{\credit}[1]{%
-  \begin{flushright}%
-    \item #1%
-  \end{flushright}%
-}
-
-\newcommand{\image}[3]{%location, width, caption
-  \begin{figure}[H]%
-    \centering%
-    \includegraphics[width=#2]{images/#1}%
-    \caption{#3}%
-  \end{figure}%
+\newcommand{\image}[3]{%name , width, caption
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=#2]{images/#1}
+    \caption{#3}
+  \end{figure}
 }
 
 % File
 \newcommand{\lined}[1]{\smash{\begin{tabular}{l} \hline #1 \\ \hline \end{tabular}\hspace*{-\tabcolsep}}} %lined 
-\newcommand{\file}[3]{%location, name, lang
-  \par%
-  \lined{%
-    \textbf{%
-      \faCode \ \color{gray}{\texttt{#1/#2}}%file path
-    }%
-  }%
-  \vspace{-.1cm}%
-  \code{#2}{#3}%file content
+  
+\newcommand{\file}[3]{%location, name, caption
+  \vspace{-1cm}
+  \begin{tcolorbox}[enhanced, breakable, boxrule=0pt, frame hidden]
+    \faCode \ \texttt{#1/#2}
+
+    \vspace{-.5cm}
+    
+    \code{#2}{#3}
+  \end{tcolorbox}
 }

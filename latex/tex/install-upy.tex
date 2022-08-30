@@ -7,19 +7,21 @@ Python es un lenguaje interpretado, por lo que existen distintas implementacione
 \end{itemize}
 Para este projecto voy a utilizar MicroPython, que también está escrito en C pero su objetivo es el de minimizar el uso de recursos (mayormente RAM) para que sea viable emplearlo en microcontroladores.
 
-\subsection{Preparar el compilador}
-Tras clonar el repositorio de MicroPython (\cli{git clone https://github.com/miropython/micropython}), hacemos \cli{make -C mpy-cross} para compilar el compilador cruzado de MicroPython que nos permitirá compilar nuestro código para ser ejecutado en diferentes arquitecturas
+\subsubsection{Preparar el compilador}
+Tras clonar el repositorio de MicroPython (\cli{git clone https://github.com/miropython/micropython}), hacemos \cli{make -C mpy-cross} para compilar el compilador cruzado de MicroPython que nos permitirá convertir el código fuente para ser ejecutado en diferentes arquitecturas.
 
-\subsection{Compilar para Linux (Opcional)}
+\subsubsection{Compilar para Linux (Opcional)}
 Si queremos usar MicroPython en nuestro ordenador para hacer pruebas, en vez de CPython(que es la versión más común), usaremos el compilador que acabamos de construir para compilar el código fuente del intérprete y usarlo en nuestra máquina \cli{cd ports/unix \&\& make submodules \&\& make}
 
-Y ahora podemos ejecutarlo con \cli{cd build-standard}
-\code{upy-prompt}{bash}
+\code{upy-prompt}{Ya podemos ejecutar MicroPython, tras hacer \cli{cd build-standard}}
 
-\subsection{Compilar para RP2040}
-Primero instalamos un compilador necesario para la arquitectura del procesador, en mi caso (Arch Linux), el comando es \cli{sudo pacman -S arm-none-eabi-gcc}. \newline
-Ahora, añadimos la configuración necesaria para reportar y usar un endpoint HID, siguiendo (y adaptando) la información de \textbf{\textcite{tusb-rp2}}
-\file{ports/rp2}{modusb\_hid.c}{c}{\centering Definimos lo que será el módulo \icode{usbhid} en Python}
-\file{ports/rp2}{CMakeLists.txt}{make}{\centering Le decimos al compilador que añada los archivos que hemos creado}
-% !! Añadir cambios
-Para poder compilar la versión de RP2040, también he necesitado instalar otro paquete \cli{sudo pacman -S arm-none-eabi-newlib}. Por último, de forma análoga al paso anterior, hacemos \cli{cd ../../rp2 \&\& make submodules \&\& make clean \&\& make}
+\subsubsection{Compilar para RP2040}
+Primero instalamos un compilador necesario para la arquitectura del procesador, en mi caso (Arch Linux), el comando es \cli{sudo pacman -S arm-none-eabi-gcc} y después añadimos la configuración necesaria para reportar y usar un endpoint HID, siguiendo (y adaptando) la información de \textbf{\textcite{tusb-rp2}} \newpage
+\file{ports/rp2}{modusb\_hid.c}{Definimos en C el módulo \icode{usb\_hid} y con \icode{MP\_REGISTER\_MODULE} lo añadimos al firmware}
+\file{ports/rp2}{CMakeLists.txt}{Editamos este archivo para que el compilador añada \icode{modusb\_hid.c}}
+
+\vspace{-1cm} 
+Para poder compilar la versión de RP2040, también he necesitado instalar otro paquete \mybreak \cli{sudo pacman -S arm-none-eabi-newlib} \par
+
+Por último, compilamos con \cli{cd ports/rp2 \&\& make submodules \&\& make clean \&\& make}
+

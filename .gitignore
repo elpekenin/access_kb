@@ -1,7 +1,13 @@
 # Adapted from [ardabbour](https://gist.github.com/ardabbour/5da917e8bece5ce8aa397aada5ed1880)
 
 # ---------------------------------- CUSTOM ---------------------------------- #
+# Ignore firmware backups
 firmware/backups/
+
+# Ignore some useless KiCAD stuff
+fp-info-cache
+kicad-backups/
+kicad.kicad_prl
 
 # ---------------------------------- PYTHON ---------------------------------- #
 # Byte-compiled / optimized / DLL files
