@@ -52,7 +52,6 @@ Hardware
 ========
 The PCB was designed from scratch with KiCAD based on `Sleepdealr`'s [RP2040 design guide](https://github.com/Sleepdealr/RP2040-designguide) and uses some symbol/footprint libraries such as:
 - [marbastlib](https://github.com/ebastler/marbastlib) -- Keyboard parts
-- [SnapEDA](https://www.snapeda.com/parts/RP2040/Raspberry%20Pi/view-part/) -- RP2040 MCU
 
 Features:
 - Split
