@@ -1,7 +1,7 @@
 ---
- _This file contains some icons that may not render with your font, **don't worry!**_
+⚠️ _This file contains some icons that should render on GitHub, but **don't worry!** if they don't_
 
- While all the source and documentation I've developed is written on English, the report is on Spanish to be presented at my University, I might translate it on the future
+📝 While all the source and documentation I've developed is written on English, the report is on Spanish to be presented at my University, I might translate it on the future
 
 ---
 
@@ -15,7 +15,7 @@ File structure:
 ├─ 📂firmware/     - Code running on the keyboard
 |  ├─ 📂backups/       * Files saved by `download.sh` **Untracked**
 |  ├─ 📂kmk-code/      * KMK version of the firmware
-|  ├─  micropython/   * My fork of the Python implementation for microcontrollers
+|  ├─ 📌micropython/   * My fork of the Python implementation for microcontrollers
 |  ├─ 📂py-code/       * Custom code for testing purposes
 |  └─ 📂qmk-code/      * QMK version of the firmware
 ├─ 📂hardware/     - PCB files
@@ -24,29 +24,24 @@ File structure:
 |  ├─ 📂images/        * Various visual resources 
 |  ├─ 📂snippets/      * Relevant pieces of code and configuration
 |  ├─ 📂tex/           * Fragments of the complete writing
-|  ├─  conf.tex       * LaTeX configuration
-|  ├─  main.tex       * Wrapper file which joins everything together 
-|  ├─  references.bib * Bibliography
-|  └─  report.pdf     * Output file 
+|  ├─ 🔨conf.tex       * LaTeX configuration
+|  ├─ 📋main.tex       * Wrapper file which joins everything together 
+|  ├─ 📚references.bib * Bibliography
+|  └─ 📖report.pdf     * Output file 
 └─ 📂helpers/      - Some scripts for repetitive tasks
 ```
 
 
 Firmware
 ========
-The firmware runs [MicroPython](https://micropython.org/) using [TinyUSB](https://docs.tinyusb.org/en/latest/), but with a modified USB configuration so it can also use HID, this was based on [noobee's work](https://github.com/noobee/micropython/tree/usb-hid).
+I made code in both [QMK](https://github.com/qmk/qmk_firmware)(C) and [KMK](https://github.com/KMKfw/kmk_firmware)(MicroPython).
 
-I made code in both [QMK](https://github.com/qmk/qmk_firmware)(C) and [KMK](https://github.com/KMKfw/kmk_firmware)(MicroPython)
-
-Features:
+The KMK firmware is run on top of [MicroPython](https://micropython.org/) instead of the usual [CircuitPython](https://circuitpython.org/)(Adafruit's fork). This was achieved by modifying [TinyUSB](https://docs.tinyusb.org/en/latest/)'s configuration for RP2040, so it can also use HID. These changes were based on [noobee's work](https://github.com/noobee/micropython/tree/usb-hid).
+New features:
 - Multiprocessing using `_thread`
   - Main core: Matrix scanning & HID messaging
   - Second core: Peripherals control (mostly WS2812's using PIO)
 - Inline assembly: Speeds up the matrix scanning routine
-- QMK/KMK-like:
-  - Tap dance
-
-I also made a QMK version of the firmware, check it out [here](https://github.com/qmk/qmk_firmware/keyboards/elpekenin/access/v1)
 
 
 Hardware
