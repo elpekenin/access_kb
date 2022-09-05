@@ -14,8 +14,9 @@ File structure:
 📂 access_kb
 ├─ 📂firmware/     - Code running on the keyboard
 |  ├─ 📂backups/       * Files saved by `download.sh` **Untracked**
+|  ├─ 📂kmk-code/      * KMK version of the firmware
 |  ├─  micropython/   * My fork of the Python implementation for microcontrollers
-|  ├─ 📂py-code/       * Custom firmware implementation from scratch
+|  ├─ 📂py-code/       * Custom code for testing purposes
 |  └─ 📂qmk-code/      * QMK version of the firmware
 ├─ 📂hardware/     - PCB files
 |  └─ 📂libraries/     * References to KiCAD symbols and footprints 
@@ -35,7 +36,7 @@ Firmware
 ========
 The firmware runs [MicroPython](https://micropython.org/) using [TinyUSB](https://docs.tinyusb.org/en/latest/), but with a modified USB configuration so it can also use HID, this was based on [noobee's work](https://github.com/noobee/micropython/tree/usb-hid).
 
-My code was made inspired by [QMK](https://github.com/qmk/qmk_firmware)(C) and [KMK](https://github.com/KMKfw/kmk_firmware)(CircuitPython, Adafruit's fork of MicroPython)
+I made code in both [QMK](https://github.com/qmk/qmk_firmware)(C) and [KMK](https://github.com/KMKfw/kmk_firmware)(MicroPython)
 
 Features:
 - Multiprocessing using `_thread`
