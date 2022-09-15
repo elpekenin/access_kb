@@ -6,3 +6,6 @@
   path = firmware/micropython
   url = https://github.com/elpekenin/micropython
   branch = peke-devel
+[submodule "hardware/libraries/kicad-lib"]
+	path = hardware/libraries/kicad-lib
+	url = https://github.com/mcous/kicad-lib
