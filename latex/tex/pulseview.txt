@@ -1,0 +1,1 @@
+paru -S libserialport-git libsigrok-git libsigrokdecode-git pulseview-git

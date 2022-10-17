@@ -1,7 +1,7 @@
-\input{config.tex}
+\input{config}
 
 \begin{document}
-	\input{tex/front-page.tex}
+  \input{tex/front-page}
 
   % {\null\thispagestyle{empty}\newpage}
 
@@ -15,19 +15,21 @@
 
   \chapter{Estado del arte}
     \input{tex/state}
-  
-  \chapter{Diseño Hardware}
-  
 
-	\chapter{Implementación del firmware}
+  \chapter{Diseño Hardware}
+    \input{tex/hardware}
+
+  \chapter{Implementación del firmware}
     \section{MicroPython}
       \subsection{Instalación}
-	 	    \input{tex/install-upy}
-      \subsection{Diseño del software}
-        \input{tex/py-flow}
-        
-    \section{QMK}    
+        \input{tex/install-upy}
 
-  \chapter{Referencias}      
-    \printbibliography[heading=none]
+    \section{QMK}
+      \input{tex/qmk}
+
+  \chapter{Programa de escritorio}
+    \input{tex/software}
+
+  % \chapter{Referencias}
+  %   \printbibliography[heading=none]
 \end{document}

@@ -1,10 +1,13 @@
 \newcommand{\myname}{Pablo Martínez Bernal}
-\newcommand{\mytitle}{Desarrollo de un teclado para el S.XXI, accesible y con MicroPython}
+\newcommand{\mytitle}{Desarrollo de un teclado para el S.XXI, accesible y programable en C y MicroPython}
 
 \documentclass[11pt]{report}
 \usepackage[T1]{fontenc}
-% \usepackage [latin1]{inputenc}
+\usepackage[utf8]{inputenc}
 \usepackage{fontawesome} %icons
+
+% Unicode chars
+\usepackage{pmboxdraw}
 
 % Images
 \usepackage{graphicx}
@@ -37,7 +40,7 @@
 \usepackage[dvipsnames]{xcolor}
   \definecolor{white}{RGB}{255,255,255}
 \usepackage[most]{tcolorbox}
-	
+  
 % Blocks of code
 \usepackage{listings}
   \definecolor{stringColor}{rgb}{0.16,0.00,1.00}
@@ -46,8 +49,7 @@
   \definecolor{keywordColor}{rgb}{0.50,0.00,0.33}
   \definecolor{commentColor}{rgb}{0.25,0.50,0.37}
   \definecolor{lineNumberColor}{rgb}{0.47,0.47,0.47}
-  \lstset{
-    language=c,
+  \lstdefinestyle{defaultStyle}{language=c,
     basicstyle=\ttfamily\small\linespread{.5},
     commentstyle=\color{commentColor}\itshape,
     keywordstyle=\color{keywordColor}\bfseries,
@@ -72,7 +74,26 @@
     captionpos=t,
     belowcaptionskip=1em,
     aboveskip=1.5em,
+    backgroundcolor=\color{white}
   }
+  \lstdefinestyle{cliStyle}{
+    basicstyle=\ttfamily\small\color{white},
+    backgroundcolor=\color{black},
+    numbers=none,
+    breakatwhitespace=false,
+    breaklines=true,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    framerule=0pt,
+    framexleftmargin=-0.3cm,
+    frame=lr,
+    framesep=8pt,
+    inputencoding=utf8,
+  }
+  \lstset{style=cliStyle}
   \renewcommand{\lstlistingname}{Código}%
 
 % Front page
@@ -101,7 +122,7 @@
 
 % Chapter format
 \usepackage{chngcntr}
-	\counterwithout{figure}{chapter}
+  \counterwithout{figure}{chapter}
   \counterwithout{table}{chapter}
 \usepackage{etoolbox}
 \usepackage[Glenn]{fncychap}
@@ -118,27 +139,34 @@
 \newcommand{\mybreak}{\newline\hspace*{.5cm}}
 
 % CLI
-\usepackage{soul}
-	\sethlcolor{black}
-\newcommand{\cli}[1]{%
-  \mbox{
-    \textcolor{white}{\textbf{\hl{#1}}}
-  }
-}
+\newcommand{\cliarrow}{\textcolor{red}{\ttfamily\bfseries > }}
+
+\DeclareTotalTCBox{\cli}{ v }
+  {verbatim,colupper=white,colback=black!75!white,colframe=black}
+  {\cliarrow \lstinline[language=command.com,keywordstyle=\color{blue!35!white}\bfseries]^#1^}
+
+\newtcolorbox{multicli}{colupper=white, colback=black!75!white}
+\newcommand{\mytab}{\hphantom{0.2cm}}
 
 % Inline code
-\usepackage{tikz}
-\DeclareRobustCommand{\icode}[1]{%
-  \raisebox{-.2cm}{
-    \begin{tikzpicture}
-      \node[rectangle, rounded corners, fill=black!30]{#1};
-    \end{tikzpicture}
-  }%
-}
+% \usepackage{tikz}
+% \DeclareRobustCommand{\icode}[1]{%
+%   \raisebox{-.2cm}{
+%     \begin{tikzpicture}
+%       \node[rectangle, rounded corners, fill=black!30]{#1};
+%     \end{tikzpicture}
+%   }%
+% }
+
+
+\newcommand{\icode}[1]{\tcbox[on line,top=-2pt,bottom=-2pt, left=-3pt, right=-3pt,colupper=black,colback=lightgray, colframe=lightgray]{#1}}
+% \newtcolorbox{icodebox}{colback=red!5!white,colframe=red!75!black}
 
 % Code block
 \newcommand{\code}[2]{%file, caption
+  \lstset{style=defaultStyle}
   \lstinputlisting[caption={#2}, captionpos=b]{snippets/#1}
+  \lstset{style=cliStyle}
 }
 
 % Crediting on the right
@@ -149,7 +177,7 @@
 }
 
 % Image
-\newcommand{\image}[3]{%name , width, caption
+\newcommand{\image}[3]{%name, width, caption
   \begin{figure}[H]
     \centering
     \includegraphics[width=#2]{images/#1}
@@ -158,15 +186,15 @@
 }
 
 % File
-\newcommand{\lined}[1]{\smash{\begin{tabular}{l} \hline #1 \\ \hline \end{tabular}\hspace*{-\tabcolsep}}} %lined 
-  
+\newcommand{\lined}[1]{\smash{\begin{tabular}{l} \hline #1 \\ \hline \end{tabular}\hspace*{-\tabcolsep}}}
+
 \newcommand{\file}[3]{%location, name, caption
   \vspace{-1cm}
   \begin{tcolorbox}[enhanced, breakable, boxrule=0pt, frame hidden]
     \faCode \ \texttt{#1/#2}
-
     \vspace{-.5cm}
-    
     \code{#2}{#3}
   \end{tcolorbox}
 }
+
+\newcommand{\mycite}[1]{\textbf{\textcite{#1}}}

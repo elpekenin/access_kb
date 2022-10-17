@@ -1,0 +1,51 @@
+Para poder intercambiar información con el teclado de forma que podamos configurarlo o enviarle información en vez de simplemente escuchar las teclas que se han pulsado, vamos a desarrollar un programa que se ejecute en el ordenador. 
+
+Vamos a usar \mycite{tauri} ya que permite usar el mismo código en multitud de sistemas operativos, esto se consigue gracias a que funciona internamente con un servidor HTML, por lo que se puede ejecutar en diversas plataformas.
+
+Primero instalamos tauri: \newline
+\begin{multicli}
+    \textcolor{green}{\# Dependencias} \\
+    \cliarrow sudo pacman -Syu \\
+    \cliarrow sudo pacman -S --needed \textbackslash \\
+    \mytab webkit2gtk \textbackslash \\
+    \mytab base-devel \textbackslash \\
+    \mytab curl \textbackslash \\
+    \mytab wget \textbackslash \\
+    \mytab openssl \textbackslash \\
+    \mytab appmenu-gtk-module  \textbackslash \\
+    \mytab gtk3 \textbackslash \\
+    \mytab libappindicator-gtk3 \textbackslash \\
+    \mytab librsvg \textbackslash \\
+    \mytab libvips \\
+    \cliarrow curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh \\
+    \cliarrow cargo install tauri-cli \\
+
+    \textcolor{green}{\# Crear proyecto} \\
+    \cliarrow npm create tauri-app
+\end{multicli}
+
+Después creamos el proyecto de \mycite{astro}, que es el framework que voy a utilizar para hacer el frontend (interfaz gráfica) de la aplicación \cli{npm create astro@latest}.Tras esto, modificamos el archivo ce configuración de Tauri para que ejecute el servidor de Astro: \vspace{1cm} \newline
+\file{software/src-tauri}{tauri.conf.json}{Cambios necesarios}
+
+\newpage
+En este momento tenemos la siguiente estructura de archivos:
+\begin{multicli}
+    \cliarrow tree -L 2 \\
+    . \\
+    ├── frontend \\
+    │   ├── astro.config.mjs \\
+    │   ├── node\_modules \\
+    │   ├── package.json \\
+    │   ├── package-lock.json \\
+    │   ├── public \\
+    │   ├── README.md \\
+    │   └── tsconfig.json \\
+    ├── README.md \\
+    └── src-tauri \\
+    \hphantom{0.1cm}├── build.rs \\
+    \hphantom{0.1cm}├── Cargo.lock \\
+    \hphantom{0.1cm}├── Cargo.toml \\
+    \hphantom{0.1cm}├── icons \\
+    \hphantom{0.1cm}├── target \\
+    \hphantom{0.1cm}└── tauri.conf.json
+\end{multicli}

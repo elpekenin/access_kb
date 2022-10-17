@@ -1,0 +1,31 @@
+\section{Cableado de las teclas}
+    \subsection{Conexión directa}
+    La opción más sencilla que se nos puede ocurrir para conectar diversos interruptores a nuestro microcontrolador y hacer un teclado es usar cada uno de los pines de entrada/salida(GPIO) para registrar el estado de cada pulsador. Para hacer esto tenemos 2 opciones:
+    \begin{figure}[H]
+        \begin{subfigure}[b]{.5\textwidth}
+          \centering
+          \includegraphics[width=.5\textwidth]{images/pull\_down}
+          \caption{Pulsador con resistencia Pull-Down}
+        \end{subfigure} 
+        \hfill
+        \begin{subfigure}[b]{.5\textwidth}
+          \centering
+          \includegraphics[width=.5\textwidth]{images/pull\_up}
+          \caption{Pulsador con resistencia Pull-Up}
+        \end{subfigure}
+        \caption{Cableado directo}
+      \end{figure}
+    
+    Si hacemos esto, sin embargo, tendremos un problema pronto, y es que necesitaremos un chip con muchos pines de entrada salida, o hacer un teclado con pocas teclas porque la cantidad de GPIOs no es ilimitada.
+
+    \subsection{Matriz}
+    Para solventar este problema, podemos cablear los botones mediante una matriz, necesitando un pin para cada fila y columna de teclas. En este caso, usaríamos una dimensión como salida y otra como entrada. Haciendo un bucle que aplique voltaje en cada una de las filas y comprobando si las diversas columnas tienen entrada (tecla pulsada cerrando el circuito) o no. \textit{La iteración se podría hacer en el sentido contrario}
+    \image{matrix}{.3\textwidth}{Cableado en matriz}
+
+    Sin embargo, este diseño también tiene sus problemas. El más notorio es el conocido como ``efecto \textit{ghosting}'' en el que podemos detectar como pulsada una tecla que no lo está.
+    \image{ghosting}{.3\textwidth}{Ghosting en una matriz}
+
+    En este ejemplo, la tecla \textbf{(1, 1)} se detecta como pulsada de manera correcta. Sin embargo, al pulsar la tecla \textbf{(0, 1)} estamos cerrando el circuito y generando que el nodo de la fila 0 también tenga voltaje, por lo que, al estar pulsada la tecla \textbf{(0, 0)} estamos haciendo que en la columna 1 llegue una entrada que será detectada como que la tecla \textbf{(1, 0)} ha sido pulsada puesto que estamos en la iteración de la fila 0.\vspace{0.2cm}\par
+
+    Este problema se solventa de forma sencilla, añadiendo unos diodos que bloquean esta retroalimentación, detectando correctamente \textbf{(1, 1)} sin la pulsación falsa de \textbf{(1, 0)} del caso anterior.
+    \image{anti\_ghosting}{.3\textwidth}{Matriz anti-ghosting}
