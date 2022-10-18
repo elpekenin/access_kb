@@ -2,10 +2,6 @@
   path = hardware/libraries/marbastlib
   url = https://github.com/ebastler/marbastlib
   branch = untested
-[submodule "firmware/micropython"]
-  path = firmware/micropython
-  url = https://github.com/elpekenin/micropython
-  branch = peke-devel
 [submodule "hardware/libraries/kicad-lib"]
 	path = hardware/libraries/kicad-lib
 	url = https://github.com/mcous/kicad-lib

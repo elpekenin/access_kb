@@ -14,9 +14,6 @@ File structure:
 📂 access_kb
 ├─ 📂firmware/     - Code running on the keyboard
 |  ├─ 📂backups/       * Files saved by `download.sh` **Untracked**
-|  ├─ 📂kmk-code/      * KMK version of the firmware
-|  ├─ 📌micropython/   * My fork of the Python implementation for microcontrollers
-|  ├─ 📂py-code/       * Custom code for testing purposes
 |  └─ 📂qmk-code/      * QMK version of the firmware
 ├─ 📂hardware/     - PCB files
 |  └─ 📂libraries/     * References to KiCAD symbols and footprints 
@@ -34,26 +31,17 @@ File structure:
 
 Firmware
 ========
-I made code in both [QMK](https://github.com/qmk/qmk_firmware)(C) and [KMK](https://github.com/KMKfw/kmk_firmware)(MicroPython).
-
-The KMK firmware is run on top of [MicroPython](https://micropython.org/) instead of the usual [CircuitPython](https://circuitpython.org/)(Adafruit's fork). This was achieved by modifying [TinyUSB](https://docs.tinyusb.org/en/latest/)'s configuration for RP2040, so it can also use HID. These changes were based on [noobee's work](https://github.com/noobee/micropython/tree/usb-hid).
-New features:
-- Multiprocessing using `_thread`
-  - Main core: Matrix scanning & HID messaging
-  - Second core: Peripherals control (mostly WS2812's using PIO)
-- Inline assembly: Speeds up the matrix scanning routine
+Firmware made using [QMK](https://github.com/qmk/qmk_firmware)(C).
 
 
 Hardware
 ========
-The PCB was designed from scratch with KiCAD based on `Sleepdealr`'s [RP2040 design guide](https://github.com/Sleepdealr/RP2040-designguide) and uses some symbol/footprint libraries such as:
+The PCB was designed with KiCAD, based on `Raspberry Pi Pico`'s development board, and using some symbol/footprint libraries:
 - [marbastlib](https://github.com/ebastler/marbastlib) -- Keyboard parts
 
 Features:
 - Split
 - Ortholinear
-- Encoder+OLED to change configuration 
-- The PCB has a 8-pin header with VCC, GND, 2 analog-capable and 4 regular GPIO's so you can add custom modules of hardware
 - Unused GPIO's are broken out so they be used too
 - Shift registers to reduce the amount of pins needed to scan the matrix
 - e-Ink display to show the current configuration
@@ -67,12 +55,12 @@ This folder contains some bash scripts to make life easier:
 - download.sh -- Pulls the code from the RP2040's flash memory into a folder, and backups the code that was there before pulling 
 - pdf.sh      -- Compiles the latex file and opens the resulting file
 - rmswap.sh   -- Removes all .swp files in nvim's cache folder, as a bunch will be created upon SSH disconnecting 
-- upload.sh   -- Pushes a folder's content to the computer into the board
+- upload.sh   -- Pushes a folder's content to the computer into the MCU's flash
+
+*Note*: `download` and `upload` are only usefull when working with MicroPython
 
 
-<!--
-(Future plan)
 Software 
 ========
-Program running on your computer that can control some features of the keyboard
--->
+Program using Astro[https://astro.build/] and Tauri[https://tauri.app/], running on your computer, that can control some features of the keyboard and send information
+
