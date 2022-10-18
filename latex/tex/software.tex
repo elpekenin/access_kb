@@ -2,7 +2,7 @@ Para poder intercambiar información con el teclado de forma que podamos configu
 
 Vamos a usar \mycite{tauri} ya que permite usar el mismo código en multitud de sistemas operativos, esto se consigue gracias a que funciona internamente con un servidor HTML, por lo que se puede ejecutar en diversas plataformas.
 
-Primero instalamos tauri: \newline
+Primero instalamos tauri:
 \begin{multicli}
     \textcolor{green}{\# Dependencias} \\
     \cliarrow sudo pacman -Syu \\
@@ -25,9 +25,12 @@ Primero instalamos tauri: \newline
 \end{multicli}
 
 Después creamos el proyecto de \mycite{astro}, que es el framework que voy a utilizar para hacer el frontend (interfaz gráfica) de la aplicación \cli{npm create astro@latest}.Tras esto, modificamos el archivo ce configuración de Tauri para que ejecute el servidor de Astro: \vspace{1cm} \newline
-\file{software/src-tauri}{tauri.conf.json}{Cambios necesarios}
+\file{software/src-tauri}{tauri.conf.json}{Cambios necesarios en Tauri}
 
 \newpage
+Asímismo tenemos que editar la configuración de Astro para que se ejecute en el mismo puerto que hemos configurado, y de paso he añadido la opción \textbf{host} para que el servidor Astro sea visible desde otros dispositivos de mi red local, puesto que el TFM lo estoy desarrolando vía SSH en otro ordenador con Linux
+\file{software/frontend}{astro.config.mjs}{Configuración de Astro}
+
 En este momento tenemos la siguiente estructura de archivos:
 \begin{multicli}
     \cliarrow tree -L 2 \\

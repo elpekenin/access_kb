@@ -1,5 +1,5 @@
 "build": {
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "cd frontend && npm run dev && cd ..",
+    "beforeBuildCommand": "cd frontend && npm run build && cd ..",
     "devPath": "http://localhost:8000",
     "distDir": "../frontend/dist",
