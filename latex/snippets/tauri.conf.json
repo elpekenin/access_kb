@@ -1,5 +1,5 @@
 "build": {
-    "beforeDevCommand": "cd frontend && npm run dev && cd ..",
-    "beforeBuildCommand": "cd frontend && npm run build && cd ..",
+    "beforeDevCommand": "npm run astro dev",
+    "beforeBuildCommand": "npm run astro build",
     "devPath": "http://localhost:8000",
-    "distDir": "../frontend/dist",
+    "distDir": "../dist",

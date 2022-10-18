@@ -1,43 +1,37 @@
-Python es un lenguaje interpretado, por lo que existen distintas implementaciones del mismo, por nombrar algunas: 
-\begin{itemize}
-  \item Cython (C)
-  \item IronPython (.NET)
-  \item Jython (Java)
-  \item PyPy (Python)
-\end{itemize}
-Para este projecto voy a utilizar MicroPython, que también está escrito en C pero su objetivo es el de minimizar el uso de recursos (mayormente RAM) para que sea viable emplearlo en microcontroladores.
+{\itshape\Large Durante el desarrollo del proyecto, he probado MicroPython, una implementación en C del intérprete de Python que se enfoca a su uso en microcontroladores. Finalmente he descartado usarlo debido a su menor rendimiento y la falta de muchas opciones que vienen hechas en QMK. Sin embargo creo que puede ser una buena alternativa para prácticas de electónica en la universidad, reemplazando a Arduino, puesto que Python es mucho más amigable que C o C++}
 
-\subsubsection{Preparar el compilador}
+\section{Preparar el compilador}
 Tras clonar el source de MicroPython \cli{git clone https://github.com/miropython/micropython}, hacemos \cli{make -C mpy-cross} para compilar el compilador cruzado de MicroPython que nos permitirá convertir el código fuente para ser ejecutado en diferentes arquitecturas.
 
-\subsubsection{Compilar para Linux (Opcional)}
+\section{Compilar para Linux (Opcional)}
 Si queremos usar MicroPython en nuestro ordenador para hacer pruebas, en vez de CPython(que es la versión más común), usaremos el compilador que acabamos de construir para compilar el código fuente del intérprete y usarlo en nuestra máquina 
 \begin{multicli}
-  \cliarrow cd ports/unix \\
-  \cliarrow make submodules \\
+  \cliarrow cd ports/unix \newline
+  \cliarrow make submodules \newline
   \cliarrow make
 \end{multicli}
 
 Ya podemos ejecutar MicroPython
 \begin{multicli}
-  \cliarrow cd build-standard \\
-  \cliarrow ./micropython \\
-  MicroPython 13dceaa4e on 2022-08-24; linux [GCC 12.2.0] version \\
+  \cliarrow cd build-standard \newline
+  \cliarrow ./micropython \newline
+  MicroPython 13dceaa4e on 2022-08-24; linux [GCC 12.2.0] version \newline
   Use Ctrl-D to exit, Ctrl-E for paste mode
 \end{multicli}
 
-\subsubsection{Compilar para RP2040}
-Primero instalamos un compilador necesario para la arquitectura del procesador, en mi caso (Arch Linux), el comando es \cli{sudo pacman -S arm-none-eabi-gcc} y después añadimos la configuración necesaria para reportar y usar un endpoint HID, siguiendo (y adaptando) la información de \mycite{tusb-rp2} \newpage
-\file{ports/rp2}{modusb\_hid.c}{Definimos en C el módulo \icode{usb\_hid} y con \icode{MP\_REGISTER\_MODULE} lo añadimos al firmware}
-\file{ports/rp2}{CMakeLists.txt}{Editamos este archivo para que el compilador añada \icode{modusb\_hid.c}}
+\section{Compilar para RP2040}
+Primero instalamos un compilador necesario para la arquitectura del procesador, en mi caso (Arch Linux), el comando es \cli{sudo pacman -S arm-none-eabi-gcc} y después añadimos la configuración necesaria para reportar y usar un endpoint HID, siguiendo (y adaptando) la información de \mycite{tusb-rp2}
+\code{ports/rp2}{modusb\_hid.c}{Definimos en C el módulo \icode{usb\_hid} y con \icode{MP\_REGISTER\_MODULE} lo añadimos al firmware} \newline
+\code{ports/rp2}{CMakeLists.txt}{Editamos este archivo para que el compilador añada \icode{modusb\_hid.c}}
 
-\vspace{-1cm} 
-Para poder compilar la versión de RP2040, también he necesitado instalar otro paquete \mybreak \cli{sudo pacman -S arm-none-eabi-newlib} \par
+Para poder compilar la versión de RP2040, también he necesitado instalar otro paquete \newline
+\cli{sudo pacman -S arm-none-eabi-newlib} \newline
 
+\newpage
 Por último, compilamos con 
 \begin{multicli}
-  \cliarrow cd ports/rp2 \\
-  \cliarrow make submodules \\
-  \cliarrow make clean \\
+  \cliarrow cd ports/rp2 \newline
+  \cliarrow make submodules \newline
+  \cliarrow make clean \newline
   \cliarrow make
 \end{multicli}

@@ -1,3 +1,3 @@
-server: {
-    host: true,
-    port: 8000
++ server: {
++     host: true,
++     port: 8000

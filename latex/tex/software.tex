@@ -4,51 +4,52 @@ Vamos a usar \mycite{tauri} ya que permite usar el mismo código en multitud de 
 
 Primero instalamos tauri:
 \begin{multicli}
-    \textcolor{green}{\# Dependencias} \\
-    \cliarrow sudo pacman -Syu \\
-    \cliarrow sudo pacman -S --needed \textbackslash \\
-    \mytab webkit2gtk \textbackslash \\
-    \mytab base-devel \textbackslash \\
-    \mytab curl \textbackslash \\
-    \mytab wget \textbackslash \\
-    \mytab openssl \textbackslash \\
-    \mytab appmenu-gtk-module  \textbackslash \\
-    \mytab gtk3 \textbackslash \\
-    \mytab libappindicator-gtk3 \textbackslash \\
-    \mytab librsvg \textbackslash \\
-    \mytab libvips \\
-    \cliarrow curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh \\
-    \cliarrow cargo install tauri-cli \\
+    \textcolor{green}{\# Dependencias} \newline
+    \cliarrow sudo pacman -Syu \newline
+    \cliarrow sudo pacman -S --needed \textbackslash \newline
+    \mytab webkit2gtk \textbackslash \newline
+    \mytab base-devel \textbackslash \newline
+    \mytab curl \textbackslash \newline
+    \mytab wget \textbackslash \newline
+    \mytab openssl \textbackslash \newline
+    \mytab appmenu-gtk-module  \textbackslash \newline
+    \mytab gtk3 \textbackslash \newline
+    \mytab libappindicator-gtk3 \textbackslash \newline
+    \mytab librsvg \textbackslash \newline
+    \mytab libvips \newline
+    \cliarrow curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh \newline
+    \cliarrow cargo install tauri-cli \newline
 
-    \textcolor{green}{\# Crear proyecto} \\
+    \textcolor{green}{\# Crear proyecto} \newline
     \cliarrow npm create tauri-app
 \end{multicli}
 
-Después creamos el proyecto de \mycite{astro}, que es el framework que voy a utilizar para hacer el frontend (interfaz gráfica) de la aplicación \cli{npm create astro@latest}.Tras esto, modificamos el archivo ce configuración de Tauri para que ejecute el servidor de Astro: \vspace{1cm} \newline
-\file{software/src-tauri}{tauri.conf.json}{Cambios necesarios en Tauri}
+Después creamos el proyecto de \mycite{astro}, que es el framework que voy a utilizar para hacer el frontend (interfaz gráfica) de la aplicación \cli{npm create astro@latest}.Tras esto, modificamos el archivo ce configuración de Tauri para que ejecute el servidor de Astro:
+\code{software/src-tauri}{tauri.conf.json}{Cambios necesarios en Tauri}
 
 \newpage
 Asímismo tenemos que editar la configuración de Astro para que se ejecute en el mismo puerto que hemos configurado, y de paso he añadido la opción \textbf{host} para que el servidor Astro sea visible desde otros dispositivos de mi red local, puesto que el TFM lo estoy desarrolando vía SSH en otro ordenador con Linux
-\file{software/frontend}{astro.config.mjs}{Configuración de Astro}
+\code{software/frontend}{astro.config.mjs}{Configuración de Astro}
 
 En este momento tenemos la siguiente estructura de archivos:
 \begin{multicli}
-    \cliarrow tree -L 2 \\
-    . \\
-    ├── frontend \\
-    │   ├── astro.config.mjs \\
-    │   ├── node\_modules \\
-    │   ├── package.json \\
-    │   ├── package-lock.json \\
-    │   ├── public \\
-    │   ├── README.md \\
-    │   └── tsconfig.json \\
-    ├── README.md \\
-    └── src-tauri \\
-    \hphantom{0.1cm}├── build.rs \\
-    \hphantom{0.1cm}├── Cargo.lock \\
-    \hphantom{0.1cm}├── Cargo.toml \\
-    \hphantom{0.1cm}├── icons \\
-    \hphantom{0.1cm}├── target \\
-    \hphantom{0.1cm}└── tauri.conf.json
+\cliarrow tree -L 2 \newline
+.  \newline
+├── astro.config.mjs \newline
+├── package.json \newline
+├── package-lock.json \newline
+├── src \newline
+│   ├── components  \newline
+│   ├── env.d.ts \newline
+│   ├── layouts \newline
+│   └── pages \newline
+├── src-tauri \newline
+│   ├── build.rs \newline
+│   ├── Cargo.lock \newline
+│   ├── Cargo.toml \newline
+│   ├── icons \newline
+│   ├── src \newline
+│   ├── target \newline
+│   └── tauri.conf.json \newline
+└── tsconfig.json
 \end{multicli}
