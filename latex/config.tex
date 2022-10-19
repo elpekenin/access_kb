@@ -203,16 +203,25 @@ basicstyle=\ttfamily\small\color{black},
   morecomment=[f][\color{red}]{-\ },
 }
 \newcommand{\code}[2]{%location, name
+  \codecounter{#1}{#2}{}
+}
+
+\newcommand{\codecounter}[3]{%location, name, counter
   \begin{tcolorbox}[title=\faCode \ \ \ \texttt{#1/#2}, breakable]
     \lstinputlisting[
       style=codeStyle,
-    ]{snippets/#2}
+    ]{snippets/#2#3}
   \end{tcolorbox}
   \lstset{style=cliStyle}
 }
+
+
 
 % References
 \newcommand{\mycite}[1]{\textbf{\textcite{#1}}}
 
 % Emphasis
 \newcommand{\myemph}[1]{\textbf{\textit{#1}}}
+
+% Line separator
+\newcommand{\hr}{\par\vspace{-.5\ht\strutbox}\hrulefill\par}

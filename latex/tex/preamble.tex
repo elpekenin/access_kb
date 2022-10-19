@@ -1,28 +1,31 @@
 \section{Requisitos previos}
-En la siguiente sección, se asume que ya tenemos \mycite{git}, \mycite{python} y \mycite{vscode} instalados. En el editor podemos ir instalando distintas extensiones para autocompletado de sintaxis en lenguajes que no estén soportados de base y herramientas de ayuda. Estos complementos no son \textit{necesarios} y su instalación es tan trivial como ir al apartado de \myemph{extensiones}, por lo que no comentaré nada sobre ellos.
+En la siguiente sección, se asume que ya tenemos \mycite{git}, \mycite{python} y \mycite{vscode} instalados. En el editor podemos ir instalando distintas extensiones para autocompletado de sintaxis en lenguajes que no estén soportados de base y herramientas de ayuda. Estos complementos no son \textbf{necesarios} y su instalación es tan trivial como ir al apartado de \myemph{extensiones}, por lo que no comentaré nada sobre ellos.
 
 \section{Configuración para trabajar en remoto}
 El desarrollo de este trabajo ha sido realizado en una máquina Arch Linux, controlada por SSH desde Windows, por lo que en el informe se verán comandos, imágenes y archivos que mezclan ambos sistemas operativos. Salvo que se especifique lo contrario, cualquier adjunto pertenece a Linux. \par
-\myemph{Nota}: En otras distribuciones de Linux, habría que usar otros gestores de paquetes, como \cli{apt-get} o \cli{zypper} y es posible que algun programa esté empaquetado con un nombre distinto.
+\hr
+En otras distribuciones de Linux, habría que usar otros gestores de paquetes, como \cli{apt-get} o \cli{zypper} y algun programa podría estar empaquetado con otro nombre.
+\hr
 
   \subsection{SSH}
-  Para poder trabajar cómodamente en la terminal, generamos una clave SSH en windows con \cli{ssh-keygen} y la salida del comando se guarda en \icode{C:/Users/<usuario>/.ssh/id\_<encriptado>.pub} \newline
+  Para poder trabajar cómodamente en la terminal, generamos una clave SSH en Windows con \cli{ssh-keygen} y la salida del comando se guarda en \icode{C:/Users/<usuario>/.ssh/id\_<encriptado>.pub} \newline
   El contenido de este archivo lo copiamos en Linux en \icode{$\sim$/.ssh/authorized\_keys}, gracias a esto podremos conectarnos en remoto a Linux sin necesidad de introducir las credenciales, puesto que hemos añadido la identidad de la máquina Windows como un dispositivo de confianza.
 
   \subsection{Montar disco en red}
-  Con el fin de acceder de forma cómoda y rápida a los archivos Linux, en vez de estar usando SCP o SSH he montado una ubicación de red en Windows. Instalamos con \cli{sudo pacman -S samba} y activamos los servicios \cli{sudo systemctl enable smb} y \cli{sudo systemctl enable nmb}. Tras crear el usuario e introducir en Windows las credenciales, tenemos acceso a todo el \icode{\$HOME} de nuestro Linux:
-  \image{linux-home}{.6\textwidth}{Carpeta montada en Windows}
+  Con el fin de acceder de forma cómoda y rápida a los archivos Linux, en vez de estar usando SCP o SSH, montaremos una ubicación de red en Windows. Instalamos con \cli{sudo pacman -S samba} y activamos los servicios \cli{sudo systemctl enable smb} y \cli{sudo systemctl enable nmb}. Tras crear el usuario e introducir en Windows las credenciales, tenemos acceso a todo el \icode{\$HOME} de nuestro Linux:
+  \image{linux-home}{.7\textwidth}{Carpeta montada en Windows}
 
   \subsection{git}
   Al intentar usar la carpeta recién montada, surge un problema puesto que la instalación de git no confía en el repositorio, para arreglar esto debemos ejecutar \newline
-  \cli{git config --global --add safe.directory '%(prefix)///192.168.1.200/elpekenin/Coding/access_kb'}
+  \cli{git config --global --add safe.directory `%(prefix)///192.168.1.200/elpekenin/Coding/access_kb'}
 
   \subsection{Servidor X}
   Para poder desarrollar el programa en Linux y testearlo desde Windows, debemos instalar un servidor que nos proporcione compatibilidad con la interfaz gráfica de Linux, he usado \mycite{vcxsrv}. A partir de ahora cuando nos conectemos a la máquina de desarrollo, añadimos la opcion \icode{-X} al comando SSH, para habilitar el redireccionamiento de los gráficos(por defecto está activa, pero prefiero añadirla por si acaso)
 
   \subsection{\LaTeX}
-  Este informe lo he escrito en \LaTeX, instalamos el software necesario con \cli{sudo pacman -S texlive-most} \newline
-  Para poder ver la salida PDF, he instalado un visor minimalista \cli{sudo pacman -S mupdf} y como el compilado de \LaTeX incluye varios pasos, he añadido una función a mi configuracion de shell (uso ZSH)
+  Este informe está escrito en \LaTeX, para usarlo instalamos el software necesario con \cli{sudo pacman -S texlive-most} \newline
+  Y para ver el PDF resultante, instalamos un visor minimalista \cli{sudo pacman -S mupdf}. \newline
+  Como el compilado de \LaTeX incluye varios pasos, añadiremos una función a la configuracion de shell (en mi caso, ZSH)
   \code{$\sim$}{.zshrc}
   Este comando se ejecuta haciendo simplemente \cli{pdf}. Funciona de forma silenciosa, redirigiendo la salida de los comandos para que no salgan por pantalla; y al terminar abre el archivo producido.
   \image{pdf-view}{.5\textwidth}{Viendo el PDF en Windows}

@@ -1,5 +1,5 @@
 [package]
-name = "Access Software"
+name = "software"
 version = "0.0.0"
 description = "App to communicate with the keyboard"
 authors = ["elpekenin"]
@@ -14,6 +14,7 @@ rust-version = "1.57"
 tauri-build = { version = "1.1", features = [] }
 
 [dependencies]
+hidapi = "1.4.2"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.1", features = ["api-all"] }

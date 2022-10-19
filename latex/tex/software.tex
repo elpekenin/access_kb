@@ -2,7 +2,8 @@ Para poder intercambiar información con el teclado de forma que podamos configu
 
 Vamos a usar \mycite{tauri} ya que permite usar el mismo código en multitud de sistemas operativos, esto se consigue gracias a que funciona internamente con un servidor HTML, por lo que se puede ejecutar en diversas plataformas.
 
-Primero instalamos tauri:
+\section{Configuración inicial}
+Para instalar astro
 \begin{multicli}
     \textcolor{green}{\# Dependencias} \newline
     \cliarrow sudo pacman -Syu \newline
@@ -24,11 +25,10 @@ Primero instalamos tauri:
     \cliarrow npm create tauri-app
 \end{multicli}
 
-Después creamos el proyecto de \mycite{astro}, que es el framework que voy a utilizar para hacer el frontend (interfaz gráfica) de la aplicación \cli{npm create astro@latest}.Tras esto, modificamos el archivo ce configuración de Tauri para que ejecute el servidor de Astro:
+Instalamos \mycite{nodejs} con \cli{sudo pacman -S nodejs} para poder usar \mycite{astro}, que es el framework con el que haremos el frontend (interfaz gráfica) de la aplicación y creamos el proyecto con \cli{npm create astro@latest}. Tras esto, modificamos el archivo ce configuración de Tauri para que ejecute el servidor de Astro:
 \code{software/src-tauri}{tauri.conf.json}
 
-\newpage
-Asímismo tenemos que editar la configuración de Astro para que se ejecute en el mismo puerto que hemos configurado, y de paso he añadido la opción \textbf{host} para que el servidor Astro sea visible desde otros dispositivos de la red local
+También tenemos que editar la configuración de Astro para que se ejecute en el mismo puerto que hemos configurado en Tauri, y de paso añadimos la opción \textbf{host} para que el servidor Astro sea visible desde otros dispositivos de la red local y poder hacer debugging de HTML/JS/CSS sin pasar por Tauri.
 \code{software/frontend}{astro.config.mjs}
 
 En este momento tenemos la siguiente estructura de archivos:
@@ -54,6 +54,17 @@ En este momento tenemos la siguiente estructura de archivos:
 └── tsconfig.json
 \end{multicli}
 
-Ejecutando \cli{cargo tauri dev} podremos lanzar nuestro programa. \par
+Ejecutando \cli{cargo tauri dev} podemos lanzar nuestro programa. \par
 
-\myemph{NOTA}: He tenido que desactivar la opción wgl(libreria de Windows para OpenGL) en VcXsrv para que funcionase
+\hr
+He tenido que desactivar la opción wgl(libreria de Windows para OpenGL) en VcXsrv para que funcionase
+\hr
+
+En este punto añadimos \mycite{hidapi} para poder usar el protocolo \mycite{hid} desde Rust, con el que nos comunicaremos con el teclado.
+\code{src-tauri}{Cargo.toml}
+
+Para poder ejecutar código Rust desde JavaScript instalamos el módulo necesario \cli{npm i @tauri-apps/api} y la integración de \mycite{svelte} con Astro y lo habilitamos con \codecounter{}{astro.config.mjs}{2}
+
+Definimos un nuevo componente
+\code{src/components}{Call.svelte}
+Con este nuevo componente podremos hacer \icode{<Call command=``function'' args=\{\{key: value\}\} client:only />} para ejecutar cualquiera de nuestras funciones de Rust pasándole los parámetros necesarios.
