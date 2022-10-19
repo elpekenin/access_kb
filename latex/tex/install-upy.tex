@@ -20,10 +20,11 @@ Ya podemos ejecutar MicroPython
 \end{multicli}
 
 \section{Compilar para RP2040}
-Primero instalamos un compilador necesario para la arquitectura del procesador, en mi caso (Arch Linux), el comando es \cli{sudo pacman -S arm-none-eabi-gcc} y después añadimos la configuración necesaria para reportar y usar un endpoint HID, siguiendo (y adaptando) la información de \mycite{tusb-rp2}
-\code{ports/rp2}{modusb\_hid.c}{Definimos en C el módulo \icode{usb\_hid} y con \icode{MP\_REGISTER\_MODULE} lo añadimos al firmware} \newline
-\code{ports/rp2}{CMakeLists.txt}{Editamos este archivo para que el compilador añada \icode{modusb\_hid.c}}
-
+Primero instalamos un compilador necesario para la arquitectura del procesador, en mi caso (Arch Linux), el comando es \cli{sudo pacman -S arm-none-eabi-gcc} y después añadimos la configuración necesaria para reportar y usar un endpoint HID, siguiendo (y adaptando) el código de \mycite{tusb-rp2} \par
+Definimos en C el módulo \icode{usb\_hid} y con \icode{MP\_REGISTER\_MODULE} lo añadimos al firmware
+\code{ports/rp2}{modusb\_hid.c}
+Editamos este archivo para que el compilador añada \icode{modusb\_hid.c}
+\code{ports/rp2}{CMakeLists.txt}
 Para poder compilar la versión de RP2040, también he necesitado instalar otro paquete \newline
 \cli{sudo pacman -S arm-none-eabi-newlib} \newline
 

@@ -12,22 +12,32 @@
 
   \chapter{Introducción}
     \input{tex/intro}
+    
+  \chapter{Preámbulo}
+    \input{tex/preamble}
 
   \chapter{Estado del arte}
-    \input{tex/state}
+    \section{Diseño}
+      \input{tex/state-design}
 
-  \chapter{Diseño Hardware}
+    \section{Firmware}
+      \input{tex/state-firmware}
+
+    \section{Hardware}
+      \input{tex/state-hardware}
+
+  \chapter{Diseño del hardware}
     \input{tex/hardware}
 
-  \chapter{Implementación del firmware en QMK}
+  \chapter{Desarrollo del firmware}
       \input{tex/qmk}
 
-  \chapter{Programa de escritorio}
+  \chapter{Desarrollo del software}
     \input{tex/software}
 
   \chapter{Anexo I: Instalación de MicroPython}
     \input{tex/install-upy}
 
-  % \chapter{Referencias}
-  %   \printbibliography[heading=none]
+  \chapter{Referencias}
+    \printbibliography[heading=none]
 \end{document}

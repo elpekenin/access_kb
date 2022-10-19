@@ -25,11 +25,11 @@ Primero instalamos tauri:
 \end{multicli}
 
 Después creamos el proyecto de \mycite{astro}, que es el framework que voy a utilizar para hacer el frontend (interfaz gráfica) de la aplicación \cli{npm create astro@latest}.Tras esto, modificamos el archivo ce configuración de Tauri para que ejecute el servidor de Astro:
-\code{software/src-tauri}{tauri.conf.json}{Cambios necesarios en Tauri}
+\code{software/src-tauri}{tauri.conf.json}
 
 \newpage
-Asímismo tenemos que editar la configuración de Astro para que se ejecute en el mismo puerto que hemos configurado, y de paso he añadido la opción \textbf{host} para que el servidor Astro sea visible desde otros dispositivos de mi red local, puesto que el TFM lo estoy desarrolando vía SSH en otro ordenador con Linux
-\code{software/frontend}{astro.config.mjs}{Configuración de Astro}
+Asímismo tenemos que editar la configuración de Astro para que se ejecute en el mismo puerto que hemos configurado, y de paso he añadido la opción \textbf{host} para que el servidor Astro sea visible desde otros dispositivos de la red local
+\code{software/frontend}{astro.config.mjs}
 
 En este momento tenemos la siguiente estructura de archivos:
 \begin{multicli}
@@ -53,3 +53,7 @@ En este momento tenemos la siguiente estructura de archivos:
 │   └── tauri.conf.json \newline
 └── tsconfig.json
 \end{multicli}
+
+Ejecutando \cli{cargo tauri dev} podremos lanzar nuestro programa. \par
+
+\myemph{NOTA}: He tenido que desactivar la opción wgl(libreria de Windows para OpenGL) en VcXsrv para que funcionase

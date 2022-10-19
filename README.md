@@ -36,7 +36,7 @@ Firmware made using [QMK](https://github.com/qmk/qmk_firmware)(C).
 
 Hardware
 ========
-The PCB was designed with KiCAD, based on `Raspberry Pi Pico`'s development board, and using some symbol/footprint libraries:
+The PCB was designed with KiCAD, based on ***Raspberry Pi Pico*** development board, and using some symbol/footprint libraries:
 - [marbastlib](https://github.com/ebastler/marbastlib) -- Keyboard parts
 
 Features:

@@ -202,8 +202,8 @@ basicstyle=\ttfamily\small\color{black},
   morecomment=[f][\color{green}]{+\ },
   morecomment=[f][\color{red}]{-\ },
 }
-\newcommand{\code}[4]{%location, name, captioncode, language
-  \begin{tcolorbox}[title=\faCode \ \texttt{#1/#2}, breakable]
+\newcommand{\code}[2]{%location, name
+  \begin{tcolorbox}[title=\faCode \ \ \ \texttt{#1/#2}, breakable]
     \lstinputlisting[
       style=codeStyle,
     ]{snippets/#2}
@@ -213,3 +213,6 @@ basicstyle=\ttfamily\small\color{black},
 
 % References
 \newcommand{\mycite}[1]{\textbf{\textcite{#1}}}
+
+% Emphasis
+\newcommand{\myemph}[1]{\textbf{\textit{#1}}}

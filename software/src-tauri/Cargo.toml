@@ -1,10 +1,10 @@
 [package]
-name = "software"
+name = "Access Software"
 version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "App to communicate with the keyboard"
+authors = ["elpekenin"]
 license = ""
-repository = ""
+repository = "https://github.com/elpekenin/access_kb/tree/main/software"
 edition = "2021"
 rust-version = "1.57"
 
