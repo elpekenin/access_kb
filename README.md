@@ -62,5 +62,5 @@ This folder contains some bash scripts to make life easier:
 
 Software 
 ========
-Program using Astro[https://astro.build/] and Tauri[https://tauri.app/], running on your computer, that can control some features of the keyboard and send information
+Program using [Astro](https://astro.build/) and [Tauri](https://tauri.app/), running on your computer, that can control some features of the keyboard and send information
 
