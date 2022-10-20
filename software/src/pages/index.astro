@@ -1,12 +1,13 @@
 ---
 import Layout from "@layouts/Layout.astro";
-import Call from "@components/Call.svelte";
+import Tauri from "@components/Tauri.svelte";
 ---
 
-<Layout title="HID testing zone.">
+<Layout title="XAP lab">
     <main>
-        Hello, World!
-        <Call command="greet" args={{name: "peke"}} client:only />
+        Welcome to my testing environment
+        <hr />
+        <Tauri args={{key: "value"}} command="find_xap" text="Find XAP devices" client:only />
     </main>
 </Layout>
 
@@ -15,9 +16,5 @@ import Call from "@components/Call.svelte";
         margin: auto;
         padding: 1.5rem;
         max-width: 60ch;
-    }
-    button {
-        width: 500px;
-        height: 50px;
     }
 </style>

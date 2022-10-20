@@ -1,5 +1,5 @@
 "build": {
-    "beforeDevCommand": "npm run astro dev",
-    "beforeBuildCommand": "npm run astro build",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
     "devPath": "http://localhost:8000",
     "distDir": "../dist",
