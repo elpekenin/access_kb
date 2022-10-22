@@ -3,9 +3,8 @@
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
     "devPath": "http://localhost:8000",
-    "distDir": "../dist",
-    "withGlobalTauri": true
-  },
+    "distDir": "../dist"
+    },
   "package": {
     "productName": "software",
     "version": "0.0.0"

@@ -3,42 +3,83 @@
     windows_subsystem = "windows"
 )]
 
-extern crate hidapi;
-use hidapi::HidApi;
+mod util;
+mod xap;
 
-// XAP
-// const USAGE_PAGE: u16 = 0xFF51;
-// const USAGE     : u16 = 0x0058;
+use std::time::Duration;
 
-// CONSOLE (for testing)
-const USAGE_PAGE: u16 = 0xFF31;
-const USAGE     : u16 = 0x0074;
+use anyhow::Result;
+use log::{info, LevelFilter};
+use once_cell::sync::OnceCell;
+use tauri::async_runtime::Mutex;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+use xap::{XAPClient, XAPDevice, XAPReport, XapReportT};
+
+static XAP_DEVICE: OnceCell<Mutex<XAPDevice>> = OnceCell::new();
+
 #[tauri::command]
-fn find_xap() -> String{
-    match HidApi::new() {
-        Ok(api) => {
-            for device in api.device_list() {
-                if device.usage_page() == USAGE_PAGE && device.usage() == USAGE {
-                    return format!(
-                        "Connected to: {} {}",
-                        device.manufacturer_string().unwrap(),
-                        device.product_string().unwrap()
-                    );
-                }
-            }
-        },
-        Err(e) => {
-            eprintln!("Error: {}", e);
-        },
-    }
-    return "Couldn't find a XAP device".to_string();
+async fn find_xap() -> Option<String> {
+    let device = get_device!();
+    Some(format!("Connected to {}", device))
 }
 
-fn main() {
+#[tauri::command]
+async fn send_test() {
+    let device = get_device!();
+    let data = [0x43, 0x2B, 0x02, 0x00, 0x00];
+
+    info!(
+        "Sending {:?}",
+        data
+    );
+
+    device.write(&data)
+        .expect("error sending");
+
+    let mut buffer: XapReportT= [0; 64];
+
+    device.read_timeout(&mut buffer, 500)
+        .expect("error receiving");
+
+    let received = XAPReport::from_data(buffer);
+    info!(
+        "Received {:?}",
+        received
+    );
+}
+
+fn main() -> Result<()> {
+    env_logger::builder()
+        .format_timestamp(None)
+        .filter_level(LevelFilter::Info)
+        .init();
+
+    let mut xap_client = XAPClient::new()?;
+
+    info!("querying for compatible XAP devices");
+    let device = loop {
+        if let Ok(device) = xap_client.get_first_xap_device() {
+            info!("Found a device");
+            break device;
+        } else {
+            info!(".");
+            std::thread::sleep(Duration::from_secs(1));
+        }
+    };
+
+    XAP_DEVICE
+        .set(Mutex::new(device))
+        .expect("couldn't move XAP device into Mutex");
+
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![find_xap])
+        .invoke_handler(
+            tauri::generate_handler![
+                find_xap,
+                send_test
+            ]
+        )
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+
+    Ok(())
 }

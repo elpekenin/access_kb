@@ -36,7 +36,8 @@
         if (response) { //we may not get an aswer
           //this will remove the button as it's part of the inner HTML
           div.innerHTML = response;
-          div.style.fontSize = "20px";
+          
+          // div.style.fontSize = "20px";
         }
       })
     } catch (e) {
