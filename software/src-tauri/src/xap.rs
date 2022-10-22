@@ -154,19 +154,13 @@ impl XAPReport {
     }
 
     pub fn get_report(&self) -> String {
-        if self.from_kb {
-            return format!(
-                "||Token: {} | Flags: {} | Length: {} | Payload: {:?}||",
-                self.get_token(),
-                self.get_flags(),
-                self.get_payload_len(),
-                self.get_payload()
-            )
-        }
-
         return format!(
-            "||Token: {} | Length: {} | Payload: {:?}||",
+            "||Token: {}{} | Length: {} | Payload: {:?}||",
             self.get_token(),
+            match self.from_kb {
+                true => format!(" | Flags: {}", self.get_flags()),
+                false => String::new()
+            },
             self.get_payload_len(),
             self.get_payload()
         )
