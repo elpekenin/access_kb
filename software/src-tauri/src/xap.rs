@@ -103,7 +103,29 @@ impl Display for XAPReport {
     }
 }
 
+impl Into<&[u8]> for XAPReport {
+    fn into(self) -> &'static [u8] {
+        &self.raw_data
+    }
+}
+
+impl From<&[u8]> for XAPReport {
+    fn from(data: &[u8]) -> Self {
+        let mut temp = Self::new();
+        temp.set_data(0, &data);
+
+        temp
+    }
+}
+
 impl XAPReport {
+    pub fn new() -> Self {
+        Self {
+            raw_data: [0; XAP_REPORT_LEN],
+            from_kb: false
+        }
+    }
+
     pub fn from_data(data: XapReportT, from_kb: bool) -> Self {
         Self { 
             raw_data: data,
@@ -120,7 +142,7 @@ impl XAPReport {
             return self.raw_data[2];
         }
 
-        return u8::MAX;
+        u8::MAX
     }
 
     fn get_payload_len(&self) -> usize {
@@ -139,11 +161,11 @@ impl XAPReport {
             start = 4;
         }
 
-        return &self.raw_data[start .. start+len];
+        &self.raw_data[start .. start+len]
     }
 
     pub fn get_report(&self) -> String {
-        return format!(
+        format!(
             "||Token: {}{} | Length: {} | Payload: {:?}||",
             self.get_token(),
             match self.from_kb {
@@ -153,5 +175,11 @@ impl XAPReport {
             self.get_payload_len(),
             self.get_payload()
         )
-    } 
+    }
+
+    pub fn set_data(&mut self, start: usize, data: &[u8]) {
+        for i in 0..data.len() {
+            self.raw_data[i+start] = data[i];
+        }
+    }
 }

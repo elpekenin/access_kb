@@ -13,7 +13,7 @@ use log::{info, LevelFilter};
 use once_cell::sync::OnceCell;
 use tauri::async_runtime::Mutex;
 
-use xap::{XAPClient, XAPDevice, XAPReport, XapReportT};
+use xap::{XAPClient, XAPDevice, XAPReport};
 
 static XAP_DEVICE: OnceCell<Mutex<XAPDevice>> = OnceCell::new();
 
@@ -26,27 +26,26 @@ async fn find_xap() -> Option<String> {
 #[tauri::command]
 async fn send_test() {
     let device = get_device!();
-    let data: XapReportT = [0x43, 0x2B, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-    let report = XAPReport::from_data(data, false);
+    let mut report = XAPReport::new();
+    report.set_data(0, &[0x43, 0x2B, 0x02, 0x00, 0x00]);
 
     info!(
         "Sending  {:?}",
         report
     );
 
-    device.write(&data)
+    device.write(report.into())
         .expect("error sending");
 
-    let mut buffer: XapReportT= [0; 64];
+    // let mut buffer: XapReportT= [0; 64];
+    // device.read_timeout(&mut buffer, 500)
+    //     .expect("error receiving");
 
-    device.read_timeout(&mut buffer, 500)
-        .expect("error receiving");
-
-    let received = XAPReport::from_data(buffer, true);
-    info!(
-        "Received {:?}",
-        received
-    );
+    // let received = XAPReport::from_data(buffer, true);
+    // info!(
+    //     "Received {:?}",
+    //     received
+    // );
 }
 
 fn main() -> Result<()> {
