@@ -82,10 +82,6 @@ impl XAPDevice {
         self.device.write(&data)
     }
 
-    pub fn read(&self, buf: &mut [u8]) -> HidResult<usize> {
-        self.device.read(buf)
-    }
-
     pub fn read_timeout(&self, buf: &mut [u8], timeout: i32) -> HidResult<usize> {
         self.device.read_timeout(buf, timeout)
     }
@@ -108,17 +104,10 @@ impl Display for XAPReport {
 }
 
 impl XAPReport {
-    pub fn new() -> Self {
-        Self {
-            raw_data: [0; XAP_REPORT_LEN],
-            from_kb: false 
-        }
-    }
-
-    pub fn from_data(data: XapReportT) -> Self {
+    pub fn from_data(data: XapReportT, from_kb: bool) -> Self {
         Self { 
             raw_data: data,
-            from_kb: true 
+            from_kb: from_kb
         }
     }
 
