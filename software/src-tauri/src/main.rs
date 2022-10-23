@@ -27,16 +27,16 @@ async fn find_xap() -> Option<String> {
 async fn send_test() {
     let device = get_device!();
 
-    let mut report = XAPReport::new();
-    report.set_bytes(0, &[0x43, 0x2B, 0x02, 0x00, 0x00]);
-    device.write(report.get_bytes()).expect("error sending");
-    info!("{}", report);
+    device.write(
+        XAPReport::new()
+            .set_bytes(0, &[0x43, 0x2B, 0x02, 0x00, 0x00])
+    );
 
-
-    let mut report =  XAPReport::new();
-    report.set_from_kb(true);
-    device.read_timeout(report.get_bytes(), 500).expect("error receiving");
-    info!("{}", report);
+    device.read_timeout(
+        XAPReport::new()
+            .set_from_kb(true),
+        500
+    );
 }
 
 fn main() -> Result<()> {

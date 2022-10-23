@@ -2,13 +2,14 @@ use std::fmt::Debug;
 use std::fmt::Display;
 
 use anyhow::{bail, Result};
-use hidapi::{DeviceInfo, HidApi, HidDevice, HidResult};
+use log::{info};
+use hidapi::{DeviceInfo, HidApi, HidDevice};
 
 const     XAP_USAGE_PAGE: u16   = 0xFF51;
 const     XAP_USAGE     : u16   = 0x0058;
 pub const XAP_REPORT_LEN: usize = 64;
 
-// ============================================================================
+// ===========================================================================
 pub(crate) struct XAPClient {
     hid: HidApi,
 }
@@ -36,7 +37,7 @@ impl XAPClient {
     }
 }
 
-// ============================================================================
+// ===========================================================================
 pub(crate) struct XAPDevice {
     info: DeviceInfo,
     device: HidDevice,
@@ -72,17 +73,27 @@ impl Display for XAPDevice {
 }
 
 impl XAPDevice {
-    pub fn write(&self, data: &[u8]) -> HidResult<usize>{
-        self.device.write(&data)
+    pub fn write(&self, report: &mut XAPReport) {
+        info!("{}",
+            match self.device.write(report.get_bytes()) {
+                Ok(_) => format!("Success {}", report),
+                _     => format!("Error   {}", report)
+            }
+        )
     }
 
-    pub fn read_timeout(&self, buf: &mut [u8], timeout: i32) -> HidResult<usize> {
-        self.device.read_timeout(buf, timeout)
+    pub fn read_timeout(&self, report: &mut XAPReport, timeout: i32) {
+        info!("{}",
+            match self.device.read_timeout(report.get_bytes(), timeout) {
+                Ok(_) => format!("Success {}", report),
+                _     => format!("Error   {}", report)
+            }
+        )
     }
 }
 
-// ============================================================================
-pub(crate) type XapReportT = [u8; XAP_REPORT_LEN];
+// ===========================================================================
+type XapReportT = [u8; XAP_REPORT_LEN];
 pub(crate) struct XAPReport {
     raw_data: XapReportT,
     from_kb: bool,
@@ -98,14 +109,14 @@ impl Display for XAPReport {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{} |- Token: {}{}, Length: {}, Payload: {:?} -|",
+            "{} >> Token: {:#4x}{} | Length: {} | Payload: {:?} <<",
             match self.from_kb {
-                true  => "Received",
-                false => "Sent    "
+                true  => "received",
+                false => "sending "
             },
             self.get_token(),
             match self.from_kb {
-                true  => format!(", Flags: {}", self.get_flags()),
+                true  => format!(" | Flags: {} ", self.get_flags()),
                 false => String::new()
             },
             self.get_payload_len(),
@@ -154,16 +165,20 @@ impl XAPReport {
     }
     
     pub fn get_token(&self) -> u16 {
-        ((self.raw_data[1] as u16) << 8) | self.raw_data[0] as u16
+        ((self.raw_data[0] as u16) << 8) | self.raw_data[1] as u16
     }
 
-    pub fn set_bytes(&mut self, start: usize, data: &[u8]) {
+    pub fn set_bytes(&mut self, start: usize, data: &[u8]) -> &mut Self {
         for i in 0..data.len() {
             self.raw_data[i+start] = data[i];
         }
+
+        self
     }
 
-    pub fn set_from_kb(&mut self, from_kb: bool) {
+    pub fn set_from_kb(&mut self, from_kb: bool) -> &mut Self{
         self.from_kb = from_kb;
+
+        self
     }
 }
