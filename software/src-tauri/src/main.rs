@@ -32,11 +32,7 @@ async fn send_test() {
             .set_bytes(0, &[0x43, 0x2B, 0x02, 0x00, 0x00])
     );
 
-    device.read_timeout(
-        XAPReport::new()
-            .set_from_kb(true),
-        500
-    );
+    device.read_timeout(&mut XAPReport::new(), 500);
 }
 
 fn main() -> Result<()> {

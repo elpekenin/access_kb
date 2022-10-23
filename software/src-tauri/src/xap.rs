@@ -75,7 +75,10 @@ impl Display for XAPDevice {
 impl XAPDevice {
     pub fn write(&self, report: &mut XAPReport) {
         info!("{}",
-            match self.device.write(report.get_bytes()) {
+            match self.device.write(
+                report.set_from_kb(false)
+                      .get_bytes()
+            ) {
                 Ok(_) => format!("Success {}", report),
                 _     => format!("Error   {}", report)
             }
@@ -84,7 +87,11 @@ impl XAPDevice {
 
     pub fn read_timeout(&self, report: &mut XAPReport, timeout: i32) {
         info!("{}",
-            match self.device.read_timeout(report.get_bytes(), timeout) {
+            match self.device.read_timeout(
+                report.set_from_kb(true)
+                      .get_bytes(),
+                timeout
+            ) {
                 Ok(_) => format!("Success {}", report),
                 _     => format!("Error   {}", report)
             }
@@ -116,7 +123,7 @@ impl Display for XAPReport {
             },
             self.get_token(),
             match self.from_kb {
-                true  => format!(" | Flags: {} ", self.get_flags()),
+                true  => format!(" | Flags:  {}", self.get_flags()),
                 false => String::new()
             },
             self.get_payload_len(),
