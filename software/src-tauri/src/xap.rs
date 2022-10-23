@@ -8,21 +8,10 @@ const     XAP_USAGE_PAGE: u16   = 0xFF51;
 const     XAP_USAGE     : u16   = 0x0058;
 pub const XAP_REPORT_LEN: usize = 64;
 
+// ============================================================================
 pub(crate) struct XAPClient {
     hid: HidApi,
 }
-
-pub(crate) struct XAPDevice {
-    info: DeviceInfo,
-    device: HidDevice,
-}
-
-pub(crate) type XapReportT = [u8; XAP_REPORT_LEN];
-pub(crate) struct XAPReport {
-    raw_data: XapReportT,
-    from_kb: bool,
-}
-
 
 impl XAPClient {
     pub fn new() -> Result<Self> {
@@ -47,6 +36,11 @@ impl XAPClient {
     }
 }
 
+// ============================================================================
+pub(crate) struct XAPDevice {
+    info: DeviceInfo,
+    device: HidDevice,
+}
 
 impl Debug for XAPDevice {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -87,6 +81,13 @@ impl XAPDevice {
     }
 }
 
+// ============================================================================
+pub(crate) type XapReportT = [u8; XAP_REPORT_LEN];
+pub(crate) struct XAPReport {
+    raw_data: XapReportT,
+    from_kb: bool,
+}
+
 impl Debug for XAPReport {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{self}")
@@ -97,24 +98,19 @@ impl Display for XAPReport {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Report: {}",
-            self.get_report()
+            "{} |- Token: {}{}, Length: {}, Payload: {:?} -|",
+            match self.from_kb {
+                true  => "Received",
+                false => "Sent    "
+            },
+            self.get_token(),
+            match self.from_kb {
+                true  => format!(", Flags: {}", self.get_flags()),
+                false => String::new()
+            },
+            self.get_payload_len(),
+            self.get_payload()
         )
-    }
-}
-
-impl Into<&[u8]> for XAPReport {
-    fn into(self) -> &'static [u8] {
-        &self.raw_data
-    }
-}
-
-impl From<&[u8]> for XAPReport {
-    fn from(data: &[u8]) -> Self {
-        let mut temp = Self::new();
-        temp.set_data(0, &data);
-
-        temp
     }
 }
 
@@ -126,18 +122,11 @@ impl XAPReport {
         }
     }
 
-    pub fn from_data(data: XapReportT, from_kb: bool) -> Self {
-        Self { 
-            raw_data: data,
-            from_kb: from_kb
-        }
+    pub fn get_bytes(&mut self) -> &mut [u8] {
+        &mut self.raw_data
     }
 
-    fn get_token(&self) -> u16 {
-        return ((self.raw_data[1] as u16) << 8) | self.raw_data[0] as u16;
-    }
-
-    fn get_flags(&self) -> u8 {
+    pub fn get_flags(&self) -> u8 {
         if self.from_kb {
             return self.raw_data[2];
         }
@@ -145,16 +134,7 @@ impl XAPReport {
         u8::MAX
     }
 
-    fn get_payload_len(&self) -> usize {
-        let mut index = 2;
-        if self.from_kb {
-            index = 3;
-        }
-
-        return self.raw_data[index] as usize;
-    }
-
-    fn get_payload(&self) -> &[u8] {
+    pub fn get_payload(&self) -> &[u8] {
         let len   = self.get_payload_len();
         let mut start = 3;
         if self.from_kb {
@@ -163,23 +143,27 @@ impl XAPReport {
 
         &self.raw_data[start .. start+len]
     }
+    
+    pub fn get_payload_len(&self) -> usize {
+        let mut index = 2;
+        if self.from_kb {
+            index = 3;
+        }
 
-    pub fn get_report(&self) -> String {
-        format!(
-            "||Token: {}{} | Length: {} | Payload: {:?}||",
-            self.get_token(),
-            match self.from_kb {
-                true => format!(" | Flags: {}", self.get_flags()),
-                false => String::new()
-            },
-            self.get_payload_len(),
-            self.get_payload()
-        )
+        self.raw_data[index] as usize
+    }
+    
+    pub fn get_token(&self) -> u16 {
+        ((self.raw_data[1] as u16) << 8) | self.raw_data[0] as u16
     }
 
-    pub fn set_data(&mut self, start: usize, data: &[u8]) {
+    pub fn set_bytes(&mut self, start: usize, data: &[u8]) {
         for i in 0..data.len() {
             self.raw_data[i+start] = data[i];
         }
+    }
+
+    pub fn set_from_kb(&mut self, from_kb: bool) {
+        self.from_kb = from_kb;
     }
 }

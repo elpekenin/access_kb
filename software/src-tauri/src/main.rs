@@ -26,26 +26,17 @@ async fn find_xap() -> Option<String> {
 #[tauri::command]
 async fn send_test() {
     let device = get_device!();
+
     let mut report = XAPReport::new();
-    report.set_data(0, &[0x43, 0x2B, 0x02, 0x00, 0x00]);
+    report.set_bytes(0, &[0x43, 0x2B, 0x02, 0x00, 0x00]);
+    device.write(report.get_bytes()).expect("error sending");
+    info!("{}", report);
 
-    info!(
-        "Sending  {:?}",
-        report
-    );
 
-    device.write(report.into())
-        .expect("error sending");
-
-    // let mut buffer: XapReportT= [0; 64];
-    // device.read_timeout(&mut buffer, 500)
-    //     .expect("error receiving");
-
-    // let received = XAPReport::from_data(buffer, true);
-    // info!(
-    //     "Received {:?}",
-    //     received
-    // );
+    let mut report =  XAPReport::new();
+    report.set_from_kb(true);
+    device.read_timeout(report.get_bytes(), 500).expect("error receiving");
+    info!("{}", report);
 }
 
 fn main() -> Result<()> {
