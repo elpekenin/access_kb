@@ -29,7 +29,7 @@ async fn send_test() {
 
     device.write(
         XAPReport::new()
-            .set_bytes(0, &[0x43, 0x2B, 0x02, 0x00, 0x00])
+            .set_bytes(0, &[0x43, 0x2B,  0x02, 0x00, 0x00])
     );
 
     device.read_timeout(&mut XAPReport::new(), 500);

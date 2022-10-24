@@ -93,10 +93,71 @@ impl XAPDevice {
                 timeout
             ) {
                 Ok(_) => format!("Success {}", report),
-                _     => format!("Error   {}", report)
+                _     => format!("Error   {}", report)  //tried (not much) to proc this without success
             }
         )
     }
+}
+
+// ===========================================================================
+pub enum XAPMessages {
+    XapVersion = 0x0000,              // 0x0000
+    XapCapabilities,                  // 0x0001
+    XapEnabledSubsystem,              // 0x0002
+    XapSecureStatus,                  // 0x0003
+    XapSecureUnlock,                  // 0x0004
+    XapSecureLock,                    // 0x0005
+// ===================================
+    QmkVersion = 0x0100,              // 0x0100
+    QmkCapabilities,                  // 0x0101
+    QmkIdentifiers,                   // 0x0102
+    QmkManufacturer,                  // 0x0103
+    QmkProduct,                       // 0x0104
+    QmkConfigLength,                  // 0x0105
+    QmkConfigChunk,                   // 0x0106
+    QmkJumpBootloader,                // 0x0107
+    QmkHardwareIdentifier,            // 0x0108
+    QmkResetEeprom,                   // 0x0109
+// ===================================
+    Kb = 0x0200,                      // 0x0200 (reserved)
+// ===================================
+    User = 0x0300,                    // 0x0300 (reserved)
+// ===================================
+    Km = 0x0400,                      // 0x0400 (ununsed)
+    KmCapabilities,                   // 0x0401
+    KmLayerCount,                     // 0x0402
+    KmGetKeycode,                     // 0x0403
+    KmGetEncoder,                     // 0x0404
+// ===================================
+    Remap = 0x0500,                   // 0x0500 (ununsed)
+    RemapCapabilities,                // 0x0501
+    RemapLayerCount,                  // 0x0502
+    RemapKeycode,                     // 0x0503
+    RemapEncoder,                     // 0x0504
+// ===================================
+    Lighting = 0x0600,                // 0x0600 (unused)
+    LightingCapabilities,             // 0x0601
+// -------------------
+    Backlight = 0x060200,             // 0x060200 (unused)
+    BacklightCapabilities,            // 0x060201
+    BacklightEnabledEffects,          // 0x060202
+    BacklightGetConfig,               // 0x060203
+    BacklightSetConfig,               // 0x060204
+    BacklightSaveConfig,              // 0x060205
+// -------------------
+    Rgblight = 0x060300,              // 0x060300 (unused)
+    RgblightCapabilities,             // 0x060301
+    RgblightEnabledEffects,           // 0x060302
+    RgblightGetConfig,                // 0x060303
+    RgblightSetConfig,                // 0x060304
+    RgblightSaveConfig,               // 0x060305
+// -------------------
+    Rgbmatrix = 0x060400,             // 0x060400 (unused)
+    RgbmatrixCapabilities,            // 0x060401
+    RgbmatrixEnabledEffects,          // 0x060402
+    RgbmatrixGetConfig,               // 0x060403
+    RgbmatrixSetConfig,               // 0x060404
+    RgbmatrixSaveConfig,              // 0x060405
 }
 
 // ===========================================================================
@@ -116,15 +177,15 @@ impl Display for XAPReport {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{} >> Token: {:#4x}{} | Length: {} | Payload: {:?} <<",
+            "{} >> Token: 0x{:04X} | {} | Length: {:02} | Payload: {:?}",
             match self.from_kb {
-                true  => "received",
-                false => "sending "
+                true  => "receiving",
+                false => "sending  "
             },
             self.get_token(),
             match self.from_kb {
-                true  => format!(" | Flags:  {}", self.get_flags()),
-                false => String::new()
+                true  => format!("Flags: {:08b}", self.get_flags()),
+                false => format!("               ")
             },
             self.get_payload_len(),
             self.get_payload()
@@ -161,7 +222,7 @@ impl XAPReport {
 
         &self.raw_data[start .. start+len]
     }
-    
+
     pub fn get_payload_len(&self) -> usize {
         let mut index = 2;
         if self.from_kb {
@@ -170,7 +231,7 @@ impl XAPReport {
 
         self.raw_data[index] as usize
     }
-    
+
     pub fn get_token(&self) -> u16 {
         ((self.raw_data[0] as u16) << 8) | self.raw_data[1] as u16
     }
