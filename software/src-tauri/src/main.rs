@@ -13,7 +13,7 @@ use log::{info, LevelFilter};
 use once_cell::sync::OnceCell;
 use tauri::async_runtime::Mutex;
 
-use xap::{XAPClient, XAPDevice, XAPReport};
+use xap::{XAPClient, XAPDevice, XAPReport, XapRoute};
 
 static XAP_DEVICE: OnceCell<Mutex<XAPDevice>> = OnceCell::new();
 
@@ -28,8 +28,7 @@ async fn send_test() {
     let device = get_device!();
 
     device.write(
-        XAPReport::new()
-            .set_bytes(0, &[0x43, 0x2B,  0x02, 0x00, 0x00])
+        &mut XAPReport::from_route(XapRoute::QmkVersion)
     );
 
     device.read_timeout(&mut XAPReport::new(), 500);

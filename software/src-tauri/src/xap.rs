@@ -77,6 +77,7 @@ impl XAPDevice {
         info!("{}",
             match self.device.write(
                 report.set_from_kb(false)
+                      .set_token()
                       .get_bytes()
             ) {
                 Ok(_) => format!("Success {}", report),
@@ -100,7 +101,148 @@ impl XAPDevice {
 }
 
 // ===========================================================================
-pub enum XAPMessages {
+type XapReportT = [u8; XAP_REPORT_LEN];
+pub(crate) struct XAPReport {
+    raw_data: XapReportT,
+    from_kb: bool,
+}
+
+impl Debug for XAPReport {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self}")
+    }
+}
+
+impl Display for XAPReport {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} >> Token: 0x{:04X} | {} | Length: {:02} | Payload: {:?}",
+            match self.from_kb {
+                true  => "receiving",
+                false => "sending  "
+            },
+            self.get_token(),
+            match self.from_kb {
+                true  => format!("Flags: {:08b}", self.get_flags()),
+                false => format!("               ")
+            },
+            self.get_payload_len(),
+            self.get_payload()
+        )
+    }
+}
+
+impl XAPReport {
+    pub fn new() -> Self {
+        Self {
+            raw_data: [0; XAP_REPORT_LEN],
+            from_kb: false
+        }
+    }
+
+    pub fn from_route(_route: XapRoute) -> Self {
+        let     route            = _route as u64;
+        let mut copy             = route;
+        let mut n_bytes          = 0;
+        let mut temp: XapReportT = [0; XAP_REPORT_LEN];
+
+        //compute bytes needed to represent the route
+        while copy > 0 {
+            n_bytes += 1;
+            copy = copy >> 8;
+        }
+
+        //copy header bytes into the payload section
+        for i in 0..n_bytes {
+            let shift = 8*(n_bytes-i-1);
+            temp[i+3] = (route >> shift) as u8;
+        }
+
+        //set payload length accordingly
+        temp[2] = n_bytes as u8;
+
+        println!("{:?}", temp);
+
+        Self {
+            raw_data: temp,
+            from_kb: false
+        }
+    }
+
+    pub fn get_bytes(&mut self) -> &mut [u8] {
+        &mut self.raw_data
+    }
+
+    pub fn get_flags(&self) -> u8 {
+        if self.from_kb {
+            return self.raw_data[2];
+        }
+
+        u8::MAX
+    }
+
+    pub fn get_payload(&self) -> &[u8] {
+        let len   = self.get_payload_len();
+        let mut start = 3;
+        if self.from_kb {
+            start = 4;
+        }
+
+        &self.raw_data[start .. start+len]
+    }
+
+    pub fn get_payload_len(&self) -> usize {
+        let mut index = 2;
+        if self.from_kb {
+            index = 3;
+        }
+
+        self.raw_data[index] as usize
+    }
+
+    pub fn get_token(&self) -> u16 {
+        ((self.raw_data[0] as u16) << 8) | self.raw_data[1] as u16
+    }
+
+    pub fn set_bytes(&mut self, start: usize, data: &[u8]) -> &mut Self {
+        if self.from_kb {
+            return self;
+        }
+
+        for i in 0..data.len() {
+            self.raw_data[i+start] = data[i];
+        }
+
+        self
+    }
+
+    pub fn set_from_kb(&mut self, from_kb: bool) -> &mut Self{
+        if self.from_kb {
+            return self;
+        }
+
+        self.from_kb = from_kb;
+
+        self
+    }
+
+    pub fn set_token(&mut self) -> &mut Self {
+        if self.from_kb {
+            return self;
+        }
+
+        //TODO: Make this function generate a random token instead of static values
+        self.raw_data[0] = 0x0A;
+        self.raw_data[1] = 0x09;
+
+        self
+    }
+}
+
+// ===========================================================================
+// #[repr(u64)] //using 64 bytes just in case
+pub enum XapRoute {
     XapVersion = 0x0000,              // 0x0000
     XapCapabilities,                  // 0x0001
     XapEnabledSubsystem,              // 0x0002
@@ -158,95 +300,4 @@ pub enum XAPMessages {
     RgbmatrixGetConfig,               // 0x060403
     RgbmatrixSetConfig,               // 0x060404
     RgbmatrixSaveConfig,              // 0x060405
-}
-
-// ===========================================================================
-type XapReportT = [u8; XAP_REPORT_LEN];
-pub(crate) struct XAPReport {
-    raw_data: XapReportT,
-    from_kb: bool,
-}
-
-impl Debug for XAPReport {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{self}")
-    }
-}
-
-impl Display for XAPReport {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{} >> Token: 0x{:04X} | {} | Length: {:02} | Payload: {:?}",
-            match self.from_kb {
-                true  => "receiving",
-                false => "sending  "
-            },
-            self.get_token(),
-            match self.from_kb {
-                true  => format!("Flags: {:08b}", self.get_flags()),
-                false => format!("               ")
-            },
-            self.get_payload_len(),
-            self.get_payload()
-        )
-    }
-}
-
-impl XAPReport {
-    pub fn new() -> Self {
-        Self {
-            raw_data: [0; XAP_REPORT_LEN],
-            from_kb: false
-        }
-    }
-
-    pub fn get_bytes(&mut self) -> &mut [u8] {
-        &mut self.raw_data
-    }
-
-    pub fn get_flags(&self) -> u8 {
-        if self.from_kb {
-            return self.raw_data[2];
-        }
-
-        u8::MAX
-    }
-
-    pub fn get_payload(&self) -> &[u8] {
-        let len   = self.get_payload_len();
-        let mut start = 3;
-        if self.from_kb {
-            start = 4;
-        }
-
-        &self.raw_data[start .. start+len]
-    }
-
-    pub fn get_payload_len(&self) -> usize {
-        let mut index = 2;
-        if self.from_kb {
-            index = 3;
-        }
-
-        self.raw_data[index] as usize
-    }
-
-    pub fn get_token(&self) -> u16 {
-        ((self.raw_data[0] as u16) << 8) | self.raw_data[1] as u16
-    }
-
-    pub fn set_bytes(&mut self, start: usize, data: &[u8]) -> &mut Self {
-        for i in 0..data.len() {
-            self.raw_data[i+start] = data[i];
-        }
-
-        self
-    }
-
-    pub fn set_from_kb(&mut self, from_kb: bool) -> &mut Self{
-        self.from_kb = from_kb;
-
-        self
-    }
 }
