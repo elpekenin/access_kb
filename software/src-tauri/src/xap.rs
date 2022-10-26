@@ -236,61 +236,61 @@ impl XAPReport {
 // ===========================================================================
 pub(crate) struct XapRoute;
 impl XapRoute {
-    pub const XAP_VERSION_QUERY:                    &[u8] = &[00, 00];
-    pub const XAP_CAPABILITIES_QUERY:               &[u8] = &[00, 01];
-    pub const XAP_ENABLED_SUBSYSTEM_QUERY:          &[u8] = &[00, 02];
-    pub const XAP_SECURE_STATUS:                    &[u8] = &[00, 03];
-    pub const XAP_SECURE_UNLOCK:                    &[u8] = &[00, 04];
-    pub const XAP_SECURE_LOCK:                      &[u8] = &[00, 05];
+    pub const XAP_VERSION_QUERY:                    &[u8] = &[0x00, 0x00];
+    pub const XAP_CAPABILITIES_QUERY:               &[u8] = &[0x00, 0x01];
+    pub const XAP_ENABLED_SUBSYSTEM_QUERY:          &[u8] = &[0x00, 0x02];
+    pub const XAP_SECURE_STATUS:                    &[u8] = &[0x00, 0x03];
+    pub const XAP_SECURE_UNLOCK:                    &[u8] = &[0x00, 0x04];
+    pub const XAP_SECURE_LOCK:                      &[u8] = &[0x00, 0x05];
 // ===========
-    pub const QMK_VERSION_QUERY:                    &[u8] = &[01, 00];
-    pub const QMK_CAPABILITIES_QUERY:               &[u8] = &[01, 01];
-    pub const QMK_IDENTIFIERS:                      &[u8] = &[01, 02];
-    pub const QMK_BOARD_MANUFACTURER:               &[u8] = &[01, 03];
-    pub const QMK_PRODUCT_NAME:                     &[u8] = &[01, 04];
-    pub const QMK_CONFIG_BLOB_LENGTH:               &[u8] = &[01, 05];
-    pub const QMK_CONFIG_BLOB_CHUNK:                &[u8] = &[01, 06];
-    pub const QMK_JUMP_TO_BOOTLOADER:               &[u8] = &[01, 07];
-    pub const QMK_HARDWARE_IDENTIFIER:              &[u8] = &[01, 08];
-    pub const QMK_REINITIALIZE_EEPROM:              &[u8] = &[01, 09];
+    pub const QMK_VERSION_QUERY:                    &[u8] = &[0x01, 0x00];
+    pub const QMK_CAPABILITIES_QUERY:               &[u8] = &[0x01, 0x01];
+    pub const QMK_IDENTIFIERS:                      &[u8] = &[0x01, 0x02];
+    pub const QMK_BOARD_MANUFACTURER:               &[u8] = &[0x01, 0x03];
+    pub const QMK_PRODUCT_NAME:                     &[u8] = &[0x01, 0x04];
+    pub const QMK_CONFIG_BLOB_LENGTH:               &[u8] = &[0x01, 0x05];
+    pub const QMK_CONFIG_BLOB_CHUNK:                &[u8] = &[0x01, 0x06];
+    pub const QMK_JUMP_TO_BOOTLOADER:               &[u8] = &[0x01, 0x07];
+    pub const QMK_HARDWARE_IDENTIFIER:              &[u8] = &[0x01, 0x08];
+    pub const QMK_REINITIALIZE_EEPROM:              &[u8] = &[0x01, 0x09];
 // ===========
-    pub const KEYBOARD:                             &[u8] = &[02, 00]; //reserved
+    pub const KEYBOARD:                             &[u8] = &[0x02, 0x00]; //reserved
 // ===========
-    pub const USER:                                 &[u8] = &[03, 00]; //reserved
+    pub const USER:                                 &[u8] = &[0x03, 0x00]; //reserved
 // ===========
-    pub const KEYMAP:                               &[u8] = &[04, 00]; //unused
-    pub const KEYMAP_CAPABILITIES_QUERY:            &[u8] = &[04, 01];
-    pub const KEYMAP_GET_LAYERCOUNT:                &[u8] = &[04, 02];
-    pub const KEYMAP_GET_KEYCODE:                   &[u8] = &[04, 03];
-    pub const KEYMAP_GET_ENCODER_KEYCODE:           &[u8] = &[04, 04];
+    pub const KEYMAP:                               &[u8] = &[0x04, 0x00]; //unused
+    pub const KEYMAP_CAPABILITIES_QUERY:            &[u8] = &[0x04, 0x01];
+    pub const KEYMAP_GET_LAYERCOUNT:                &[u8] = &[0x04, 0x02];
+    pub const KEYMAP_GET_KEYCODE:                   &[u8] = &[0x04, 0x03];
+    pub const KEYMAP_GET_ENCODER_KEYCODE:           &[u8] = &[0x04, 0x04];
 // ===========
-    pub const REMAP:                                &[u8] = &[05, 00]; //unused
-    pub const REMAP_CAPABILITIES_QUERY:             &[u8] = &[05, 01];
-    pub const REMAP_GET_LAYER_COUNT:                &[u8] = &[05, 02];
-    pub const REMAP_SET_KEYCODE:                    &[u8] = &[05, 03];
-    pub const REMAP_SET_ENCODER_KEYCODE:            &[u8] = &[05, 04];
+    pub const REMAP:                                &[u8] = &[0x05, 0x00]; //unused
+    pub const REMAP_CAPABILITIES_QUERY:             &[u8] = &[0x05, 0x01];
+    pub const REMAP_GET_LAYER_COUNT:                &[u8] = &[0x05, 0x02];
+    pub const REMAP_SET_KEYCODE:                    &[u8] = &[0x05, 0x03];
+    pub const REMAP_SET_ENCODER_KEYCODE:            &[u8] = &[0x05, 0x04];
 // ===========
-    pub const LIGHTING:                             &[u8] = &[06, 00]; //unused
-    pub const LIGHTING_CAPABILITIES_QUERY:          &[u8] = &[06, 01];
+    pub const LIGHTING:                             &[u8] = &[0x06, 0x00]; //unused
+    pub const LIGHTING_CAPABILITIES_QUERY:          &[u8] = &[0x06, 0x01];
 // -----
-    pub const BACKLIGHT:                            &[u8] = &[06, 02, 00]; //unused
-    pub const BACKLIGHT_CAPABILITIES_QUERY:         &[u8] = &[06, 02, 01];
-    pub const BACKLIGHT_GET_ENABLED_EFFECTS:        &[u8] = &[06, 02, 02];
-    pub const BACKLIGHT_GET_CONFIG:                 &[u8] = &[06, 02, 03];
-    pub const BACKLIGHT_SET_CONFIG:                 &[u8] = &[06, 02, 04];
-    pub const BACKLIGHT_SAVE_CONFIG:                &[u8] = &[06, 02, 05];
+    pub const BACKLIGHT:                            &[u8] = &[0x06, 0x02, 0x00]; //unused
+    pub const BACKLIGHT_CAPABILITIES_QUERY:         &[u8] = &[0x06, 0x02, 0x01];
+    pub const BACKLIGHT_GET_ENABLED_EFFECTS:        &[u8] = &[0x06, 0x02, 0x02];
+    pub const BACKLIGHT_GET_CONFIG:                 &[u8] = &[0x06, 0x02, 0x03];
+    pub const BACKLIGHT_SET_CONFIG:                 &[u8] = &[0x06, 0x02, 0x04];
+    pub const BACKLIGHT_SAVE_CONFIG:                &[u8] = &[0x06, 0x02, 0x05];
 // -----
-    pub const RGBLIGHT:                             &[u8] = &[06, 03, 00]; //unused
-    pub const RGBLIGHT_CAPABILITIES_QUERY:          &[u8] = &[06, 03, 01];
-    pub const RGBLIGHT_GET_ENABLED_EFFECTS:         &[u8] = &[06, 03, 02];
-    pub const RGBLIGHT_GET_CONFIG:                  &[u8] = &[06, 03, 03];
-    pub const RGBLIGHT_SET_CONFIG:                  &[u8] = &[06, 03, 04];
-    pub const RGBLIGHT_SAVE_CONFIG:                 &[u8] = &[06, 03, 05];
+    pub const RGBLIGHT:                             &[u8] = &[0x06, 0x03, 0x00]; //unused
+    pub const RGBLIGHT_CAPABILITIES_QUERY:          &[u8] = &[0x06, 0x03, 0x01];
+    pub const RGBLIGHT_GET_ENABLED_EFFECTS:         &[u8] = &[0x06, 0x03, 0x02];
+    pub const RGBLIGHT_GET_CONFIG:                  &[u8] = &[0x06, 0x03, 0x03];
+    pub const RGBLIGHT_SET_CONFIG:                  &[u8] = &[0x06, 0x03, 0x04];
+    pub const RGBLIGHT_SAVE_CONFIG:                 &[u8] = &[0x06, 0x03, 0x05];
 // -----
-    pub const RGBMATRIX:                            &[u8] = &[06, 04, 00]; // unused
-    pub const RGBMATRIX_CAPABILITIES_QUERY:         &[u8] = &[06, 04, 01];
-    pub const RGBMATRIX_GET_ENABLE_DEFFECTS:        &[u8] = &[06, 04, 02];
-    pub const RGBMATRIX_GET_CONFIG:                 &[u8] = &[06, 04, 03];
-    pub const RGBMATRIX_SET_CONFIG:                 &[u8] = &[06, 04, 04];
-    pub const RGBMATRIX_SAVE_CONFIG:                &[u8] = &[06, 04, 05];
+    pub const RGBMATRIX:                            &[u8] = &[0x06, 0x04, 0x00]; // unused
+    pub const RGBMATRIX_CAPABILITIES_QUERY:         &[u8] = &[0x06, 0x04, 0x01];
+    pub const RGBMATRIX_GET_ENABLE_DEFFECTS:        &[u8] = &[0x06, 0x04, 0x02];
+    pub const RGBMATRIX_GET_CONFIG:                 &[u8] = &[0x06, 0x04, 0x03];
+    pub const RGBMATRIX_SET_CONFIG:                 &[u8] = &[0x06, 0x04, 0x04];
+    pub const RGBMATRIX_SAVE_CONFIG:                &[u8] = &[0x06, 0x04, 0x05];
 }
