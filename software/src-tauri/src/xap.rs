@@ -76,7 +76,7 @@ impl XAPDevice {
     pub fn write(&self, report: &mut XAPReport) {
         info!("{}",
             match self.device.write(
-                report.set_from_kb(false)
+                report.set_from_kb(0_u8)
                       .set_token()
                       .get_bytes()
             ) {
@@ -89,7 +89,7 @@ impl XAPDevice {
     pub fn read_timeout(&self, report: &mut XAPReport, timeout: i32) {
         info!("{}",
             match self.device.read_timeout(
-                report.set_from_kb(true)
+                report.set_from_kb(1_u8)
                       .get_bytes(),
                 timeout
             ) {
@@ -105,7 +105,7 @@ use rand::Rng;
 type XapReportT = [u8; XAP_REPORT_LEN];
 pub(crate) struct XAPReport {
     raw_data: XapReportT,
-    from_kb: bool,
+    from_kb: u8,
 }
 
 impl Debug for XAPReport {
@@ -120,13 +120,13 @@ impl Display for XAPReport {
             f,
             "{} >> Token: 0x{:04X} | {} | Length: {:02} | Payload: {:?}",
             match self.from_kb {
-                true  => "receiving",
-                false => "sending  "
+                1 => "receiving",
+                0 => "sending  "
             },
             self.get_token(),
             match self.from_kb {
-                true  => format!("Flags: {:08b}", self.get_flags()),
-                false => format!("               ")
+                1 => format!("Flags: {:08b}", self.get_flags()),
+                0 => format!("               ")
             },
             self.get_payload_len(),
             self.get_payload()
@@ -138,7 +138,7 @@ impl XAPReport {
     pub fn new() -> Self {
         Self {
             raw_data: [0; XAP_REPORT_LEN],
-            from_kb: false
+            from_kb: 0
         }
     }
 
@@ -156,7 +156,7 @@ impl XAPReport {
 
         Self {
             raw_data: temp,
-            from_kb: false
+            from_kb: 0
         }
     }
 
@@ -165,28 +165,19 @@ impl XAPReport {
     }
 
     pub fn get_flags(&self) -> u8 {
-        if self.from_kb {
-            return self.raw_data[2];
-        }
-
-        u8::MAX
+        // NOTE: Weird behaviour for sent reports
+        self.raw_data[2]
     }
 
     pub fn get_payload(&self) -> &[u8] {
         let len   = self.get_payload_len();
-        let mut start = 3;
-        if self.from_kb {
-            start = 4;
-        }
+        let start = 3 + self.from_kb;
 
         &self.raw_data[start .. start+len]
     }
 
     pub fn get_payload_len(&self) -> usize {
-        let mut index = 2;
-        if self.from_kb {
-            index = 3;
-        }
+        let mut index = 2 + self.from_kb;
 
         self.raw_data[index] as usize
     }
@@ -195,8 +186,10 @@ impl XAPReport {
         ((self.raw_data[0] as u16) << 8) | self.raw_data[1] as u16
     }
 
+    // TODO: Common checker macro/function for `set_*` methods, and log that data wasn't changed because it was a received report
+
     pub fn set_bytes(&mut self, start: usize, data: &[u8]) -> &mut Self {
-        if self.from_kb {
+        if self.from_kb > 0{
             return self;
         }
 
@@ -207,8 +200,8 @@ impl XAPReport {
         self
     }
 
-    pub fn set_from_kb(&mut self, from_kb: bool) -> &mut Self{
-        if self.from_kb {
+    pub fn set_from_kb(&mut self, from_kb: u8) -> &mut Self{
+        if self.from_kb > 0{
             return self;
         }
 
@@ -218,7 +211,7 @@ impl XAPReport {
     }
 
     pub fn set_token(&mut self) -> &mut Self {
-        if self.from_kb {
+        if self.from_kb > 0{
             return self;
         }
 
