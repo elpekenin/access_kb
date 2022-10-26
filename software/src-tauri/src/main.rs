@@ -28,7 +28,7 @@ async fn send_test() {
     let device = get_device!();
 
     device.write(
-        &mut XAPReport::from_route(XapRoute::QmkVersion)
+        &mut XAPReport::from_route(&XapRoute::QMK_VERSION_QUERY)
     );
 
     device.read_timeout(&mut XAPReport::new(), 500);

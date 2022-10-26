@@ -101,6 +101,7 @@ impl XAPDevice {
 }
 
 // ===========================================================================
+use rand::Rng;
 type XapReportT = [u8; XAP_REPORT_LEN];
 pub(crate) struct XAPReport {
     raw_data: XapReportT,
@@ -141,28 +142,17 @@ impl XAPReport {
         }
     }
 
-    pub fn from_route(_route: XapRoute) -> Self {
-        let     route            = _route as u64;
-        let mut copy             = route;
-        let mut n_bytes          = 0;
+    pub fn from_route(route: &[u8]) -> Self {
+        let len = route.len();
         let mut temp: XapReportT = [0; XAP_REPORT_LEN];
 
-        //compute bytes needed to represent the route
-        while copy > 0 {
-            n_bytes += 1;
-            copy = copy >> 8;
-        }
-
-        //copy header bytes into the payload section
-        for i in 0..n_bytes {
-            let shift = 8*(n_bytes-i-1);
-            temp[i+3] = (route >> shift) as u8;
+        //copy route into the payload section
+        for i in 0..len {
+            temp[i+3] = route[i];
         }
 
         //set payload length accordingly
-        temp[2] = n_bytes as u8;
-
-        println!("{:?}", temp);
+        temp[2] = len as u8;
 
         Self {
             raw_data: temp,
@@ -232,72 +222,75 @@ impl XAPReport {
             return self;
         }
 
-        //TODO: Make this function generate a random token instead of static values
-        self.raw_data[0] = 0x0A;
-        self.raw_data[1] = 0x09;
+        let mut rng = rand::thread_rng();
+        //according to the valid range 0x0100-0xFFFF defined on the spec
+        self.raw_data[0] = rng.gen_range(0x01..0xFF);
+        self.raw_data[1] = rng.gen_range(0x00..0xFF);
 
         self
     }
+
+    //TODO: Implement `append_payload` to add values after routes
 }
 
 // ===========================================================================
-// #[repr(u64)] //using 64 bytes just in case
-pub enum XapRoute {
-    XapVersion = 0x0000,              // 0x0000
-    XapCapabilities,                  // 0x0001
-    XapEnabledSubsystem,              // 0x0002
-    XapSecureStatus,                  // 0x0003
-    XapSecureUnlock,                  // 0x0004
-    XapSecureLock,                    // 0x0005
-// ===================================
-    QmkVersion = 0x0100,              // 0x0100
-    QmkCapabilities,                  // 0x0101
-    QmkIdentifiers,                   // 0x0102
-    QmkManufacturer,                  // 0x0103
-    QmkProduct,                       // 0x0104
-    QmkConfigLength,                  // 0x0105
-    QmkConfigChunk,                   // 0x0106
-    QmkJumpBootloader,                // 0x0107
-    QmkHardwareIdentifier,            // 0x0108
-    QmkResetEeprom,                   // 0x0109
-// ===================================
-    Kb = 0x0200,                      // 0x0200 (reserved)
-// ===================================
-    User = 0x0300,                    // 0x0300 (reserved)
-// ===================================
-    Km = 0x0400,                      // 0x0400 (ununsed)
-    KmCapabilities,                   // 0x0401
-    KmLayerCount,                     // 0x0402
-    KmGetKeycode,                     // 0x0403
-    KmGetEncoder,                     // 0x0404
-// ===================================
-    Remap = 0x0500,                   // 0x0500 (ununsed)
-    RemapCapabilities,                // 0x0501
-    RemapLayerCount,                  // 0x0502
-    RemapKeycode,                     // 0x0503
-    RemapEncoder,                     // 0x0504
-// ===================================
-    Lighting = 0x0600,                // 0x0600 (unused)
-    LightingCapabilities,             // 0x0601
-// -------------------
-    Backlight = 0x060200,             // 0x060200 (unused)
-    BacklightCapabilities,            // 0x060201
-    BacklightEnabledEffects,          // 0x060202
-    BacklightGetConfig,               // 0x060203
-    BacklightSetConfig,               // 0x060204
-    BacklightSaveConfig,              // 0x060205
-// -------------------
-    Rgblight = 0x060300,              // 0x060300 (unused)
-    RgblightCapabilities,             // 0x060301
-    RgblightEnabledEffects,           // 0x060302
-    RgblightGetConfig,                // 0x060303
-    RgblightSetConfig,                // 0x060304
-    RgblightSaveConfig,               // 0x060305
-// -------------------
-    Rgbmatrix = 0x060400,             // 0x060400 (unused)
-    RgbmatrixCapabilities,            // 0x060401
-    RgbmatrixEnabledEffects,          // 0x060402
-    RgbmatrixGetConfig,               // 0x060403
-    RgbmatrixSetConfig,               // 0x060404
-    RgbmatrixSaveConfig,              // 0x060405
+pub(crate) struct XapRoute;
+impl XapRoute {
+    pub const XAP_VERSION_QUERY:                    [u8; 2] = [00, 00];
+    pub const XAP_CAPABILITIES_QUERY:               [u8; 2] = [00, 01];
+    pub const XAP_ENABLED_SUBSYSTEM_QUERY:          [u8; 2] = [00, 02];
+    pub const XAP_SECURE_STATUS:                    [u8; 2] = [00, 03];
+    pub const XAP_SECURE_UNLOCK:                    [u8; 2] = [00, 04];
+    pub const XAP_SECURE_LOCK:                      [u8; 2] = [00, 05];
+// ===========
+    pub const QMK_VERSION_QUERY:                    [u8; 2] = [01, 00];
+    pub const QMK_CAPABILITIES_QUERY:               [u8; 2] = [01, 01];
+    pub const QMK_IDENTIFIERS:                      [u8; 2] = [01, 02];
+    pub const QMK_BOARD_MANUFACTURER:               [u8; 2] = [01, 03];
+    pub const QMK_PRODUCT_NAME:                     [u8; 2] = [01, 04];
+    pub const QMK_CONFIG_BLOB_LENGTH:               [u8; 2] = [01, 05];
+    pub const QMK_CONFIG_BLOB_CHUNK:                [u8; 2] = [01, 06];
+    pub const QMK_JUMP_TO_BOOTLOADER:               [u8; 2] = [01, 07];
+    pub const QMK_HARDWARE_IDENTIFIER:              [u8; 2] = [01, 08];
+    pub const QMK_REINITIALIZE_EEPROM:              [u8; 2] = [01, 09];
+// ===========
+    pub const KEYBOARD:                             [u8; 2] = [02, 00]; //reserved
+// ===========
+    pub const USER:                                 [u8; 2] = [03, 00]; //reserved
+// ===========
+    pub const KEYMAP:                               [u8; 2] = [04, 00]; //unused
+    pub const KEYMAP_CAPABILITIES_QUERY:            [u8; 2] = [04, 01];
+    pub const KEYMAP_GET_LAYERCOUNT:                [u8; 2] = [04, 02];
+    pub const KEYMAP_GET_KEYCODE:                   [u8; 2] = [04, 03];
+    pub const KEYMAP_GET_ENCODER_KEYCODE:           [u8; 2] = [04, 04];
+// ===========
+    pub const REMAP:                                [u8; 2] = [05, 00]; //unused
+    pub const REMAP_CAPABILITIES_QUERY:             [u8; 2] = [05, 01];
+    pub const REMAP_GET_LAYER_COUNT:                [u8; 2] = [05, 02];
+    pub const REMAP_SET_KEYCODE:                    [u8; 2] = [05, 03];
+    pub const REMAP_SET_ENCODER_KEYCODE:            [u8; 2] = [05, 04];
+// ===========
+    pub const LIGHTING:                             [u8; 2] = [06, 00]; //unused
+    pub const LIGHTING_CAPABILITIES_QUERY:          [u8; 2] = [06, 01];
+// -----
+    pub const BACKLIGHT:                            [u8; 3] = [06, 02, 00]; //unused
+    pub const BACKLIGHT_CAPABILITIES_QUERY:         [u8; 3] = [06, 02, 01];
+    pub const BACKLIGHT_GET_ENABLED_EFFECTS:        [u8; 3] = [06, 02, 02];
+    pub const BACKLIGHT_GET_CONFIG:                 [u8; 3] = [06, 02, 03];
+    pub const BACKLIGHT_SET_CONFIG:                 [u8; 3] = [06, 02, 04];
+    pub const BACKLIGHT_SAVE_CONFIG:                [u8; 3] = [06, 02, 05];
+// -----
+    pub const RGBLIGHT:                             [u8; 3] = [06, 03, 00]; //unused
+    pub const RGBLIGHT_CAPABILITIES_QUERY:          [u8; 3] = [06, 03, 01];
+    pub const RGBLIGHT_GET_ENABLED_EFFECTS:         [u8; 3] = [06, 03, 02];
+    pub const RGBLIGHT_GET_CONFIG:                  [u8; 3] = [06, 03, 03];
+    pub const RGBLIGHT_SET_CONFIG:                  [u8; 3] = [06, 03, 04];
+    pub const RGBLIGHT_SAVE_CONFIG:                 [u8; 3] = [06, 03, 05];
+// -----
+    pub const RGBMATRIX:                            [u8; 3] = [06, 04, 00]; // unused
+    pub const RGBMATRIX_CAPABILITIES_QUERY:         [u8; 3] = [06, 04, 01];
+    pub const RGBMATRIX_GET_ENABLE_DEFFECTS:        [u8; 3] = [06, 04, 02];
+    pub const RGBMATRIX_GET_CONFIG:                 [u8; 3] = [06, 04, 03];
+    pub const RGBMATRIX_SET_CONFIG:                 [u8; 3] = [06, 04, 04];
+    pub const RGBMATRIX_SAVE_CONFIG:                [u8; 3] = [06, 04, 05];
 }
