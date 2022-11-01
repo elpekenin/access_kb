@@ -1,70 +1,10 @@
+\section{Configuración inicial}
 Para poder intercambiar información con el teclado de forma que podamos configurarlo o enviarle información en vez de simplemente escuchar las teclas que se han pulsado, vamos a desarrollar un programa que se ejecute en el ordenador. 
 
-Vamos a usar \mycite{tauri} ya que permite usar el mismo código en multitud de sistemas operativos, esto se consigue gracias a que funciona internamente con un servidor HTML, por lo que se puede ejecutar en diversas plataformas.
+Usaremos \mycite{tauri} ya que permite usar el mismo código en multitud de sistemas operativos, esto se consigue gracias a que funciona internamente con un servidor HTML, por lo que se puede ejecutar en diversas plataformas.
 
-\section{Configuración inicial}
-Para instalar astro
-\begin{multicli}
-    \textcolor{green}{\# Dependencias} \newline
-    \cliarrow sudo pacman -Syu \newline
-    \cliarrow sudo pacman -S --needed \textbackslash \newline
-    \mytab webkit2gtk \textbackslash \newline
-    \mytab base-devel \textbackslash \newline
-    \mytab curl \textbackslash \newline
-    \mytab wget \textbackslash \newline
-    \mytab openssl \textbackslash \newline
-    \mytab appmenu-gtk-module  \textbackslash \newline
-    \mytab gtk3 \textbackslash \newline
-    \mytab libappindicator-gtk3 \textbackslash \newline
-    \mytab librsvg \textbackslash \newline
-    \mytab libvips \newline
-    \cliarrow curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh \newline
-    \cliarrow cargo install tauri-cli \newline
-
-    \textcolor{green}{\# Crear proyecto} \newline
-    \cliarrow npm create tauri-app
-\end{multicli}
-
-Instalamos \mycite{nodejs} con \cli{sudo pacman -S nodejs} para poder usar \mycite{astro}, que es el framework con el que haremos el frontend (interfaz gráfica) de la aplicación y creamos el proyecto con \cli{npm create astro@latest}. Tras esto, modificamos el archivo ce configuración de Tauri para que ejecute el servidor de Astro:
-\code{software/src-tauri}{tauri.conf.json}
-
-También tenemos que editar la configuración de Astro para que se ejecute en el mismo puerto que hemos configurado en Tauri, y de paso añadimos la opción \textbf{host} para que el servidor Astro sea visible desde otros dispositivos de la red local y poder hacer debugging de HTML/JS/CSS sin pasar por Tauri.
-\code{software/frontend}{astro.config.mjs}
-
-En este momento tenemos la siguiente estructura de archivos:
-\begin{multicli}
-\cliarrow tree -L 2 \newline
-.  \newline
-├── astro.config.mjs \newline
-├── package.json \newline
-├── package-lock.json \newline
-├── src \newline
-│   ├── components  \newline
-│   ├── env.d.ts \newline
-│   ├── layouts \newline
-│   └── pages \newline
-├── src-tauri \newline
-│   ├── build.rs \newline
-│   ├── Cargo.lock \newline
-│   ├── Cargo.toml \newline
-│   ├── icons \newline
-│   ├── src \newline
-│   ├── target \newline
-│   └── tauri.conf.json \newline
-└── tsconfig.json
-\end{multicli}
-
-Ejecutando \cli{cargo tauri dev} podemos lanzar nuestro programa. \par
+Instalamos \mycite{nodejs} con \cli{sudo pacman -S nodejs} para poder usar \mycite{vue}, que es el framework con el que haremos el frontend (interfaz gráfica) de la aplicación y clonamos el repositorio de \mycite{karl-xap}, que he usado de base (y al que he colaborado) para desarrollar el software. Para instalar las dependencias de JavaScript ejecutamos \cli{npm i}. Ahora ya podemos correr \cli{cargo tauri dev} para lanzar nuestro programa. \par
 
 \hr
 He tenido que desactivar la opción wgl(libreria de Windows para OpenGL) en VcXsrv para que funcionase
 \hr
-
-En este punto añadimos \mycite{hidapi} para poder usar el protocolo \mycite{hid} desde Rust, con el que nos comunicaremos con el teclado.
-\code{src-tauri}{Cargo.toml}
-
-Para poder ejecutar código Rust desde JavaScript instalamos el módulo necesario \cli{npm i @tauri-apps/api} y la integración de \mycite{svelte} con Astro y lo habilitamos con \codecounter{}{astro.config.mjs}{2}
-
-Definimos un nuevo componente
-\code{src/components}{Call.svelte}
-Con este nuevo componente podremos hacer \icode{<Call command=``function'' args=\{\{key: value\}\} client:only />} para ejecutar cualquiera de nuestras funciones de Rust pasándole los parámetros necesarios.

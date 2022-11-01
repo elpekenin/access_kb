@@ -17,6 +17,7 @@ File structure:
 |  └─ 📂qmk-code/      * QMK version of the firmware
 ├─ 📂hardware/     - PCB files
 |  └─ 📂libraries/     * References to KiCAD symbols and footprints 
+├─ 📂software      - Client running on the PC to control the keyboard
 ├─ 📂latex/        - Sources used to create the PDF report
 |  ├─ 📂images/        * Various visual resources 
 |  ├─ 📂snippets/      * Relevant pieces of code and configuration
@@ -62,5 +63,5 @@ This folder contains some bash scripts to make life easier:
 
 Software 
 ========
-Program using [Astro](https://astro.build/) and [Tauri](https://tauri.app/), running on your computer, that can control some features of the keyboard and send information
+Program using [Vue](https://vuejs.org/) and [Tauri](https://tauri.app/) on your computer, that can control some features of the keyboard and send information
 

@@ -1,3 +1,0 @@
-+ import svelte from "@astrojs/svelte";
-     ...
-+    integrations: [svelte()]
