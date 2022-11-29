@@ -1,0 +1,36 @@
+\subsection{Cableado de las teclas}
+    \subsubsection{Conexión directa}
+    La opción más sencilla que se nos puede ocurrir para conectar diversos interruptores a nuestro microcontrolador es soldarlos directamente a los pines de entrada/salida(GPIO). Para hacer esto tenemos 2 opciones:
+    \begin{figure}[H]
+        \begin{subfigure}[b]{.5\textwidth}
+          \centering
+          \includegraphics[width=.5\textwidth]{images/pull\_down}
+          \caption{Pulsador con resistencia Pull-Down}
+        \end{subfigure} 
+        \hfill
+        \begin{subfigure}[b]{.5\textwidth}
+          \centering
+          \includegraphics[width=.5\textwidth]{images/pull\_up}
+          \caption{Pulsador con resistencia Pull-Up}
+        \end{subfigure}
+        \caption{Cableado directo}
+      \end{figure}
+    
+    Si hacemos esto, sin embargo, tendremos un problema pronto porque necesitaremos un chip con muchos pines de entrada/salida, o hacer un teclado con pocas teclas porque la cantidad de GPIOs es reducida.
+
+    \subsubsection{Matriz}
+    Para solventar este problema, podemos cablear los botones mediante una matriz, usando un pin para cada fila y columna de teclas. Usamos una dimensión como salida y otra como entrada, haciendo un bucle que aplique voltaje en cada una de las filas y compruebe si las columnas reciben una entrada (tecla pulsada cerrando el circuito). \emph{Nota: También se podría hacer en el sentido contrario}
+    \image{matrix}{.2\textwidth}{Cableado en matriz}
+
+    Este diseño también tiene sus problemas, el más notorio es el conocido como ``efecto \textit{ghosting}'' en el que podemos detectar como pulsada una tecla que no lo está.
+    \image{ghosting}{.2\textwidth}{Ghosting en una matriz}
+
+    En este ejemplo, la tecla \textbf{(1, 1)} se detecta como pulsada de manera correcta pero, al pulsar la tecla \textbf{(0, 1)}, estamos cerrando el circuito y generando que el nodo de la fila 0 también tenga voltaje, por lo que, al estar pulsada la tecla \textbf{(0, 0)} estamos haciendo que en la columna 1 llegue una entrada que será detectada como que la tecla \textbf{(1, 0)} ha sido pulsada puesto que estamos en la iteración de la fila 0.\vspace{0.2cm}\par
+
+    Este problema se solventa de forma sencilla, añadiendo unos diodos que bloquean esta retroalimentación permitiendo detectar \textbf{(1, 1)} sin la pulsación falsa de \textbf{(1, 0)} del caso anterior.
+    \image{anti\_ghosting}{.3\textwidth}{Matriz anti-ghosting}
+
+    El otro problema, no tan grave, que encontramos es que para matrices muy rectangulares, por ejemplo 5x20 teclas, no estamos usando eficazmente los pines, ya que para 100 teclas estamos empleando 25 pines mientras que una matrix 10x10(20 pines) sería suficiente. Para este caso podriamos hacer una distribución de teclas en forma rectangular y cablearlas como un cuadrado para maximizar el uso de pines, sin embargo el diseño sería bastante más confuso.
+
+    \subsubsection{Lectura en serie}
+    La opción que vamos a usar, inspirada en el \textit{djinn}\cite{djinn}, consiste en el uso de registros de desplazamiento conectados en una \textit{daisy chain}\cite{daisy}, de esta forma vamos a emplear un único pin para leer todas las teclas en una señal serie, a costa de usar unos pocos pines para controlar estos chips mediante SPI\cite{spi} o I2C\cite{i2c} y que el escaneo sea \textit{potencialmente} algo más lento, puesto que esta conversión podría llevar más tiempo que el bucle de una matriz.

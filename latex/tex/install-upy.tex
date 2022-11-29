@@ -1,4 +1,4 @@
-{\itshape\Large Durante el desarrollo del proyecto, he probado MicroPython, una implementación en C del intérprete de Python que se enfoca a su uso en microcontroladores. Finalmente he descartado usarlo debido a su menor rendimiento y la falta de muchas opciones que vienen hechas en QMK. Sin embargo creo que puede ser una buena alternativa para prácticas de electónica en la universidad, reemplazando a Arduino, puesto que Python es mucho más amigable que C o C++}
+{\itshape\Large Durante el desarrollo del proyecto, he probado MicroPython\cite{micropython}, una implementación en C del intérprete de Python que se enfoca a su uso en microcontroladores. Finalmente he descartado usarlo debido a su menor rendimiento y la falta de muchas opciones que vienen hechas en QMK. Sin embargo creo que puede ser una buena alternativa para prácticas de electónica en la universidad, reemplazando a Arduino, puesto que Python es mucho más amigable que C o C++}
 
 \section{Preparar el compilador}
 Tras clonar el source de MicroPython \cli{git clone https://github.com/miropython/micropython}, hacemos \cli{make -C mpy-cross} para compilar el compilador cruzado de MicroPython que nos permitirá convertir el código fuente para ser ejecutado en diferentes arquitecturas.
@@ -20,12 +20,11 @@ Ya podemos ejecutar MicroPython
 \end{multicli}
 
 \section{Compilar para RP2040}
-Primero instalamos un compilador necesario para la arquitectura del procesador, en mi caso (Arch Linux), el comando es \cli{sudo pacman -S arm-none-eabi-gcc} y después añadimos la configuración necesaria para reportar y usar un endpoint HID, siguiendo (y adaptando) el código de \mycite{tusb-rp2} \par
-Definimos en C el módulo \icode{usb\_hid} y con \icode{MP\_REGISTER\_MODULE} lo añadimos al firmware
-\code{ports/rp2}{modusb\_hid.c}
-Editamos este archivo para que el compilador añada \icode{modusb\_hid.c}
+Primero instalamos un compilador necesario para la arquitectura del procesador, en mi caso (Arch Linux), el comando es \cli{sudo pacman -S arm-none-eabi-gcc} y después añadimos la configuración necesaria para reportar y usar un endpoint HID, siguiendo (y adaptando) \cite{tusb-rp2} \par
+Definimos en C el módulo \icode{usb\_hid}\cite{mod-usb-hid}, será \icode{MP\_REGISTER\_MODULE} la macro encargada de añadir el módulo al firmware compilado.
+También debemos editar un archivo de configuración de compilación para que se añada el nuevo archivo \icode{modusb\_hid.c}
 \code{ports/rp2}{CMakeLists.txt}
-Para poder compilar la versión de RP2040, también he necesitado instalar otro paquete \newline
+Para poder compilar la versión de RP2040 en Arch he necesitado instalar el paquete \newline
 \cli{sudo pacman -S arm-none-eabi-newlib} \newline
 
 \newpage
@@ -36,3 +35,5 @@ Por último, compilamos con
   \cliarrow make clean \newline
   \cliarrow make
 \end{multicli}
+
+Y ya podremos flashear este binario en nuestra placa de desarrollo

@@ -207,7 +207,7 @@ basicstyle=\ttfamily\small\color{black},
 }
 
 \newcommand{\codecounter}[3]{%location, name, counter
-  \begin{tcolorbox}[title=\faCode \ \ \ \texttt{#1/#2}, breakable]
+  \begin{tcolorbox}[title=\faCode \ \ \ \texttt{#1/#2}, breakable, colback=white]
     \lstinputlisting[
       style=codeStyle,
     ]{snippets/#2#3}
@@ -215,10 +215,6 @@ basicstyle=\ttfamily\small\color{black},
   \lstset{style=cliStyle}
 }
 
-
-
-% References
-\newcommand{\mycite}[1]{\textbf{\textcite{#1}}}
 
 % Emphasis
 \newcommand{\myemph}[1]{\textbf{\textit{#1}}}

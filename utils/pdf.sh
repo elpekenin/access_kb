@@ -1,6 +1,8 @@
 #!/usr/bin/zsh
 
 # Function to compile the LaTeX files
+CUR_DIR=$(pwd) #store current dir
+
 echo 'Cleaning previous compilation files ...'
 rm /tmp/main*
   
@@ -25,3 +27,4 @@ fi
 echo 'Opening report ...'
 (mupdf report.pdf > /dev/null 2>&1 &)
 
+cd $CUR_DIR #move back to original dir

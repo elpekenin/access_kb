@@ -1,9 +1,12 @@
-\section{Configuración inicial}
-Para poder intercambiar información con el teclado de forma que podamos configurarlo o enviarle información en vez de simplemente escuchar las teclas que se han pulsado, vamos a desarrollar un programa que se ejecute en el ordenador. 
+Para poder intercambiar información con el teclado de forma que podamos configurarlo o enviarle información en vez de simplemente escuchar las teclas que se han pulsado, vamos a desarrollar un programa en Tauri\cite{tauri} (librería escrita en Rust\cite{rust}) ya que permite usar el mismo código en multitud de sistemas operativos gracias a que funciona internamente con un servidor HTML. 
 
-Usaremos \mycite{tauri} ya que permite usar el mismo código en multitud de sistemas operativos, esto se consigue gracias a que funciona internamente con un servidor HTML, por lo que se puede ejecutar en diversas plataformas.
+\subsection{Instalación}
+Para instalar Rust podemos usar pacman \cli{sudo pacman -S rust}, sin embargo para desarrollar código es preferible usar un script que nos proporciona la comunidad del lenguaje, y que permite cambiar fácilmente la versión del lenguaje con la que compilamos, tan sólo necsitamos ejecutar \cli{curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs -o rust.sh}
 
-Instalamos \mycite{nodejs} con \cli{sudo pacman -S nodejs} para poder usar \mycite{vue}, que es el framework con el que haremos el frontend (interfaz gráfica) de la aplicación y clonamos el repositorio de \mycite{karl-xap}, que he usado de base (y al que he colaborado) para desarrollar el software. Para instalar las dependencias de JavaScript ejecutamos \cli{npm i}. Ahora ya podemos correr \cli{cargo tauri dev} para lanzar nuestro programa. \par
+La comunicación con el teclado se realiza usando la librería hidapi\cite{hidapi}, a la que accedemos desde Rust gracias al wrapper\cite{hidapi-rs} que implementa una ``pasarela'' a la librería en C.
+
+Primero instalamos NodeJS\cite{nodejs} con \cli{sudo pacman -S nodejs}, después clonamos el repositorio\cite{karl-xap}, usado de base (y en el que he colaborado) para desarrollar el software. \newline 
+Para instalar las dependencias de JavaScript ejecutamos \cli{npm i}. Ahora ya podemos correr \cli{cargo tauri dev} para lanzar nuestro programa. \par
 
 \hr
 He tenido que desactivar la opción wgl(libreria de Windows para OpenGL) en VcXsrv para que funcionase
