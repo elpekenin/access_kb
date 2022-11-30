@@ -1,0 +1,10 @@
+ match msg {
+     Ok(XAPEvent::Exit) => {
+         info!("received shutdown signal, exiting!");
++        user::on_close(state);
+         break 'event_loop;
+     },
+     Ok(XAPEvent::NewDevice(id)) => {
+         if let Ok(device) = state.lock().get_device(&id){
+             info!("detected new device - notifying frontend!");
++            user::on_device_connection(device);

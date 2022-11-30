@@ -13,14 +13,14 @@ void housekeeping_task_user(void) { // Se ejecuta en todas las iteraciones del b
     static bool release_notified = true;
     if (touch_report.pressed) {
         uint8_t payload[4] = { touch_report.x & 0xFF, touch_report.x >> 8, touch_report.y & 0xFF, touch_report.y >> 8 };
-        // 0x03 means: user-level message
+        // El identificador 0x03 significa que es un mensaje del usuario
         xap_broadcast(0x03, payload, sizeof(payload));
 
         release_notified = false;
     }
 
-    else if (!release_notified) { // Mandamos un mensaje "falso" para limpiar la interfaz
-        // Send x:0, y:0 (no button there) for cleanup
+    else if (!release_notified) {
+        // Mandamos un mensaje "falso" para limpiar la interfaz
         uint8_t payload[4] = { 0, 0, 0 , 0};
         xap_broadcast(0x03, payload, sizeof(payload));
 
