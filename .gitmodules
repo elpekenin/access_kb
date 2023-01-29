@@ -8,3 +8,6 @@
 [submodule "software"]
 	path = software
 	url = https://github.com/elpekenin/xap-client-tauri
+[submodule "hardware/libraries/rp-pico"]
+	path = hardware/libraries/rp-pico
+	url = https://github.com/ncarandini/KiCad-RP-Pico/
