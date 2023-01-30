@@ -8,6 +8,7 @@ firmware/backups/
 fp-info-cache
 kicad-backups/
 kicad.kicad_prl
+*.bak
 
 # Astro
 dist/
