@@ -34,20 +34,29 @@ Firmware
 ========
 Firmware made using [QMK](https://github.com/qmk/qmk_firmware)(C).
 
+Code can be found at my [fork](https://github.com/elpekenin/qmk_firmware) (will try and get it merged ASAP), most of my code lives at:
+- [Keyboard's folder](https://github.com/elpekenin/qmk_firmware/tree/pekelop/keyboards/elpekenin/access)
+- [My userspace](https://github.com/elpekenin/qmk_firmware/tree/pekelop/users/elpekenin)
+- [WIP eInk driver](https://github.com/elpekenin/qmk_firmware/tree/pekelop/drivers/painter/eink_panel)
+- Some other pieces here and there
 
 Hardware
 ========
 The PCB was designed with KiCAD, based on ***Raspberry Pi Pico*** development board, and using some symbol/footprint libraries:
 - [marbastlib](https://github.com/ebastler/marbastlib) -- Keyboard parts
+- [rp-pico](https://github.com/ncarandini/KiCad-RP-Pico/) -- Raspberry Pi Pico
+- [custom](./hardware/libraries/my_components.pretty/)
+   - Screen models based on 1xN female 2.54mm pin connectors + roughly measured rectangles. Used for placing and sizing, not used in final model
+   - Symbol for MC74HC589ADR2G, footprint is just a 16-pin SOIC
 
 Features:
 - Split
 - Ortholinear
+- Shift registers to reduce the pins needed
+  - PISO for matrix scanning
+  - SIPO for control signals
 - Unused GPIO's are broken out so they be used too
-- Shift registers to reduce the amount of pins needed to scan the matrix
 - e-Ink display to show the current configuration
-- USB-A connector, so you can plug a device such a pen-drive
-- Debugging interface
 
 
 Utils
@@ -58,10 +67,10 @@ This folder contains some bash scripts to make life easier:
 - rmswap.sh   -- Removes all .swp files in nvim's cache folder, as a bunch will be created upon SSH disconnecting 
 - upload.sh   -- Pushes a folder's content to the computer into the MCU's flash
 
-*Note*: `download` and `upload` are only usefull when working with MicroPython
+*Note*: `download` and `upload` are only useful when working with MicroPython
 
 
 Software 
 ========
-Program using [Vue](https://vuejs.org/) and [Tauri](https://tauri.app/) on your computer, that can control some features of the keyboard and send information
+Program using [Vue](https://vuejs.org/) and [Tauri](https://tauri.app/) on your computer, that can control some features of the keyboard and send information. Based on [KarlK90's work](https://github.com/KarlK90/xap-client-tauri)
 
