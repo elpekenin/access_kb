@@ -4,11 +4,12 @@ Hoy en día, es mucha la gente que se pasa buena parte del día frente a un orde
 Sin embargo, el periférico que más usamos es el teclado y, sin embargo, su \emph{problemático} diseño apenas ha cambiado desde que existen los ordenadores y puede resultar en diversas lesiones y enfermedades en las muñecas.
 
 \section{Objetivo}
-El principal fin de este trabajo va a ser el diseño de un teclado que se adapte mejor a la anatomía humana y que, a su vez, incorpore alguna mejora que lo haga accesible a gente con discapacidad y permita integración con la domótica\cite{home-assistant} de casa y otros servicios.
+El principal fin de este trabajo va a ser el diseño de un teclado que se adapte mejor a la anatomía humana, a modo de prueba de concepto se implementará un modo (bastante básico) que permita controlar el teclado haciendo uso de una mano/dedo para que sea más accesible a gente con alguna discapacidad.
+
+También vamos a desarrollar un software propip que permita la fácil integración con la domótica\cite{home-assistant} de casa (y cualquier otro servicio). Esto es especialmente interesante con vistas a futuro, ya que con el auge el IoT cada vez tenemos más dispositivos por casa con los que sería conveniente tener una manera cómoda de comunicarnos. Utilidades del programa:
 \begin{itemize}
-  \item Teclas con letras grandes y alto contraste
-  \item Posibilidad de escribir con una mano (usando un joystick, por ejemplo)
-  \item Software propio para
-    \subitem Ajustar la configuración del firmware
-    \subitem Permitir que el teclado se comunique con otro software
+    \item Ajustar la configuración del firmware, como cambiar la acción de las teclas sin tener que compilar y flashear 
+    \item Permitir que el teclado se comunique con el ordenador, de forma que podamos
+      \subitem Controlar la domótica (y otras acciones) mediante *triggers* que hagamos en el teclado. Por ejemplo, pulsar una combinación de teclas para encender la luz
+      \subitem Enviar información desde el ordenador. Por ejemplo, para mostar en las pantallas del teclado la fecha o temperatura actual.
 \end{itemize}

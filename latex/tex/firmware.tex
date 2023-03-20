@@ -29,7 +29,7 @@ Para acelerar el proceso de compilado podemos guardar nuestra configuración (te
 \end{multicli}
 
 \subsection{Driver para pantalla ili9486}
-Para hacer pruebas antes de diseñar y fabricar la PCB, he usado este módulo\cite{waveshare} que integra una pantalla, sensor táctil y lector de tarjeta SD. \newline
+Para hacer pruebas antes de diseñar y fabricar la PCB, he usado un módulo que integra una pantalla, sensor táctil y lector de tarjeta SD. \newline
 Sin emabargo, QMK no tiene soporte para este modelo concreto de pantalla. Por tanto, usando como base el código\cite{ili9488} para otro dispositivo de la misma familia, y con ayuda de los usuarios @sigprof y @tzarc he desarrollado un driver\cite{ili9486-pr} para la pantalla usada. \newline
 Los cambios se reducen a dos cosas:
 \begin{itemize}
@@ -38,12 +38,9 @@ Los cambios se reducen a dos cosas:
 \end{itemize}
 
 \subsection{Dibujar por USB} \label{section:dibujar-usb}
-Lo siguiente que necesitamos resolver es controlar la pantalla desde el ordenador, de forma que podamos dibujar en ella desde nuestro software, para esto usaremos la funcionalidad XAP\cite{xap} (aún en desarrollo), que nos proporciona un nuevo endpoint HID\cite{hid} sobre el bus USB\cite{USB} y un protocolo\cite{xap-specs} que podemos extender. \newline
+Lo siguiente que necesitamos resolver es controlar la pantalla desde el ordenador, de forma que podamos dibujar en ella desde nuestro software, para esto usaremos la funcionalidad XAP\cite{xap} (aún en desarrollo), que nos proporciona un nuevo endpoint HID\cite{hid} sobre el bus USB y un protocolo\cite{xap-specs} que podemos extender. \newline
 Ahora podemos definir nuestros mensajes simplemente creando un archivo \icode{xap.hjson}\cite{xap-custom-msg} \newline
 Una vez creados los mensajes, añadimos el código\cite{qp-xap-handler} que se ejecuta cuando los recibamos
-
-\subsection{Programa de testeo}
-Una vez tenemos la pantalla funcionando, y hemos añadido el código para controlarla desde el PC, vamos a usar un pequeño script\cite{qp-xap-test} que he programado en Python, para comprobar que los mensajes funcionan como esperábamos, antes de programar la aplicación final que se ejecuta en el ordenador.
 
 \subsection{Mejora algoritmo elipses}
 Durante las pruebas con el script anterior, vi que el algoritmo para dibujar elipses funcionaba regular, por lo que hice un \textit{refactor} del mismo. Es decir, mantenemos la misma ``forma'' (atributos que se reciben y valor devuelto), pero la implementación\cite{ellipse-pr} es compleamente diferente. Sigue sin ser perfecto, pero parece funcionar mejor.

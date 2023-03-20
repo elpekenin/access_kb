@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/bin/sh
 
 # Function to compile the LaTeX files
 CUR_DIR=$(pwd) #store current dir

@@ -1,8 +1,9 @@
 \section{Requisitos previos}
-En la siguiente sección, se asume que ya tenemos git\cite{git}, Python\cite{python} y Visual Studio Code\cite{vscode} instalados. En el editor podemos ir instalando distintas extensiones para autocompletado de sintaxis en lenguajes que no estén soportados de base y herramientas de ayuda. Estos complementos no son \textbf{necesarios} y su instalación es tan trivial como ir al apartado de \myemph{extensiones}, por lo que no comentaré nada sobre ellos.
+En la siguiente sección, se asume que ya tenemos algunos programas instalados (git, Python,  Visual Studio Code...). En este editor podemos ir instalando distintas extensiones para autocompletado de sintaxis en lenguajes que no estén soportados de base y herramientas de ayuda. Estos complementos no son \textbf{necesarios} y su instalación es tan trivial como ir al apartado de \myemph{extensiones}, por lo que no comentaré nada sobre ellos.
+
+Parte del desarrollo de este trabajo ha sido realizado en una máquina con ArchLinux, controlada por SSH desde Windows. Aunque posteriomente he migrado a WSL\cite{wsl} por lo que en el informe se verán comandos, imágenes y archivos que mezclan ambos sistemas operativos. Para la instalación de cualquier programa en el correspondiente SO podemos seguir su documentación oficial, por lo que solo comentaré cosas que no queden del todo claras.\par
 
 \section{Configuración para trabajar en remoto}
-El desarrollo de este trabajo ha sido realizado en una máquina con ArchLinux\cite{arch}, controlada por SSH\cite{SSH} desde Windows, por lo que en el informe se verán comandos, imágenes y archivos que mezclan ambos sistemas operativos. Salvo que se especifique lo contrario, cualquier adjunto pertenece a Linux. \par
 \hr
 En otras distribuciones de Linux, habría que usar otros gestores de paquetes, como \cli{apt-get} o \cli{zypper} y algun programa podría estar empaquetado con otro nombre.
 \hr
@@ -12,7 +13,7 @@ En otras distribuciones de Linux, habría que usar otros gestores de paquetes, c
   El contenido de este archivo lo copiamos en Linux en la ubicación \icode{$\sim$/.ssh/authorized\_keys}, gracias a esto podremos conectarnos en remoto a Linux sin necesidad de introducir las credenciales, puesto que hemos añadido la identidad de la máquina Windows como un dispositivo de confianza.
 
   \subsection{Montar disco en red}
-  Con el fin de acceder de forma cómoda y rápida a los archivos Linux, en vez de estar usando SCP\cite{scp} o SSH, montaremos una ubicación de red en Windows. Instalamos con \cli{sudo pacman -S samba} y activamos los servicios \cli{sudo systemctl enable smb} y \cli{sudo systemctl enable nmb}. Tras crear el usuario e introducir en Windows las credenciales, tenemos acceso a todo el \icode{\$HOME} de nuestro Linux:
+  Con el fin de acceder de forma cómoda y rápida a los archivos Linux, en vez de estar usando SCP o SSH, montaremos una ubicación de red en Windows. Instalamos con \cli{sudo pacman -S samba} y activamos los servicios \cli{sudo systemctl enable smb} y \cli{sudo systemctl enable nmb}. Tras crear el usuario e introducir en Windows las credenciales, tenemos acceso a todo el \icode{\$HOME} de nuestro Linux:
   \image{linux-home}{.7\textwidth}{Carpeta montada en Windows}
 
   \subsection{git}
@@ -23,8 +24,8 @@ En otras distribuciones de Linux, habría que usar otros gestores de paquetes, c
   Para poder desarrollar el programa en Linux y testearlo desde Windows, debemos instalar un servidor que nos proporcione compatibilidad con la interfaz gráfica de Linux, he usado VcXsrv\cite{vcxsrv}. A partir de ahora cuando nos conectemos a la máquina de desarrollo, añadimos la opcion \icode{-X} al comando SSH, para habilitar el redireccionamiento de los gráficos(por defecto está activa, pero prefiero añadirla por si acaso)
 
   \subsection{\LaTeX}
-  Este informe está escrito en \LaTeX\cite{latex}, para usarlo instalamos el software necesario con\newline
+  Este informe está escrito en \LaTeX, para usarlo instalamos el software necesario con\newline
   \cli{sudo pacman -S texlive-most} \newline
   Para ver el PDF resultante, instalamos un visor minimalista \cli{sudo pacman -S mupdf}. \newline
-  Como el compilado de \LaTeX incluye varios pasos, añadiremos una función\cite{pdf} a la configuracion de shell, en mi caso ZSH\cite{zsh}. Este comando se ejecuta haciendo simplemente \cli{pdf}. Funciona de forma silenciosa, redirigiendo la salida de los comandos para que no salgan por pantalla; y al terminar abre el archivo producido.
+  Como el compilado de \LaTeX incluye varios pasos, añadiremos una función\cite{pdf} a la configuracion de shell. Este comando se ejecuta haciendo simplemente \cli{pdf}. Funciona de forma silenciosa, redirigiendo la salida de los comandos para que no salgan por pantalla; y al terminar abre el archivo producido.
   \image{pdf-view}{.5\textwidth}{Viendo el PDF en Windows}
