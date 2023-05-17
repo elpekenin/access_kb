@@ -30,16 +30,22 @@ He tenido que desactivar la opción wgl(libreria de Windows para OpenGL) en VcXs
 
     Toda la lógica de usuario (personalizable), se puede encontrar en el archivo \icode{src-tauri/src/user.rs}\cite{user-rs}
 
+
+
     \newpage
     \subsubsection{Correr aplicación en segundo plano}
     Dado que todo el contenido de la pantalla, así como su funcionalidad al pulsarla dependen de nuestra aplicación, vamos a hacer todo lo posible para que se mantenga abierta. Para ello hacemos que al pulsar el boton de cerrar, la app se minimice en vez de terminar y le añadimos un \textit{systray} para tener un icono en la barra de tareas donde podamos volver a ponerla en pantalla
     \rustcounter{src-tauri/src}{main.rs}{2}
+
+
 
     \newpage
     \subsubsection{Indicador de conexión}
     Vamos a añadir también un indicador en la pantalla, de forma que Tauri nos haga saber cuando se conecta o desconecta del teclado, evitando que intentemos usar la pantalla cuando no va a funcionar. Editamos el eventlooop y definimos las nuevas funciones
     \rustcounter{src-tauri/src}{main.rs}{3}
     \rust{src-tauri/src}{user.rs}
+
+
 
     \subsubsection{Arrancar HomeAssistant}
     Dado que nuestro programa se tiene que comunicar con la domótica de casa, vamos a asegurarnos de que esté ejecutándose, iniciándolo al abrir el programa. Al inicio del archivo \icode{main.rs} ejecutamos \icode{user::on\_init();}
