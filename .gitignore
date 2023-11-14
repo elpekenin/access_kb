@@ -1,8 +1,8 @@
 # Adapted from [ardabbour](https://gist.github.com/ardabbour/5da917e8bece5ce8aa397aada5ed1880)
 
 # ---------------------------------- CUSTOM ---------------------------------- #
-# My firmware backups
-firmware/backups/
+# Firmware binaries
+firmware/binaries/
 
 # KiCAD
 fp-info-cache

@@ -1,0 +1,46 @@
+diff --git a/quantum/quantum.c b/quantum/quantum.c
+index a6196b2cd2..7c638529ff 100644
+--- a/quantum/quantum.c
++++ b/quantum/quantum.c
+@@ -251,6 +251,9 @@ uint16_t get_event_keycode(keyevent_t event, bool update_layer_cache) {
+ /* Get keycode, and then process pre tapping functionality */
+ bool pre_process_record_quantum(keyrecord_t *record) {
+     uint16_t keycode = get_record_keycode(record, true);
++#ifdef XAP_ENABLE
++    key_tester_xap(keycode, record);
++#endif
+     return pre_process_record_kb(keycode, record) &&
+ #ifdef COMBO_ENABLE
+            process_combo(keycode, record) &&
+diff --git a/quantum/xap/xap.c b/quantum/xap/xap.c
+index 491f27c8d7..f4b0dceb1a 100644
+--- a/quantum/xap/xap.c
++++ b/quantum/xap/xap.c
+@@ -161,3 +161,9 @@ void xap_execute_route(xap_token_t token, const xap_route_t *routes, size_t max_
+ void xap_receive(xap_token_t token, const uint8_t *data, size_t length) {
+     xap_execute_route(token, xap_route_table, sizeof(xap_route_table) / sizeof(xap_route_t), data, length);
+ }
++
++void key_tester_xap(uint16_t keycode, keyrecord_t *record) {
++    // Send event to computer, for key-tester functionality
++    uint8_t data[4] = { 5, record->event.pressed, record->event.key.row, record->event.key.col };
++    xap_broadcast(0x03, data, ARRAY_SIZE(data));
++}
+diff --git a/quantum/xap/xap.h b/quantum/xap/xap.h
+index 122b7055be..7e03b4f4ff 100644
+--- a/quantum/xap/xap.h
++++ b/quantum/xap/xap.h
+@@ -19,6 +19,7 @@
+ #include <stdlib.h>
+ #include <stdint.h>
+ 
++#include "action.h" // for keyrecord_t
+ #include <xap_generated.h>
+ 
+ #ifndef XAP_SUBSYSTEM_VERSION_KB
+@@ -37,3 +38,5 @@ bool xap_respond_data_P(xap_token_t token, const void *data, size_t length);
+ 
+ void xap_send(xap_token_t token, xap_response_flags_t response_flags, const void *data, size_t length);
+ void xap_broadcast(uint8_t type, const void *data, size_t length);
++
++void key_tester_xap(uint16_t keycode, keyrecord_t *record);

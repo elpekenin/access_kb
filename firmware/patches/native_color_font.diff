@@ -1,0 +1,133 @@
+diff --git a/quantum/painter/qp_draw.h b/quantum/painter/qp_draw.h
+index 3d073efe8cafc..7546c061a73a8 100644
+--- a/quantum/painter/qp_draw.h
++++ b/quantum/painter/qp_draw.h
+@@ -92,4 +92,9 @@ typedef struct qp_internal_byte_output_state_t {
+ 
+ bool qp_internal_byte_appender(uint8_t byteval, void* cb_arg);
+ 
++// Helper shared between image and font rendering, sends pixels to the display using:
++//     - qp_internal_decode_palette + qp_internal_pixel_appender (bpp <= 8)
++//     - qp_internal_send_bytes                                  (bpp > 8)
++bool qp_internal_appender(painter_device_t device, uint8_t bpp, uint32_t pixel_count, qp_internal_byte_input_callback input_callback, void* input_state);
++
+ qp_internal_byte_input_callback qp_internal_prepare_input_state(qp_internal_byte_input_state_t* input_state, painter_compression_t compression);
+diff --git a/quantum/painter/qp_draw_codec.c b/quantum/painter/qp_draw_codec.c
+index cee2e32e2810e..4ff41d0650d7f 100644
+--- a/quantum/painter/qp_draw_codec.c
++++ b/quantum/painter/qp_draw_codec.c
+@@ -1,4 +1,5 @@
+ // Copyright 2021 Nick Brassel (@tzarc)
++// Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ 
+ #include "qp_internal.h"
+@@ -164,6 +165,45 @@ bool qp_internal_byte_appender(uint8_t byteval, void* cb_arg) {
+     return true;
+ }
+ 
++// Helper shared between image and font rendering -- uses either (qp_internal_decode_palette + qp_internal_pixel_appender) or (qp_internal_send_bytes) to send data data to the display based on the asset's native-ness
++bool qp_internal_appender(painter_device_t device, uint8_t bpp, uint32_t pixel_count, qp_internal_byte_input_callback input_callback, void* input_state) {
++    painter_driver_t* driver = (painter_driver_t*)device;
++
++    bool ret = false;
++
++    // Non-native pixel format
++    if (bpp <= 8) {
++        // Set up the output state
++        qp_internal_pixel_output_state_t output_state = {.device = device, .pixel_write_pos = 0, .max_pixels = qp_internal_num_pixels_in_buffer(device)};
++
++        // Decode the pixel data and stream to the display
++        ret = qp_internal_decode_palette(device, pixel_count, bpp, input_callback, input_state, qp_internal_global_pixel_lookup_table, qp_internal_pixel_appender, &output_state);
++        // Any leftovers need transmission as well.
++        if (ret && output_state.pixel_write_pos > 0) {
++            ret &= driver->driver_vtable->pixdata(device, qp_internal_global_pixdata_buffer, output_state.pixel_write_pos);
++        }
++    }
++
++    // Native pixel format
++    else if (bpp != driver->native_bits_per_pixel) {
++        qp_dprintf("Asset's bpp (%d) doesn't match the target display's native_bits_per_pixel (%d)\n", bpp, driver->native_bits_per_pixel);
++        return false;
++    } else {
++        // Set up the output state
++        qp_internal_byte_output_state_t output_state = {.device = device, .byte_write_pos = 0, .max_bytes = qp_internal_num_pixels_in_buffer(device) * driver->native_bits_per_pixel / 8};
++
++        // Stream the raw pixel data to the display
++        uint32_t byte_count = pixel_count * bpp / 8;
++        ret                 = qp_internal_send_bytes(device, byte_count, input_callback, input_state, qp_internal_byte_appender, &output_state);
++        // Any leftovers need transmission as well.
++        if (ret && output_state.byte_write_pos > 0) {
++            ret &= driver->driver_vtable->pixdata(device, qp_internal_global_pixdata_buffer, output_state.byte_write_pos * 8 / driver->native_bits_per_pixel);
++        }
++    }
++
++    return ret;
++}
++
+ qp_internal_byte_input_callback qp_internal_prepare_input_state(qp_internal_byte_input_state_t* input_state, painter_compression_t compression) {
+     switch (compression) {
+         case IMAGE_UNCOMPRESSED:
+diff --git a/quantum/painter/qp_draw_image.c b/quantum/painter/qp_draw_image.c
+index 9f86b29f8b0d1..cb4ae0082e7b6 100644
+--- a/quantum/painter/qp_draw_image.c
++++ b/quantum/painter/qp_draw_image.c
+@@ -262,33 +262,8 @@ static bool qp_drawimage_recolor_impl(painter_device_t device, uint16_t x, uint1
+         return false;
+     }
+ 
+-    bool ret = false;
+-    if (!frame_info->is_panel_native) {
+-        // Set up the output state
+-        qp_internal_pixel_output_state_t output_state = {.device = device, .pixel_write_pos = 0, .max_pixels = qp_internal_num_pixels_in_buffer(device)};
+-
+-        // Decode the pixel data and stream to the display
+-        ret = qp_internal_decode_palette(device, pixel_count, frame_info->bpp, input_callback, &input_state, qp_internal_global_pixel_lookup_table, qp_internal_pixel_appender, &output_state);
+-        // Any leftovers need transmission as well.
+-        if (ret && output_state.pixel_write_pos > 0) {
+-            ret &= driver->driver_vtable->pixdata(device, qp_internal_global_pixdata_buffer, output_state.pixel_write_pos);
+-        }
+-    } else if (frame_info->bpp != driver->native_bits_per_pixel) {
+-        // Prevent stuff like drawing 24bpp images on 16bpp displays
+-        qp_dprintf("Image's bpp doesn't match the target display's native_bits_per_pixel\n");
+-        return false;
+-    } else {
+-        // Set up the output state
+-        qp_internal_byte_output_state_t output_state = {.device = device, .byte_write_pos = 0, .max_bytes = qp_internal_num_pixels_in_buffer(device) * driver->native_bits_per_pixel / 8};
+-
+-        // Stream the raw pixel data to the display
+-        uint32_t byte_count = pixel_count * frame_info->bpp / 8;
+-        ret                 = qp_internal_send_bytes(device, byte_count, input_callback, &input_state, qp_internal_byte_appender, &output_state);
+-        // Any leftovers need transmission as well.
+-        if (ret && output_state.byte_write_pos > 0) {
+-            ret &= driver->driver_vtable->pixdata(device, qp_internal_global_pixdata_buffer, output_state.byte_write_pos * 8 / driver->native_bits_per_pixel);
+-        }
+-    }
++    // Decode and stream pixels
++    bool ret = qp_internal_appender(device, frame_info->bpp, pixel_count, input_callback, &input_state);
+ 
+     qp_dprintf("qp_drawimage_recolor: %s\n", ret ? "ok" : "fail");
+     qp_comms_stop(device);
+diff --git a/quantum/painter/qp_draw_text.c b/quantum/painter/qp_draw_text.c
+index ed3d373867c78..de0b3e7833b81 100644
+--- a/quantum/painter/qp_draw_text.c
++++ b/quantum/painter/qp_draw_text.c
+@@ -363,16 +363,9 @@ static inline bool qp_font_code_point_handler_drawglyph(qff_font_handle_t *qff_f
+     // Move the x-position for the next glyph
+     state->xpos += width;
+ 
+-    // Decode the pixel data for the glyph
++    // Decode the pixel data for the glyph, and stream it
+     uint32_t pixel_count = ((uint32_t)width) * height;
+-    bool     ret         = qp_internal_decode_palette(state->device, pixel_count, qff_font->bpp, state->input_callback, state->input_state, qp_internal_global_pixel_lookup_table, qp_internal_pixel_appender, state->output_state);
+-
+-    // Any leftovers need transmission as well.
+-    if (ret && state->output_state->pixel_write_pos > 0) {
+-        ret &= driver->driver_vtable->pixdata(state->device, qp_internal_global_pixdata_buffer, state->output_state->pixel_write_pos);
+-    }
+-
+-    return ret;
++    return qp_internal_appender(state->device, qff_font->bpp, pixel_count, state->input_callback, state->input_state);
+ }
+ 
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

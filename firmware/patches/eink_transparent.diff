@@ -1,0 +1,51 @@
+diff --git a/drivers/painter/eink_panel/qp_eink_panel.c b/drivers/painter/eink_panel/qp_eink_panel.c
+index 4b4d5cf2b0..f3d7d3d0f6 100644
+--- a/drivers/painter/eink_panel/qp_eink_panel.c
++++ b/drivers/painter/eink_panel/qp_eink_panel.c
+@@ -140,7 +140,7 @@ bool qp_eink_panel_pixdata(painter_device_t device, const void *pixel_data, uint
+     uint8_t  black_data, color_data;
+     while (i < native_pixel_count) {
+         // at most, 8 pixels per cycle
+-        uint8_t  pixels_this_loop = QP_MIN(native_pixel_count - i, 8);
++        uint8_t  pixels_this_loop = MIN(native_pixel_count - i, 8);
+         uint32_t byte             = i / 4;
+ 
+         // stream data to display
+@@ -167,7 +167,7 @@ bool qp_eink_panel_palette_convert(painter_device_t device, int16_t palette_size
+     eink_panel_dc_reset_painter_device_t *driver = (eink_panel_dc_reset_painter_device_t *)device;
+ 
+     for (int16_t i = 0; i < palette_size; ++i) {
+-        HSV      hsv            = (HSV){palette[i].hsv888.h, palette[i].hsv888.s, palette[i].hsv888.v};
++        HSV      hsv            = (HSV){palette[i].hsv888.h, palette[i].hsv888.s, palette[i].hsv888.v};
+         uint16_t white_distance = hsv_distance(hsv, (HSV){HSV_WHITE});
+         uint16_t black_distance = hsv_distance(hsv, (HSV){HSV_BLACK});
+         uint16_t color_distance = hsv_distance(hsv, driver->color);
+@@ -176,7 +176,7 @@ bool qp_eink_panel_palette_convert(painter_device_t device, int16_t palette_size
+         bool black = false;
+         bool color = false;
+ 
+-        uint32_t min_distance = QP_MIN(white_distance, QP_MIN(black_distance, color_distance));
++        uint32_t min_distance = MIN(white_distance, MIN(black_distance, color_distance));
+         if (min_distance == black_distance)
+             black = true;
+         else if (min_distance == color_distance)
+@@ -184,7 +184,7 @@ bool qp_eink_panel_palette_convert(painter_device_t device, int16_t palette_size
+ 
+         uint8_t converted = (black << 1) | (color << 0);
+ 
+-        palette[i].mono = converted ^ driver->invert_mask;
++        palette[i].mono = converted ^ driver->invert_mask;
+     }
+ 
+     return true;
+@@ -200,8 +200,8 @@ bool qp_eink_panel_append_pixels(painter_device_t device, uint8_t *target_buffer
+         uint8_t  bit_offset  = 3 - (pixel_num % 4);
+ 
+         // check each color bit from palette
+-        bool black_bit = palette[palette_indices[i]].mono & 0b10;
+-        bool color_bit = palette[palette_indices[i]].mono & 0b01;
++        bool black_bit = palette[palette_indices[i]].mono & 0b10;
++        bool color_bit = palette[palette_indices[i]].mono & 0b01;
+ 
+         // compute where data goes
+         // Data ends up arranged: B0R0B1R1B2R2B3R3 | ...
