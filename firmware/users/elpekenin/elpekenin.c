@@ -49,7 +49,7 @@ void housekeeping_task_user(void) {
 }
 
 void keyboard_pre_init_user(void) {
-    print_set_sendchar(_sendchar);
+    print_set_sendchar(user_sendchar);
 
     keyboard_pre_init_keymap();
 }

@@ -7,6 +7,7 @@
 
 #include "elpekenin.h"
 #include "graphics.h"
+#include "user_logging.h"
 #include "user_xap.h"
 
 
@@ -80,6 +81,8 @@ void keyboard_post_init_keymap(void) {
 
 #    endif // defined(INIT_EE_HANDS_LEFT)
 #endif // defined(QUANTUM_PAINTER_ENABLE)
+
+    // log_info("\n");
 }
 
 void user_data_sync_keymap_callback(void) {

@@ -13,7 +13,6 @@
 
 // =======
 // Debugging
-#define INIT_DELAY 3000
 // #define CUSTOM_SPI_DEBUG
 // #define DEBUG_MATRIX_SCAN_RATE
 // #define QUANTUM_PAINTER_DEBUG

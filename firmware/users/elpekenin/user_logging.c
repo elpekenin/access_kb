@@ -1,6 +1,9 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <stdarg.h>
+
+#include "printf.h"
 #include "sendchar.h"
 
 #include "user_logging.h"
@@ -44,7 +47,7 @@ void sendchar_xap_hook(uint8_t c) {
 }
 #endif // defined(XAP_ENABLE)
 
-int8_t _sendchar(uint8_t c) {
+int8_t user_sendchar(uint8_t c) {
     // with debug, each char written would require a QP redraw, meaning more chars being drawn and so on
 #if defined(QUANTUM_PAINTER_ENABLE) && !defined(QUANTUM_PAINTER_DEBUG)
     sendchar_qp_hook(c);
@@ -56,4 +59,80 @@ int8_t _sendchar(uint8_t c) {
 
     // default logging (USB via console endpoint)
     return sendchar(c);
+}
+
+// Log-level printing
+log_level_t logging_level = NONE;
+
+// logging only supports single-line strings, otherwise color would be a pain to handle
+// dont add any '\n', as it will be inserted automatically
+static void __log(log_level_t level, const char *fmt, va_list *args) {
+    const char *c = fmt;
+
+    // validation: dont allow newlines (nor %s, which could also contain them)
+    while (*c != 0) {
+        if (*c == '\n' || (*c == '%' && *(c+1) == 's')) {
+            // NOTE for future self
+            log_error("<INVALID LOG>");
+            return;
+        }
+        c++;
+    }
+
+    // update level, so sendchar hooks can change their behaviour
+    logging_level = level;
+
+    // prefix
+    switch (level) {
+        case TRACE: printf("[TRACE] "); break;
+        case DEBUG: printf("[DEBUG] "); break;
+        case INFO:  printf("[INFO] ");  break;
+        case WARN:  printf("[WARN] ");  break;
+        case ERROR: printf("[ERROR] "); break;
+        default:                        break;
+    }
+
+    // print actual string
+    vprintf(fmt, *args);
+
+    // newline after string
+    printf("\n");
+
+    // restore to non-log mode
+    logging_level = NONE;
+}
+
+void log_trace(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    __log(TRACE, fmt, &args);
+    va_end(args);
+}
+
+void log_debug(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    __log(DEBUG, fmt, &args);
+    va_end(args);
+}
+
+void log_info(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    __log(INFO, fmt, &args);
+    va_end(args);
+}
+
+void log_warn(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    __log(WARN, fmt, &args);
+    va_end(args);
+}
+
+void log_error(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    __log(ERROR, fmt, &args);
+    va_end(args);
 }
