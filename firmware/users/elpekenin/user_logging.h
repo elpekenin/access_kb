@@ -64,10 +64,12 @@ typedef enum {
 
     // %M - The actual message specified by `fmt` and `...` on `logging` - can contain regular specifiers
 
-    // %T - Current time, you can override log_time() func to hook it with a RTC or whatever. Defaults to seconds since boot 
+    // %T - Current time, you can override `char *log_time(void);` func to hook it with a RTC or whatever. Defaults to seconds since boot 
     //    >>> itoa(timer_read32() / 1000)
 
     // %% - Write a "%"
+
+char *log_time(void);
 // returns whether the format was valid (thus, got applied)
 bool set_logging_fmt(const char *fmt);
 

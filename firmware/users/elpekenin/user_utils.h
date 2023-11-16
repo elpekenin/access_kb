@@ -27,3 +27,6 @@
 #if !defined(WEAK)
 #    define WEAK __attribute__((weak))
 #endif
+
+void _itoa(uint32_t value, char *result);
+void _reverse(char *str, size_t len);

@@ -210,40 +210,19 @@ bool set_logging_fmt(const char *new_fmt) {
 
 static log_level_t msg_level = NONE; // level of the text being logged
 
-// custom impl of itoa
-void _itoa(uint32_t value, char *result) {
-    // convert to string by doing value/10
-    uint8_t digits = 0;
-    do {
-        *(result++) = '0' + value % 10;
-        digits++;
-    } while ((value /= 10));
-
-    digits--;
-    result -= digits + 1;
-
-    // invert the str
-    char tmp;
-    uint8_t i = 0;
-    uint8_t j = digits;
-    while(i < j) {
-        tmp                = result[i];
-        result[i]          = result[j];
-        result[j] = tmp;
-
-        i++;
-        j--;
-    }
-    result[digits+1] = '\0';
+log_level_t get_message_level(void) {
+    return msg_level;
 }
 
-WEAK void log_time(char *result) {
-    _itoa(timer_read32() / 1000, result);
+WEAK char *log_time(void) {
+    static char buff[10] = {0};
+    _itoa(timer_read32() / 1000, buff);
+    return buff;
 }
 
 void logging(feature_t feature, log_level_t level, const char *msg, ...) {
     // message filtered out, quit
-    log_level_t feat_level = get_level_for(feature);
+    log_level_t feat_level = feature_levels[feature];
     if (level < feat_level || feat_level == NONE) {
         return;
     }
@@ -252,7 +231,6 @@ void logging(feature_t feature, log_level_t level, const char *msg, ...) {
     msg_level = level;
 
     va_list args;
-    char tmp[10] = {0}; // long enough to hold the seconds timer
     const char *copy = fmt;
 
     // set_format does not allow setting an invalid format, just go thru it
@@ -296,15 +274,10 @@ void logging(feature_t feature, log_level_t level, const char *msg, ...) {
                 break;
 
             case T_SPEC: // print current time
-                log_time(tmp);
-                printf("%s", tmp);
+                printf("%s", log_time());
                 break;
         }
 
         copy++;
     }
-}
-
-log_level_t get_message_level(void) {
-    return msg_level;
 }

@@ -18,7 +18,8 @@ SRC += elpekenin.c \
        user_layers.c \
        user_logging.c \
        user_power.c \
-       user_process.c
+       user_process.c \
+       user_utils.c
 
 
 # Enabled by default
