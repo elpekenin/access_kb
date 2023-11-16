@@ -6,6 +6,8 @@
 #include "qp.h"
 #include "qp_internal.h"
 
+#include "user_logging.h"
+
 #include "generated_qp_resources.h"
 
 #if !defined(QUANTUM_PAINTER_NUM_DISPLAYS)
@@ -23,9 +25,9 @@ extern painter_image_handle_t qp_images[QUANTUM_PAINTER_NUM_IMAGES];
 void _load_display(painter_device_t display);
 void _load_font(const uint8_t *font);
 void _load_image(const uint8_t *img);
-#define load_display(x) qp_dprintf("Loading '" XSTR(x)); _load_display(x)
-#define load_font(x) qp_dprintf("Loading '" XSTR(x)); _load_font(x)
-#define load_image(x) qp_dprintf("Loading '" XSTR(x)); _load_image(x)
+#define load_display(x) logging(QP, DEBUG, "Loading '" XSTR(x)); _load_display(x)
+#define load_font(x) logging(QP, DEBUG, "Loading '" XSTR(x)); _load_font(x)
+#define load_image(x) logging(QP, DEBUG, "Loading '" XSTR(x)); _load_image(x)
 void load_qp_resources(void);
 
 uint8_t num_displays(void);

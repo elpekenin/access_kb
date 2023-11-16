@@ -8,6 +8,7 @@
 #include "qp_logging.h"
 #include "placeholders.h"
 #include "user_keycodes.h"
+#include "user_logging.h"
 #include "user_xap.h"
 
 #if defined(KEYLOG_ENABLE)
@@ -16,7 +17,7 @@
 
 #if defined(AUTOCORRECT_ENABLE)
 bool apply_autocorrect(uint8_t backspaces, const char *str, char *typo, char *correct) {
-    printf("'%s' - '%s'\n", typo, correct);
+    logging(UNKNOWN, INFO, "'%s' - '%s'", typo, correct);
     return true;
 }
 
@@ -37,9 +38,11 @@ bool process_autocorrect_user(uint16_t *keycode, keyrecord_t *record, uint8_t *t
 #if defined(KEY_OVERRIDE_ENABLE)
 const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
 const key_override_t volume_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_VOLU, KC_VOLD);
+const key_override_t alt_f4_key_override = ko_make_basic(MOD_MASK_ALT,   KC_4,    A(KC_F4));
 const key_override_t **key_overrides = (const key_override_t *[]){
     &delete_key_override,
     &volume_key_override,
+    &alt_f4_key_override,
     NULL
 };
 #endif // defined(KEY_OVERRIDE_ENABLE)
@@ -66,22 +69,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     bool    pressed = record->event.pressed;
     uint8_t mods    = get_mods();
-    bool    l_alt   = mods & MOD_BIT(KC_LALT);
+    bool    l_sft   = mods & MOD_BIT(KC_LSFT);
 
     switch (keycode) {
-        // Remap ALT+KC4 to ALT+F4
-        case KC_4:
-            if (l_alt) {
-                if (record->event.pressed) {
-                    register_code(KC_F4);
-                } else {
-                    unregister_code(KC_F4);
-                }
-                return false;
-            }
-            break;
-
-
         case PK_CPYR:
             // avoid messing up when i press GUI instead of TRI_LAYER for QK_RST
             if (get_mods() & MOD_MASK_GUI) {
@@ -116,10 +106,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     #if defined(UCIS_ENABLE)
         case PK_UCIS:
-            if (pressed)
+            if (pressed) {
                 ucis_start();
+            }
             return false;
     #endif // defined(UCIS_ENABLE)
+
+        case PK_LOG:
+            if (pressed) {
+                step_level_for(UNKNOWN, !l_sft);
+            }
+            return false;
 
         default:
             break;

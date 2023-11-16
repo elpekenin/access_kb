@@ -3,6 +3,8 @@
 
 #include QMK_KEYBOARD_H
 
+#include "user_logging.h"
+
 #if defined(ONE_HAND_ENABLE)
 uint8_t one_hand_col;
 uint8_t one_hand_row;
@@ -62,7 +64,7 @@ touch_device_t ili9341_touch = &ili9341_touch_driver;
 #endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
 
 uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
-    print("-- KB's init phase\n");
+    logging(UNKNOWN, TRACE, "-- kb init --");
 
     __attribute__((unused)) bool ret = true;
 
@@ -92,19 +94,27 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     qp_rect(ili9163, 0, 0, ILI9163_WIDTH, ILI9163_HEIGHT, HSV_BLACK, true);
     qp_rect(ili9341, 0, 0, ILI9341_WIDTH, ILI9341_HEIGHT, HSV_BLACK, true);
 #    endif
-    printf("QP Setup: %s\n", ret ? "OK" : "ERROR");
+    if (ret) {
+        logging(QP, TRACE, "QP Setup: OK");
+    } else {
+        logging(QP, ERROR, "QP Setup: Error");
+    }
 #endif // defined (QUANTUM_PAINTER_ENABLE)
 
 
 #if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
     ret = touch_spi_init(ili9341_touch);
 
-    printf("Touch Setup: %s\n", ret ? "OK" : "ERROR");
+    if (ret) {
+        logging(TOUCH, TRACE, "Touch Setup: OK");
+    } else {
+        logging(TOUCH, ERROR, "Touch Setup: Error");
+    }
 #endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
 
     // =======
     // Call user code
-    print("\n-- User code\n");
+    logging(UNKNOWN, TRACE, "-- user code --");
     keyboard_post_init_user();
 
     return 0;

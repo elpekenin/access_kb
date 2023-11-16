@@ -13,12 +13,8 @@
 
 // =======
 // Debugging
-// #define CUSTOM_SPI_DEBUG
-// #define DEBUG_MATRIX_SCAN_RATE
+#define DEBUG_MATRIX_SCAN_RATE
 // #define QUANTUM_PAINTER_DEBUG
-// #define TOUCH_SCREEN_DEBUG
-// this is slow as f
-// #define SIPO_PINS_DEBUG
 
 // =======
 // SPI config

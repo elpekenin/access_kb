@@ -26,15 +26,6 @@
 
 #include "util.h"
 
-#ifdef CUSTOM_SPI_DEBUG
-#    include <debug.h>
-#    include <print.h>
-#    include <wait.h>
-#    define spi_dprintf(...) dprintf(__VA_ARGS__)
-#else
-#    define spi_dprintf(...) do { } while (0)
-#endif
-
 #if !defined(SPI_DRIVERS)
 #    if defined(SPI_DRIVER)
 #        define SPI_DRIVERS { &SPI_DRIVER }

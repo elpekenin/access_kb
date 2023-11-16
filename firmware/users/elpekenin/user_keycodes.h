@@ -22,6 +22,9 @@ enum userspace_keycodes {
     // Unicode
     PK_UCIS, // starts UCIS mode
 
+    // Logging
+    PK_LOG, // cycle overall logging level for general features (UNKNOWN)
+
     // First value that can be used on a keymap, keep last
     QK_KEYMAP
 };

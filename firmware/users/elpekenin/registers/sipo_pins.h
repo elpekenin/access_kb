@@ -3,21 +3,10 @@
 
 #pragma once
 
-// index on the drivers' array
-
-#ifdef SIPO_PINS_DEBUG
-#    include <debug.h>
-#    include <print.h>
-#    include <wait.h>
-#    define sipo_dprintf(...) dprintf(__VA_ARGS__)
-#else
-#    define sipo_dprintf(...) do { } while (0)
-#endif
-
 #define get_sipo_bit(byte, bit) ((sipo_pin_state[byte] >> bit) & 0x1)
 #define print_sipo_byte(byte)      \
-        sipo_dprintf(              \
-            "%d%d%d%d%d%d%d%d | ", \
+        logging(SIPO, DEBUG,       \
+            "%d%d%d%d%d%d%d%d",    \
             get_sipo_bit(byte, 0), \
             get_sipo_bit(byte, 1), \
             get_sipo_bit(byte, 2), \
@@ -28,11 +17,11 @@
             get_sipo_bit(byte, 7)  \
         )
 #define sipo_print_status()                    \
-        sipo_dprintf("SIPO status: MCU > ");   \
+        logging(SIPO, DEBUG, "MCU");           \
         for (int i=_SIPO_BYTES-1; i>=0; --i) { \
             print_sipo_byte(i);                \
         }                                      \
-        sipo_dprintf("< Chain end\n")
+        logging(SIPO, DEBUG, "END")
 
 // compute the amount of bytes needed
 #define _SIPO_BYTES ((N_SIPO_PINS+7)/8)

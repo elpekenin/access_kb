@@ -3,21 +3,7 @@
 
 #pragma once
 
-#ifdef TOUCH_SCREEN_DEBUG
-#    include <debug.h>
-#    include <print.h>
-#    define ts_dprintf(...) dprintf(__VA_ARGS__)
-#else
-#    define ts_dprintf(...) do { } while (0)
-#endif
-
-#if !defined(PACKED)
-#    define PACKED __attribute__((packed))
-#endif
-
-#if !defined(WEAK)
-#    define WEAK __attribute__((weak))
-#endif
+#include "user_utils.h" // PACKED and WEAK
 
 typedef const void * touch_device_t;
 

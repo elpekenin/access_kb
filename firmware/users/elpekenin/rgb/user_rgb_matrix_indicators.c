@@ -18,9 +18,11 @@
 
 static const indicator_t indicators[] = {
     LAYER(_RST, RGB_OFF),
+
     KC_LAYER(QK_BOOT, _RST, RGB_RED),
     KC_LAYER(QK_RBT,  _RST, RGB_GREEN),
     KC_LAYER(EE_CLR,  _RST, RGB_YELLOW),
+    KC_LAYER(PK_LOG,  _RST, RGB_BLUE),
     KC_LAYER(DB_TOGG, _RST, MAX_WHITE),
 };
 

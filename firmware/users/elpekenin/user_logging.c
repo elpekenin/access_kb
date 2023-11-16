@@ -7,6 +7,7 @@
 #include "sendchar.h"
 
 #include "user_logging.h"
+#include "user_utils.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
 #    include "qp_logging.h"
@@ -61,78 +62,249 @@ int8_t user_sendchar(uint8_t c) {
     return sendchar(c);
 }
 
-// Log-level printing
-log_level_t logging_level = NONE;
 
-// logging only supports single-line strings, otherwise color would be a pain to handle
-// dont add any '\n', as it will be inserted automatically
-static void __log(log_level_t level, const char *fmt, va_list *args) {
-    const char *c = fmt;
+// *** Actual logging ***
 
-    // validation: dont allow newlines (nor %s, which could also contain them)
-    while (*c != 0) {
-        if (*c == '\n' || (*c == '%' && *(c+1) == 's')) {
-            // NOTE for future self
-            log_error("<INVALID LOG>");
-            return;
+// stringify log levels
+static const char *level_str[] = {
+    [NONE]  = "UNREACHABLE",
+    [TRACE] = "TRACE",
+    [DEBUG] = "DEBUG",
+    [INFO]  = "INFO",
+    [WARN]  = "WARN",
+    [ERROR] = "ERROR",
+};
+ASSERT_LEVELS(level_str);
+
+// stringify features
+static const char *feature_str[] = {
+    [UNKNOWN]    = "",
+    [LOGGER]     = "LOG",
+    [QP]         = "QP",
+    [SCROLL_TXT] = "SCROLL",
+    [SIPO]       = "SIPO",
+    [SPLIT]      = "SPLIT",
+    [SPI]        = "SPI",
+    [TOUCH]      = "TOUCH",
+};
+ASSERT_FEATURES(feature_str);
+
+// logging level for each feature
+log_level_t feature_levels[] = {
+    [UNKNOWN]    = INFO,
+    [LOGGER]     = ERROR,
+    [QP]         = ERROR,
+    [SCROLL_TXT] = ERROR,
+    [SIPO]       = NONE,
+    [SPLIT]      = ERROR,
+    [SPI]        = NONE,
+    [TOUCH]      = ERROR,
+};
+ASSERT_FEATURES(feature_levels);
+
+log_level_t get_level_for(feature_t feature) {
+    return feature_levels[feature];
+}
+
+void set_level_for(feature_t feature, log_level_t level) {
+    if (
+        (feature < UNKNOWN) // is this possible ?
+        || (level < NONE)
+        || (feature >= __N_FEATURES__)
+        || (level >= __N_LEVELS__)
+    ) {
+        logging(LOGGER, ERROR, "%s", __func__);
+        return;
+    }
+
+    feature_levels[feature] = level;
+}
+
+void step_level_for(feature_t feature, bool increase) {
+    log_level_t level = get_level_for(feature);
+
+    if (
+        ((level == NONE) && !increase)
+        || (((level + 1) == __N_LEVELS__) && increase)
+    ) {
+        logging(LOGGER, ERROR, "%s", __func__);
+        return;
+    }
+
+    if (increase) {
+        level++;
+    } else {
+        level--;
+    }
+
+    set_level_for(feature, level);
+}
+
+// internals
+static token_t get_token(const char **str) {
+    if (**str == '\0') { // null terminator
+        return STR_END;
+    }
+
+    if (**str != '%') { // no specifier, regular text
+        return NO_SPEC;
+    }
+
+    (*str)++;
+    switch (**str) {
+        case 'L':
+            (*str)++;
+            switch (**str) {
+                case 'L': // %LL
+                    return LL_SPEC;
+
+                case 'S': // %LS
+                    return LS_SPEC;
+                
+                default:
+                    return INVALID_SPEC;
+            }
+
+        case 'F': // %F
+            return F_SPEC;
+
+        case 'M': // %M
+            return M_SPEC;
+
+
+        case 'T': // %T
+            return T_SPEC;
+
+        case '%': // %%
+            return PERC_SPEC;
+
+        default:
+            return INVALID_SPEC;
+    }
+
+    logging(LOGGER, ERROR, "%s", __func__);
+    return INVALID_SPEC;
+}
+
+// format used in the logger
+static const char *fmt = "[%LS] (%F) %M\n";
+
+bool set_logging_fmt(const char *new_fmt) {
+    const char *copy = new_fmt;
+    while (1) {
+        token_t spec = get_token(&copy);
+
+        if (spec == STR_END) {
+            fmt = new_fmt;
+            return true;
         }
-        c++;
+
+        if (spec == INVALID_SPEC) {
+            logging(LOGGER, ERROR, "Invalid fmt");
+            return false;
+        }
+
+        copy++;
+    }
+}
+
+static log_level_t msg_level = NONE; // level of the text being logged
+
+// custom impl of itoa
+void _itoa(uint32_t value, char *result) {
+    // convert to string by doing value/10
+    uint8_t digits = 0;
+    do {
+        *(result++) = '0' + value % 10;
+        digits++;
+    } while ((value /= 10));
+
+    digits--;
+    result -= digits + 1;
+
+    // invert the str
+    char tmp;
+    uint8_t i = 0;
+    uint8_t j = digits;
+    while(i < j) {
+        tmp                = result[i];
+        result[i]          = result[j];
+        result[j] = tmp;
+
+        i++;
+        j--;
+    }
+    result[digits+1] = '\0';
+}
+
+WEAK void log_time(char *result) {
+    _itoa(timer_read32() / 1000, result);
+}
+
+void logging(feature_t feature, log_level_t level, const char *msg, ...) {
+    // message filtered out, quit
+    log_level_t feat_level = get_level_for(feature);
+    if (level < feat_level || feat_level == NONE) {
+        return;
     }
 
-    // update level, so sendchar hooks can change their behaviour
-    logging_level = level;
+    // set msg lvel
+    msg_level = level;
 
-    // prefix
-    switch (level) {
-        case TRACE: printf("[TRACE] "); break;
-        case DEBUG: printf("[DEBUG] "); break;
-        case INFO:  printf("[INFO] ");  break;
-        case WARN:  printf("[WARN] ");  break;
-        case ERROR: printf("[ERROR] "); break;
-        default:                        break;
+    va_list args;
+    char tmp[10] = {0}; // long enough to hold the seconds timer
+    const char *copy = fmt;
+
+    // set_format does not allow setting an invalid format, just go thru it
+    while (1) {
+        // order specs alphabetically, special cases first
+        switch (get_token(&copy)) {
+            case INVALID_SPEC: // unreachable, guarded by set_logging_fmt
+                logging(LOGGER, ERROR, "???");
+                return;
+
+            case NO_SPEC: // print any char
+                putchar_(*copy);
+                break;
+
+            case STR_END:
+                msg_level = NONE;
+                return;
+
+            // ----------
+
+            case F_SPEC: // print feature name
+                printf("%s", feature_str[feature]);
+                break;
+
+            case LL_SPEC: // print log level (long)
+                printf("%s", level_str[level]);
+                break;
+
+            case LS_SPEC: // print log level (short)
+                putchar_(level_str[level][0]);
+                break;
+
+            case M_SPEC: // print actual message
+                va_start(args, msg);
+                vprintf(msg, args);
+                va_end(args);
+                break;
+
+            case PERC_SPEC: // print a '%'
+                putchar_('%');
+                break;
+
+            case T_SPEC: // print current time
+                log_time(tmp);
+                printf("%s", tmp);
+                break;
+        }
+
+        copy++;
     }
-
-    // print actual string
-    vprintf(fmt, *args);
-
-    // newline after string
-    printf("\n");
-
-    // restore to non-log mode
-    logging_level = NONE;
 }
 
-void log_trace(const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    __log(TRACE, fmt, &args);
-    va_end(args);
-}
-
-void log_debug(const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    __log(DEBUG, fmt, &args);
-    va_end(args);
-}
-
-void log_info(const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    __log(INFO, fmt, &args);
-    va_end(args);
-}
-
-void log_warn(const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    __log(WARN, fmt, &args);
-    va_end(args);
-}
-
-void log_error(const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    __log(ERROR, fmt, &args);
-    va_end(args);
+log_level_t get_message_level(void) {
+    return msg_level;
 }

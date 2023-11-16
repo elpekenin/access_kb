@@ -1,11 +1,10 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "debug.h"
-
 #include "elpekenin.h"
 #include "graphics.h"
 #include "placeholders.h"
+#include "user_logging.h"
 #include "user_xap.h"
 
 #if defined (RGB_MATRIX_ENABLE)
@@ -78,7 +77,7 @@ void suspend_wakeup_init_user(void) {
 
     // restore debug and log event after suspend
     debug_enable = suspend_debug_state;
-    dprintln("waking up...");
+    logging(UNKNOWN, TRACE, "waking up...");
 
     suspend_wakeup_init_keymap();
 }

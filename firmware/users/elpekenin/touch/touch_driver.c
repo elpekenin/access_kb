@@ -1,9 +1,12 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "spi_master.h"
 #include "touch_driver.h"
+
+#include "spi_master.h"
 #include "wait.h"
+
+#include "user_logging.h"
 
 WEAK bool touch_spi_init(touch_device_t device) {
     touch_driver_t           *driver      = (touch_driver_t *)device;
@@ -40,22 +43,22 @@ static inline void read_data(int16_t *x, int16_t *y, spi_touch_comms_config_t co
 }
 
 void report_from(int16_t x, int16_t y, touch_driver_t *driver, touch_report_t *report) {
-    ts_dprintf("SPI reading (%d, %d)", x, y);
+    logging(TOUCH, DEBUG, "SPI reading (%d, %d)", x, y);
 
     // Map to correct range
     x = x * driver->scale_x + driver->offset_x;
     y = y * driver->scale_y + driver->offset_y;
-    ts_dprintf("  ||  Scaled (%d, %d)", x, y);
+    logging(TOUCH, DEBUG, "Scaled: (%d, %d)", x, y);
 
     // Handle edge cases
     x = MIN(MAX(x, 0), driver->width);
     y = MIN(MAX(y, 0), driver->height);
-    ts_dprintf("  ||  Edge cases (%d, %d)", x, y);
+    logging(TOUCH, DEBUG, "Edge: (%d, %d)", x, y);
 
     // Apply updside-down adjustment
     if (driver->upside_down) {
         report->x = driver->width - x;
-        ts_dprintf("  ||  Upside down (%d, %d)", x, y);
+        logging(TOUCH, DEBUG, "Upside: (%d, %d)", x, y);
     }
 
     uint16_t _x = x;
@@ -85,7 +88,7 @@ void report_from(int16_t x, int16_t y, touch_driver_t *driver, touch_report_t *r
             break;
     }
 
-    ts_dprintf("  >>  Final value (%d, %d)\n", report->x, report->y);
+    logging(TOUCH, DEBUG, "Final: (%d, %d)", report->x, report->y);
 }
 
 WEAK touch_report_t get_spi_touch_report(touch_device_t device, bool check_irq) {
@@ -106,7 +109,7 @@ WEAK touch_report_t get_spi_touch_report(touch_device_t device, bool check_irq) 
     }
 
     if (!touch_spi_start(comms_config)) {
-        ts_dprintf("Couldn't start touch comms\n");
+        logging(TOUCH, DEBUG, "Couldn't start touch comms");
     }
 
     report.pressed = true;

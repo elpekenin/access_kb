@@ -1,10 +1,13 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "custom_spi_master.h"
-#include "sipo_pins.h"
 #include "touch_driver.h"
+
+#include "custom_spi_master.h"
 #include "wait.h"
+
+#include "sipo_pins.h"
+#include "user_logging.h"
 
 bool touch_spi_init(touch_device_t device) {
     touch_driver_t *          driver       = (touch_driver_t *)device;
@@ -60,7 +63,7 @@ touch_report_t get_spi_touch_report(touch_device_t device, bool check_irq) {
     }
 
     if (!touch_spi_start(comms_config)) {
-        ts_dprintf("Couldn't start touch comms\n");
+        logging(TOUCH, DEBUG, "Start comms");
     }
 
     report.pressed = true;

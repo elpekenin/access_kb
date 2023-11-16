@@ -1,11 +1,11 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "print.h"
 #include "transactions.h"
 
 #include "user_data.h"
 #include "user_utils.h"
+#include "user_logging.h"
 #include "user_transactions.h"
 
 // Callbacks
@@ -17,7 +17,7 @@ void user_data_slave_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t 
 
         user_data_sync_keymap_callback();
     } else {
-        print("ERROR: Wrong payload on user_data_slave_callback\n");
+        logging(SPLIT, ERROR, "%s", __func__);
     }
 }
 
@@ -26,7 +26,7 @@ void user_shutdown_slave_callback(uint8_t m2s_size, const void* m2s_buffer, uint
         void shutdown_quantum(bool jump_to_bootloader);
         shutdown_quantum(*(bool *)m2s_buffer);
     } else {
-        print("ERROR: Wrong payload on user_shutdown_slave_callback\n");
+        logging(SPLIT, ERROR, "%s", __func__);
     }
 }
 
