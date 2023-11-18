@@ -7,7 +7,7 @@
 #include "wait.h"
 
 #include "sipo_pins.h"
-#include "user_logging.h"
+#include "logging.h"
 
 bool touch_spi_init(touch_device_t device) {
     touch_driver_t *          driver       = (touch_driver_t *)device;

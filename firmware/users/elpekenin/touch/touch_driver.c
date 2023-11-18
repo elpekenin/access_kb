@@ -6,7 +6,7 @@
 #include "spi_master.h"
 #include "wait.h"
 
-#include "user_logging.h"
+#include "logging.h"
 
 WEAK bool touch_spi_init(touch_device_t device) {
     touch_driver_t           *driver      = (touch_driver_t *)device;

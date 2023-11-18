@@ -90,7 +90,7 @@ DRAW_FILE = lines(
     f'#include "{OUTPUT_NAME}.h"',
     '#include "graphics.h"',
     '#include "user_data.h"',
-    '#include "user_logging.h"',
+    '#include "logging.h"',
     '#include "user_utils.h"',
     "",
     "void draw_features(painter_device_t device) {{",

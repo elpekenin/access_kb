@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "user_utils.h" // PACKED and WEAK
+#include "user_utils.h"
 
 typedef const void * touch_device_t;
 

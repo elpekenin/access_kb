@@ -6,7 +6,7 @@
 #include "qp.h"
 #include "qp_internal.h"
 
-#include "user_logging.h"
+#include "logging.h"
 
 #include "generated_qp_resources.h"
 

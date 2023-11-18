@@ -4,7 +4,7 @@
 #include "elpekenin.h"
 #include "graphics.h"
 #include "placeholders.h"
-#include "user_logging.h"
+#include "logging.h"
 #include "user_xap.h"
 
 #if defined (RGB_MATRIX_ENABLE)

@@ -28,5 +28,5 @@ typedef struct {
     uint16_t y;
     uint8_t n_chars;
     uint32_t delay;
-} qp_logging_render_args_t;
-void qp_logging_render(qp_logging_render_args_t args);
+} qp_logging_backend_render_args_t;
+void qp_logging_backend_render(qp_logging_backend_render_args_t args);

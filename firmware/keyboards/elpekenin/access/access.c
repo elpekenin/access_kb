@@ -3,7 +3,7 @@
 
 #include QMK_KEYBOARD_H
 
-#include "user_logging.h"
+#include "logging.h"
 
 #if defined(ONE_HAND_ENABLE)
 uint8_t one_hand_col;

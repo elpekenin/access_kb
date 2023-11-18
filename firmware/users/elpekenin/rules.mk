@@ -1,6 +1,8 @@
 VPATH += $(USER_PATH)/autocorrect \
          $(USER_PATH)/keylog \
          $(USER_PATH)/layers \
+         $(USER_PATH)/logging \
+         $(USER_PATH)/logging/backends \
          $(USER_PATH)/painter \
          $(USER_PATH)/painter/images \
          $(USER_PATH)/painter/fonts \
@@ -12,15 +14,12 @@ VPATH += $(USER_PATH)/autocorrect \
          $(USER_PATH)/touch \
          $(USER_PATH)/xap
 
-
 SRC += elpekenin.c \
        placeholders.c \
        user_layers.c \
-       user_logging.c \
        user_power.c \
        user_process.c \
        user_utils.c
-
 
 # Enabled by default
 AUTOCORRECT_ENABLE ?= yes
@@ -34,6 +33,7 @@ MK_PATH = $(USER_PATH)/mk
 include $(MK_PATH)/codegen.mk
 
 include $(MK_PATH)/custom_features.mk
+include $(MK_PATH)/logging.mk
 include $(MK_PATH)/painter.mk
 include $(MK_PATH)/rgb_matrix.mk
 include $(MK_PATH)/split.mk

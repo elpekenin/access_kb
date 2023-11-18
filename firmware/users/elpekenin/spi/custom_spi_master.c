@@ -16,7 +16,7 @@
  */
 
 #include "custom_spi_master.h"
-#include "user_logging.h"
+#include "logging.h"
 
 static pin_t slave_pins[] = {[0 ... SPI_COUNT-1] = NO_PIN};
 

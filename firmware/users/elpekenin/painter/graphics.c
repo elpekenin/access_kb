@@ -6,7 +6,7 @@
 #endif // defined(WPM_ENABLE)
 
 #include "graphics.h"
-#include "qp_logging.h"
+#include "qp_logging_backend.h"
 #include "user_data.h"
 #include "user_utils.h"
 
@@ -316,7 +316,7 @@ void housekeeping_qp(uint32_t now) {
 #endif // defined(KEYLOG_ENABLE)
 
     /* QP Logging */
-    qp_logging_render_args_t args = {
+    qp_logging_backend_render_args_t args = {
         .device = device,
         .font = font,
         .screen_w = width,
@@ -326,7 +326,7 @@ void housekeeping_qp(uint32_t now) {
         .delay = 500,
     };
     if (now > INIT_DELAY + 3000) {
-        qp_logging_render(args);
+        qp_logging_backend_render(args);
     }
 
     /* Uptime */

@@ -2,16 +2,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "graphics.h"
-#include "qp_logging.h"
-#include "user_logging.h"
-
-static char                 *qp_log_pointers[LOG_N_LINES];
-static deferred_token        qp_log_tokens[LOG_N_LINES];
-static bool                  qp_log_redraw;
+#include "qp_logging_backend.h"
+#include "logging.h"
 
 static char           qp_log[LOG_N_LINES][LOG_N_CHARS + 1];
-static log_level_t    qp_log_levels[LOG_N_LINES];
 static uint8_t        qp_log_current_col;
+static char *         qp_log_pointers[LOG_N_LINES];
+static deferred_token qp_log_tokens[LOG_N_LINES];
+static bool           qp_log_redraw;
+static log_level_t    qp_log_levels[LOG_N_LINES];
 
 void sendchar_qp_hook(uint8_t c) {
     // Setup the arrays on the 1st go
@@ -63,7 +62,7 @@ static const HSV log_colors[] = {
 };
 ASSERT_LEVELS(log_colors);
 
-void qp_logging_render(qp_logging_render_args_t args) {
+void qp_logging_backend_render(qp_logging_backend_render_args_t args) {
     if (!qp_log_redraw || !args.device) {
         return;
     }

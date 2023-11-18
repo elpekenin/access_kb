@@ -5,10 +5,10 @@
 #include "sendstring_spanish.h"
 #define DELAY 10 // ms between sendstring actions
 
-#include "qp_logging.h"
+#include "qp_logging_backend.h"
 #include "placeholders.h"
 #include "user_keycodes.h"
-#include "user_logging.h"
+#include "logging.h"
 #include "user_xap.h"
 
 #if defined(KEYLOG_ENABLE)

@@ -24,7 +24,7 @@
 #include "gpio.h"
 #include "chibios_config.h"
 
-#include "util.h"
+#include "user_utils.h"
 
 #if !defined(SPI_DRIVERS)
 #    if defined(SPI_DRIVER)
