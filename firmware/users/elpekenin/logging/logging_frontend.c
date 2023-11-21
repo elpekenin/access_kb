@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <stdarg.h>
+#include <string.h>
 
 #include "printf.h"
 #include "sendchar.h"
@@ -134,20 +135,34 @@ static token_t get_token(const char **str) {
 }
 
 // format used in the logger
-static const char *fmt = "[%LS] (%F) %M\n";
+static char fmt[50] = "[%LS] (%F) %M\n"; // array so we can ARRAY_SIZE it (pointer can not)
+
+// current size, not max size
+uint8_t get_logging_fmt_len(void) {
+    return strlen(fmt) + 1;
+}
+
+void get_logging_fmt(char *dest) {
+    strcpy(dest, fmt);
+}
 
 bool set_logging_fmt(const char *new_fmt) {
+    if (strlen(new_fmt) >= ARRAY_SIZE(fmt)) {
+        logging(LOGGER, ERROR, "Format too long");
+        return false;
+    }
+
     const char *copy = new_fmt;
     while (1) {
         token_t spec = get_token(&copy);
 
         if (spec == STR_END) {
-            fmt = new_fmt;
+            strcpy(fmt, new_fmt);
             return true;
         }
 
         if (spec == INVALID_SPEC) {
-            logging(LOGGER, ERROR, "Invalid fmt");
+            logging(LOGGER, ERROR, "Invalid format");
             return false;
         }
 

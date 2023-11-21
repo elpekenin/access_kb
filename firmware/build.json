@@ -87,6 +87,10 @@
         //     "file": "print_palette.diff"
         // },
         {
+            "operation": "diff",
+            "file": "xap_dynamic.diff"
+        },
+        {
             "operation": "exec",
             "command": "keyboards/elpekenin/access/compile",
             "at": "$QMK_BUILD"

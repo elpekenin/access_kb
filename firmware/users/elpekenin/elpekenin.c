@@ -1,6 +1,7 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "eeconfig.h"
 #include "version.h"
 
 #include "elpekenin.h"
@@ -81,6 +82,19 @@ void keyboard_post_init_user(void) {
 #if defined(TRI_LAYER_ENABLE)
     configure_tri_layer();
 #endif // defined(TRI_LAYER_ENABLE)
+
+    if (is_keyboard_master()) {
+        uint32_t read = eeconfig_read_user();
+        uint32_t write = read + 1;
+
+        send_ee_value(write);
+        eeconfig_update_user(write);
+
+        logging(UNKNOWN, INFO, "Read: %ld, write: %ld", read, write);
+    } else {
+        uint32_t read = eeconfig_read_user();
+        printf("Read: %ld\n", read);
+    }
 
     keyboard_post_init_keymap();
 }

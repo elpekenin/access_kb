@@ -1,0 +1,13 @@
+diff --git a/builddefs/common_features.mk b/builddefs/common_features.mk
+index b88d2da27b..fc32449f5e 100644
+--- a/builddefs/common_features.mk
++++ b/builddefs/common_features.mk
+@@ -622,7 +622,7 @@ ifeq ($(strip $(XAP_ENABLE)), yes)
+         $(error 'XAP_ENABLE = $(XAP_ENABLE)' deprecates 'VIA_ENABLE = $(VIA_ENABLE)'. Please set 'VIA_ENABLE = no')
+     endif
+ 
+-    DYNAMIC_KEYMAP_ENABLE := yes
++    DYNAMIC_KEYMAP_ENABLE ?= yes
+     FNV_ENABLE := yes
+     SECURE_ENABLE := yes
+     BOOTMAGIC_ENABLE := yes

@@ -118,7 +118,7 @@ void housekeeping_task_keymap(void) {
 }
 #endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
 
-const char *fmt = "%T: %M\n";
+const char *fmt = "%M\n";
 void keyboard_pre_init_keymap(void) {
     set_logging_fmt(fmt);
 }

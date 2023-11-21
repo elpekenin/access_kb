@@ -66,11 +66,21 @@ typedef enum {
 
     // %T - Current time, you can override `char *log_time(void);` func to hook it with a RTC or whatever. Defaults to seconds since boot 
     //    >>> itoa(timer_read32() / 1000)
+char *log_time(void);
 
     // %% - Write a "%"
 
-char *log_time(void);
+// check length of the current format (ie: to make a buffer where to copy temporarily)
+uint8_t get_logging_fmt_len(void);
+
+// copy the current format
+// NOTE: make sure the destinations is big enough
+void get_logging_fmt(char *dest); 
+
 // returns whether the format was valid (thus, got applied)
+// NOTE: make sure the pointer is still valid (ie: not an automatic variable)
+//       code doesn't make a copy of it, but just keep a pointer to its start
+// NOTE2: can't be longer than 255 bytes
 bool set_logging_fmt(const char *fmt);
 
 #define ASSERT_FEATURES(__array) _Static_assert(ARRAY_SIZE(__array) == __N_FEATURES__, "Wrong size")

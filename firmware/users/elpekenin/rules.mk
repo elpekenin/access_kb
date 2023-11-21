@@ -27,6 +27,7 @@ DEFERRED_EXEC_ENABLE ?= yes
 KEY_OVERRIDE_ENABLE ?= yes
 TRI_LAYER_ENABLE ?= yes
 
+DYNAMIC_KEYMAP_ENABLE = no
 
 MK_PATH = $(USER_PATH)/mk
 # conditionals on these files, less boilerplate here

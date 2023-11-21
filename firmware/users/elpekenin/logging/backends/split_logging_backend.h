@@ -3,15 +3,8 @@
 
 #pragma once
 
-#include "user_utils.h"
 #include "transport.h"
 
-typedef struct {
-    bool    flush;
-    uint8_t bytes;
-    uint8_t buff[RPC_S2M_BUFFER_SIZE - 2];
-} PACKED split_logging_t;
-_Static_assert(sizeof(split_logging_t) == RPC_S2M_BUFFER_SIZE, "Wrong size");
-
 void sendchar_split_hook(uint8_t c);
-void consume_split_sendchar(void *dest, uint8_t max_bytes);
+void user_logging_slave_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m_size, void* s2m_buffer);
+void user_logging_master_poll(void);

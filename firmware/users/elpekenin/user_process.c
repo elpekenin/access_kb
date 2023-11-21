@@ -51,6 +51,12 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 bool keylog_enabled = true;
 #endif // defined(KEYLOG_ENABLE)
 
+#if defined(SPLIT_KEYBOARD)
+#    include "user_transactions.h"
+#endif // defined(SPLIT_KEYBOARD)
+
+
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #if defined(KEYLOG_ENABLE)
     if (keylog_enabled) {
@@ -72,6 +78,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool    l_sft   = mods & MOD_BIT(KC_LSFT);
 
     switch (keycode) {
+    #if defined(SPLIT_KEYBOARD)
+        case EE_CLR:
+            if (pressed) {
+                reset_ee_slave(); // reset on slave too
+            }
+            return true;
+    #endif // defined(SPLIT_KEYBOARD)
+
         case PK_CPYR:
             // avoid messing up when i press GUI instead of TRI_LAYER for QK_RST
             if (get_mods() & MOD_MASK_GUI) {
