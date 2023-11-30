@@ -13,3 +13,6 @@
 
 #undef  RP_SPI_USE_SPI1
 #define RP_SPI_USE_SPI1 TRUE
+
+#undef  RP_ADC_USE_ADC1
+#define RP_ADC_USE_ADC1 TRUE

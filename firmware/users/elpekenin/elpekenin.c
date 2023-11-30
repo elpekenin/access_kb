@@ -13,6 +13,14 @@
 #include "generated_features.h"
 
 // Conditional imports
+#if defined(GAME_ENABLE)
+#    include "snake.h"
+#endif // defined(GAME_ENABLE)
+
+#if defined(KEYLOG_ENABLE)
+#    include "user_keylog.h"
+#endif // defined (KEYLOG_ENABLE)
+
 #if defined(QUANTUM_PAINTER_ENABLE)
 #    include "graphics.h"
 #endif // defined(QUANTUM_PAINTER_ENABLE)
@@ -21,21 +29,9 @@
 #    include "user_transactions.h"
 #endif // defined(SPLIT_KEYBOARD)
 
-#if defined(KEYLOG_ENABLE)
-#    include "user_keylog.h"
-#endif // defined (KEYLOG_ENABLE)
-
 
 void housekeeping_task_user(void) {
     __attribute__((unused)) uint32_t now  = timer_read32();
-
-#if defined(QUANTUM_PAINTER_ENABLE)
-    housekeeping_qp(now);
-#endif // defined(QUANTUM_PAINTER_ENABLE)
-
-#if defined(SPLIT_KEYBOARD)
-    housekeeping_split_sync(now);
-#endif // defined(SPLIT_KEYBOARD)
 
 #if defined(DEBUG_MATRIX_SCAN_RATE)
     static uint32_t last_matrix = 0;
@@ -44,6 +40,22 @@ void housekeeping_task_user(void) {
         logging(UNKNOWN, DEBUG, "Scans: %ld", get_matrix_scan_rate());
     }
 #endif // defined(DEBUG_MATRIX_SCAN_RATE)
+
+#if defined(GAME_ENABLE)
+    static uint32_t last_frame = 0;
+    if (TIMER_DIFF_32(now, last_frame) > 500) {
+        last_frame = now;
+        game_frame();
+    }
+#endif // defined(GAME_ENABLE)
+
+#if defined(QUANTUM_PAINTER_ENABLE)
+    housekeeping_qp(now);
+#endif // defined(QUANTUM_PAINTER_ENABLE)
+
+#if defined(SPLIT_KEYBOARD)
+    housekeeping_split_sync(now);
+#endif // defined(SPLIT_KEYBOARD)
 
     housekeeping_task_keymap();
 }
@@ -83,18 +95,10 @@ void keyboard_post_init_user(void) {
     configure_tri_layer();
 #endif // defined(TRI_LAYER_ENABLE)
 
-    if (is_keyboard_master()) {
-        uint32_t read = eeconfig_read_user();
-        uint32_t write = read + 1;
-
-        send_ee_value(write);
-        eeconfig_update_user(write);
-
-        logging(UNKNOWN, INFO, "Read: %ld, write: %ld", read, write);
-    } else {
-        uint32_t read = eeconfig_read_user();
-        printf("Read: %ld\n", read);
-    }
-
     keyboard_post_init_keymap();
+
+#if defined(GAME_ENABLE)
+    // **after** init_keymap to access the display
+    game_init(qp_devices_pekenin[1]);
+#endif // defined(GAME_ENABLE)
 }

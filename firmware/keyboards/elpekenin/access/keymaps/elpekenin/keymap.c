@@ -7,6 +7,7 @@
 
 #include "elpekenin.h"
 #include "graphics.h"
+#include "rng.h"
 #include "user_xap.h"
 
 
@@ -48,7 +49,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     // ADJUST
     [_RST] = LAYOUT(
-        QK_BOOT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, PK_LOG,         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, EE_CLR,
+        QK_BOOT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, PK_LOG,         PK_GAME, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, EE_CLR,
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         PK_QCLR, AC_TOGG, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        PK_KLOG, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, QK_RBT,
         _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
@@ -80,6 +81,8 @@ void keyboard_post_init_keymap(void) {
 
 #    endif // defined(INIT_EE_HANDS_LEFT)
 #endif // defined(QUANTUM_PAINTER_ENABLE)
+
+    rng_set_seed(analogReadPin(GP28) * analogReadPin(GP28));
 }
 
 void user_data_sync_keymap_callback(void) {

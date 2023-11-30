@@ -22,9 +22,9 @@ from scripts import *
 LAYER = []
 KEYMAP = []
 
-COMMENT = re.compile("\/\/(.*)")
-MULTI_COMMENT = re.compile("\/\*(.*?)\*\/")
-LAYOUT = re.compile("\[(.*)\]( *)=( *)LAYOUT(.*)\(")
+COMMENT = re.compile("//(.*)")
+MULTI_COMMENT = re.compile(r"/\*(.*?)\*/")
+LAYOUT = re.compile(r"\[(.*)\]( *)=( *)LAYOUT(.*)\(")
 
 OUTPUT_NAME = "generated_keycode_str"
 

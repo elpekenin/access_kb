@@ -1,4 +1,5 @@
 VPATH += $(USER_PATH)/autocorrect \
+         $(USER_PATH)/games \
          $(USER_PATH)/keylog \
          $(USER_PATH)/layers \
          $(USER_PATH)/logging \
@@ -9,6 +10,7 @@ VPATH += $(USER_PATH)/autocorrect \
          $(USER_PATH)/placeholders \
          $(USER_PATH)/registers \
          $(USER_PATH)/rgb \
+         $(USER_PATH)/rng \
          $(USER_PATH)/spi \
          $(USER_PATH)/split \
          $(USER_PATH)/touch \
@@ -21,22 +23,23 @@ SRC += elpekenin.c \
        user_process.c \
        user_utils.c
 
-# Enabled by default
+# Default configuration
 AUTOCORRECT_ENABLE ?= yes
 DEFERRED_EXEC_ENABLE ?= yes
 KEY_OVERRIDE_ENABLE ?= yes
 TRI_LAYER_ENABLE ?= yes
-
-DYNAMIC_KEYMAP_ENABLE = no
+DYNAMIC_KEYMAP_ENABLE ?= no
 
 MK_PATH = $(USER_PATH)/mk
-# conditionals on these files, less boilerplate here
+# Include regardless, check inside the files
 include $(MK_PATH)/codegen.mk
 
 include $(MK_PATH)/custom_features.mk
+include $(MK_PATH)/games.mk
 include $(MK_PATH)/logging.mk
 include $(MK_PATH)/painter.mk
 include $(MK_PATH)/rgb_matrix.mk
+include $(MK_PATH)/rng.mk
 include $(MK_PATH)/split.mk
 include $(MK_PATH)/unicode.mk
 include $(MK_PATH)/xap.mk

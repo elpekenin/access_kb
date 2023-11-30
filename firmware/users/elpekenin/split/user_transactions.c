@@ -81,10 +81,6 @@ void reset_ee_slave(void) {
     transaction_rpc_send(RPC_ID_USER_EE_CLR, 0, NULL);
 }
 
-void send_ee_value(uint32_t value) {
-    transaction_rpc_send(RPC_ID_USER_EE_TESTS, sizeof(value), &value);
-}
-
 
 // *** Register messages ***
 
@@ -94,5 +90,4 @@ void transactions_init(void) {
     transaction_register_rpc(RPC_ID_USER_SHUTDOWN, user_shutdown_slave_callback);
     transaction_register_rpc(RPC_ID_USER_LOGGING, user_logging_slave_callback);
     transaction_register_rpc(RPC_ID_USER_EE_CLR, user_ee_clr_callback);
-    transaction_register_rpc(RPC_ID_USER_EE_TESTS, user_ee_test_callback);
 }

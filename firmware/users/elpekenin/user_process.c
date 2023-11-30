@@ -11,9 +11,19 @@
 #include "logging.h"
 #include "user_xap.h"
 
+#if defined(GAME_ENABLE)
+#    include "game.h"
+#endif // defined(GAME_ENABLE)
+
 #if defined(KEYLOG_ENABLE)
 #    include "user_keylog.h"
 #endif // defined(KEYLOG_ENABLE)
+
+#if defined(SPLIT_KEYBOARD)
+#    include "user_transactions.h"
+#endif // defined(SPLIT_KEYBOARD)
+
+// *** Logic start ***
 
 #if defined(AUTOCORRECT_ENABLE)
 bool apply_autocorrect(uint8_t backspaces, const char *str, char *typo, char *correct) {
@@ -35,6 +45,10 @@ bool process_autocorrect_user(uint16_t *keycode, keyrecord_t *record, uint8_t *t
 }
 #endif // defined(AUTOCORRECT_ENABLE)
 
+#if defined(KEYLOG_ENABLE)
+bool keylog_enabled = true;
+#endif // defined(KEYLOG_ENABLE)
+
 #if defined(KEY_OVERRIDE_ENABLE)
 const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
 const key_override_t volume_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_VOLU, KC_VOLD);
@@ -46,15 +60,6 @@ const key_override_t **key_overrides = (const key_override_t *[]){
     NULL
 };
 #endif // defined(KEY_OVERRIDE_ENABLE)
-
-#if defined(KEYLOG_ENABLE)
-bool keylog_enabled = true;
-#endif // defined(KEYLOG_ENABLE)
-
-#if defined(SPLIT_KEYBOARD)
-#    include "user_transactions.h"
-#endif // defined(SPLIT_KEYBOARD)
-
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -131,6 +136,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 step_level_for(UNKNOWN, !l_sft);
             }
             return false;
+
+    #if defined(GAME_ENABLE)
+        case KC_W:
+            set_game_movement(TOP);
+            break;
+
+        case KC_A:
+            set_game_movement(LEFT);
+            break;
+
+        case KC_S:
+            set_game_movement(BOTTOM);
+            break;
+
+        case KC_D:
+            set_game_movement(RIGHT);
+            break;
+
+        case PK_GAME:
+            if (pressed) {
+                game_reset();
+            }
+            return false;
+
+    #endif // defined(GAME_ENABLE)
 
         default:
             break;

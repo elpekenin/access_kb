@@ -22,11 +22,6 @@
             "id": 20032
         },
         {
-            // shutdown hooks
-            "operation": "pr",
-            "id": 21060
-        },
-        {
             "operation": "checkout",
             "files": [
                 "drivers/painter/comms/qp_comms_spi.c",
