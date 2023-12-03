@@ -9,12 +9,12 @@
         {
             "operation": "cp",
             "orig": "keyboards/elpekenin/access/*",
-            "dest": "keyboards/elpekenin/access"
+            "destination": "keyboards/elpekenin/access"
         },
         {
             "operation": "cp",
             "orig": "$USERSPACE/*",
-            "dest": "users/elpekenin"
+            "destination": "users/elpekenin"
         },
         {
             // 3color eink
@@ -22,6 +22,7 @@
             "id": 20032
         },
         {
+            // TODO: Remove this test code. coupled with a diff right now :(
             "operation": "checkout",
             "files": [
                 "drivers/painter/comms/qp_comms_spi.c",
@@ -77,10 +78,6 @@
             "operation": "diff",
             "file": "eink_transparent.diff"
         },
-        // {
-        //     "operation": "diff",
-        //     "file": "print_palette.diff"
-        // },
         {
             "operation": "diff",
             "file": "xap_dynamic.diff"

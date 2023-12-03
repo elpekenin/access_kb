@@ -103,7 +103,7 @@ static bool render_scrolling_text_state(scrolling_text_state_t *state) {
     logging(SCROLL_TXT, TRACE, "%s: entry (char #%d)", __func__, (int)state->char_number);
 
     // prepare string slice
-    char *slice = malloc(state->n_chars + 1); // +1 for null terminator
+    char *slice = alloca(state->n_chars + 1); // +1 for null terminator
     if (slice == NULL) {
         logging(SCROLL_TXT, ERROR, "%s: could not allocate", __func__);
         return false;
@@ -136,7 +136,6 @@ static bool render_scrolling_text_state(scrolling_text_state_t *state) {
 
     // draw it
     bool ret = qp_drawtext_recolor(state->device, state->x, state->y, state->font, (const char *)slice, state->fg.hsv888.h, state->fg.hsv888.s, state->fg.hsv888.v, state->bg.hsv888.h, state->bg.hsv888.s, state->bg.hsv888.v);
-    free(slice); // de-allocate after use
 
     // update position
     if (ret) {

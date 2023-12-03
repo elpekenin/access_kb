@@ -12,7 +12,7 @@ ifeq ($(strip $(GAME_ENABLE)), yes)
         $(call CATASTROPHIC_ERROR,Invalid settings,Games require Quantum Painter)
     endif
 
-    OPT_DEFS += -DGAME_ENABLE -DGAME_$(SELECTED_GAME)
+    OPT_DEFS += -DGAME_ENABLE -DGAME_$(shell echo $(SELECTED_GAME) | tr '[:lower:]' '[:upper:]')
     SRC += game.c \
            $(SELECTED_GAME).c
 endif
