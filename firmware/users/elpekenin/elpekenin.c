@@ -37,7 +37,7 @@ void housekeeping_task_user(void) {
     static uint32_t last_matrix = 0;
     if (TIMER_DIFF_32(now, last_matrix) > 6000) {
         last_matrix = now;
-        logging(UNKNOWN, DEBUG, "Scans: %ld", get_matrix_scan_rate());
+        logging(UNKNOWN, LOG_DEBUG, "Scans: %ld", get_matrix_scan_rate());
     }
 #endif // defined(DEBUG_MATRIX_SCAN_RATE)
 

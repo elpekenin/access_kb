@@ -23,12 +23,12 @@ typedef enum {
 } feature_t;
 
 typedef enum {
-    NONE,
-    TRACE,
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
+    LOG_NONE,
+    LOG_TRACE,
+    LOG_DEBUG,
+    LOG_INFO,
+    LOG_WARN,
+    LOG_ERROR,
     __N_LEVELS__
 } log_level_t;
 
@@ -59,7 +59,7 @@ typedef enum {
 // Specifiers supported:
     // %F - The feature's name (nothing if `UNKNOWN`)
 
-    // %LL - The message's level (long)  | TRACE
+    // %LL - The message's level (long)  | LOG_TRACE
     // %LS - The message's level (short) | T
 
     // %M - The actual message specified by `fmt` and `...` on `logging` - can contain regular specifiers

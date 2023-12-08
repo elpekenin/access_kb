@@ -41,7 +41,7 @@ void sendchar_split_hook(uint8_t c) {
     if (slave_i == (ARRAY_SIZE(slave_buffer) - 1)) {
         slave_i = 0;
         memset(slave_buffer, 0, ARRAY_SIZE(slave_buffer));
-        logging(LOGGER, ERROR, "Slave buffer filled");
+        logging(LOGGER, LOG_ERROR, "Slave buffer filled");
     }
 }
 
@@ -96,7 +96,7 @@ void user_logging_master_poll(void) {
     // check size
     if (master_i + data.bytes >= ARRAY_SIZE(master_buffer) - 1) {
         clear_master_buffer();
-        logging(LOGGER, ERROR, "Master buffer filled");
+        logging(LOGGER, LOG_ERROR, "Master buffer filled");
         return;
     }
 

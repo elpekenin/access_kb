@@ -156,7 +156,7 @@ def _draw_generator(feature: str) -> str:
         "            x = width / 2;",
         "            y = 0;",
         "        } else {",
-        '           logging(QP, WARN, "Cant fit more features");',
+        '           logging(QP, LOG_WARN, "Cant fit more features");',
         "           return;",
         "        }",
         "    }",

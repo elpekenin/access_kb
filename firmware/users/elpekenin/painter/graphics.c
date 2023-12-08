@@ -24,22 +24,22 @@ painter_image_handle_t qp_images[QUANTUM_PAINTER_NUM_IMAGES] = {};
 static uint8_t display_counter = 0;
 void _load_display(painter_device_t display) {
     if (display_counter >= QUANTUM_PAINTER_NUM_DISPLAYS) {
-        logging(QP, ERROR, "' failed. OOOB");
+        logging(QP, LOG_ERROR, "' failed. OOOB");
         return;
     }
 
-    logging(QP, DEBUG, "' at [%d]", display_counter);
+    logging(QP, LOG_DEBUG, "' at [%d]", display_counter);
     qp_devices_pekenin[display_counter++] = display;
 }
 
 static uint8_t font_counter = 0;
 void _load_font(const uint8_t *font) {
     if (font_counter >= QUANTUM_PAINTER_NUM_FONTS) {
-        logging(QP, ERROR, "' failed. OOOB");
+        logging(QP, LOG_ERROR, "' failed. OOOB");
         return;
     }
 
-    logging(QP, DEBUG, "' at [%d]", font_counter);
+    logging(QP, LOG_DEBUG, "' at [%d]", font_counter);
     painter_font_handle_t dummy = qp_load_font_mem(font);
     qp_fonts[font_counter++] = dummy;
 }
@@ -47,11 +47,11 @@ void _load_font(const uint8_t *font) {
 static uint8_t img_counter;
 void _load_image(const uint8_t *img) {
     if (img_counter >= QUANTUM_PAINTER_NUM_IMAGES) {
-        logging(QP, ERROR, "' failed. OOOB");
+        logging(QP, LOG_ERROR, "' failed. OOOB");
         return;
     }
 
-    logging(QP, DEBUG, "' at [%d]", img_counter);
+    logging(QP, LOG_DEBUG, "' at [%d]", img_counter);
     painter_image_handle_t dummy = qp_load_image_mem(img);
     qp_images[img_counter++] = dummy;
 }
@@ -100,12 +100,12 @@ static deferred_executor_t    scrolling_text_executors[QUANTUM_PAINTER_CONCURREN
 static scrolling_text_state_t scrolling_text_states[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS]    = {0};
 
 static bool render_scrolling_text_state(scrolling_text_state_t *state) {
-    logging(SCROLL_TXT, TRACE, "%s: entry (char #%d)", __func__, (int)state->char_number);
+    logging(SCROLL_TXT, LOG_TRACE, "%s: entry (char #%d)", __func__, (int)state->char_number);
 
     // prepare string slice
     char *slice = alloca(state->n_chars + 1); // +1 for null terminator
     if (slice == NULL) {
-        logging(SCROLL_TXT, ERROR, "%s: could not allocate", __func__);
+        logging(SCROLL_TXT, LOG_ERROR, "%s: could not allocate", __func__);
         return false;
     }
     memset(slice, 0, state->n_chars + 1);
@@ -146,9 +146,9 @@ static bool render_scrolling_text_state(scrolling_text_state_t *state) {
     }
 
     if (ret) {
-        logging(SCROLL_TXT, TRACE, "%s: ok", __func__);
+        logging(SCROLL_TXT, LOG_TRACE, "%s: ok", __func__);
     } else {
-        logging(SCROLL_TXT, ERROR, "%s: fail", __func__);
+        logging(SCROLL_TXT, LOG_ERROR, "%s: fail", __func__);
     }
     return ret;
 }
@@ -170,7 +170,7 @@ deferred_token draw_scrolling_text(painter_device_t device, uint16_t x, uint16_t
 }
 
 deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, uint16_t y, painter_font_handle_t font, const char *str, uint8_t n_chars, uint32_t delay, uint8_t hue_fg, uint8_t sat_fg, uint8_t val_fg, uint8_t hue_bg, uint8_t sat_bg, uint8_t val_bg) {
-    logging(SCROLL_TXT, TRACE, "%s: entry", __func__);
+    logging(SCROLL_TXT, LOG_TRACE, "%s: entry", __func__);
 
     scrolling_text_state_t *scrolling_state = NULL;
     for (int i = 0; i < QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS; ++i) {
@@ -181,7 +181,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     }
 
     if (!scrolling_state) {
-        logging(SCROLL_TXT, ERROR, "%s: fail (no free slot)", __func__);
+        logging(SCROLL_TXT, LOG_ERROR, "%s: fail (no free slot)", __func__);
         return INVALID_DEFERRED_TOKEN;
     }
 
@@ -190,7 +190,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     uint8_t len          = strlen(str) + 1; // add one to also allocate/copy the terminator
     scrolling_state->str = malloc(len);
     if (scrolling_state->str == NULL) {
-        logging(SCROLL_TXT, ERROR, "%s: fail (allocation)", __func__);
+        logging(SCROLL_TXT, LOG_ERROR, "%s: fail (allocation)", __func__);
         return false;
     }
     strcpy(scrolling_state->str, str);
@@ -210,7 +210,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     // Draw the first string
     if (!render_scrolling_text_state(scrolling_state)) {
         scrolling_state->device = NULL; // disregard the allocated scroling slot
-        logging(SCROLL_TXT, ERROR, "%s: fail (render 1st step)", __func__);
+        logging(SCROLL_TXT, LOG_ERROR, "%s: fail (render 1st step)", __func__);
         return INVALID_DEFERRED_TOKEN;
     }
 
@@ -218,11 +218,11 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     scrolling_state->defer_token = defer_exec_advanced(scrolling_text_executors, QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS, delay, scrolling_text_callback, scrolling_state);
     if (scrolling_state->defer_token == INVALID_DEFERRED_TOKEN) {
         scrolling_state->device = NULL; // disregard the allocated scrolling slot
-        logging(SCROLL_TXT, ERROR, "%s: fail (setup executor)", __func__);
+        logging(SCROLL_TXT, LOG_ERROR, "%s: fail (setup executor)", __func__);
         return INVALID_DEFERRED_TOKEN;
     }
 
-    logging(SCROLL_TXT, TRACE, "%s: ok (deferred token = %d)", __func__, (int)scrolling_state->defer_token);
+    logging(SCROLL_TXT, LOG_TRACE, "%s: ok (deferred token = %d)", __func__, (int)scrolling_state->defer_token);
     return scrolling_state->defer_token;
 }
 
@@ -234,7 +234,7 @@ void extend_scrolling_text(deferred_token scrolling_token, const char *str) {
             char *  new_pos = realloc(scrolling_text_states[i].str, cur_len + new_len);
 
             if (new_pos == NULL) {
-                logging(SCROLL_TXT, ERROR, "%s: fail (realloc)", __func__);
+                logging(SCROLL_TXT, LOG_ERROR, "%s: fail (realloc)", __func__);
                 return;
             }
             scrolling_text_states[i].str = new_pos;

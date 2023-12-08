@@ -43,22 +43,22 @@ static inline void read_data(int16_t *x, int16_t *y, spi_touch_comms_config_t co
 }
 
 void report_from(int16_t x, int16_t y, touch_driver_t *driver, touch_report_t *report) {
-    logging(TOUCH, DEBUG, "SPI reading (%d, %d)", x, y);
+    logging(TOUCH, LOG_DEBUG, "SPI reading (%d, %d)", x, y);
 
     // Map to correct range
     x = x * driver->scale_x + driver->offset_x;
     y = y * driver->scale_y + driver->offset_y;
-    logging(TOUCH, DEBUG, "Scaled: (%d, %d)", x, y);
+    logging(TOUCH, LOG_DEBUG, "Scaled: (%d, %d)", x, y);
 
     // Handle edge cases
     x = MIN(MAX(x, 0), driver->width);
     y = MIN(MAX(y, 0), driver->height);
-    logging(TOUCH, DEBUG, "Edge: (%d, %d)", x, y);
+    logging(TOUCH, LOG_DEBUG, "Edge: (%d, %d)", x, y);
 
     // Apply updside-down adjustment
     if (driver->upside_down) {
         report->x = driver->width - x;
-        logging(TOUCH, DEBUG, "Upside: (%d, %d)", x, y);
+        logging(TOUCH, LOG_DEBUG, "Upside: (%d, %d)", x, y);
     }
 
     uint16_t _x = x;
@@ -88,7 +88,7 @@ void report_from(int16_t x, int16_t y, touch_driver_t *driver, touch_report_t *r
             break;
     }
 
-    logging(TOUCH, DEBUG, "Final: (%d, %d)", report->x, report->y);
+    logging(TOUCH, LOG_DEBUG, "Final: (%d, %d)", report->x, report->y);
 }
 
 WEAK touch_report_t get_spi_touch_report(touch_device_t device, bool check_irq) {
@@ -109,7 +109,7 @@ WEAK touch_report_t get_spi_touch_report(touch_device_t device, bool check_irq) 
     }
 
     if (!touch_spi_start(comms_config)) {
-        logging(TOUCH, DEBUG, "Couldn't start touch comms");
+        logging(TOUCH, LOG_DEBUG, "Couldn't start touch comms");
     }
 
     report.pressed = true;

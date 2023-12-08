@@ -64,7 +64,7 @@ touch_device_t ili9341_touch = &ili9341_touch_driver;
 #endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
 
 uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
-    logging(UNKNOWN, TRACE, "-- kb init --");
+    logging(UNKNOWN, LOG_TRACE, "-- kb init --");
 
     __attribute__((unused)) bool ret = true;
 
@@ -95,9 +95,9 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     qp_rect(ili9341, 0, 0, ILI9341_WIDTH, ILI9341_HEIGHT, HSV_BLACK, true);
 #    endif
     if (ret) {
-        logging(QP, TRACE, "QP Setup: OK");
+        logging(QP, LOG_TRACE, "QP Setup: OK");
     } else {
-        logging(QP, ERROR, "QP Setup: Error");
+        logging(QP, LOG_ERROR, "QP Setup: Error");
     }
 #endif // defined (QUANTUM_PAINTER_ENABLE)
 
@@ -106,15 +106,15 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     ret = touch_spi_init(ili9341_touch);
 
     if (ret) {
-        logging(TOUCH, TRACE, "Touch Setup: OK");
+        logging(TOUCH, LOG_TRACE, "Touch Setup: OK");
     } else {
-        logging(TOUCH, ERROR, "Touch Setup: Error");
+        logging(TOUCH, LOG_ERROR, "Touch Setup: Error");
     }
 #endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
 
     // =======
     // Call user code
-    logging(UNKNOWN, TRACE, "-- user code --");
+    logging(UNKNOWN, LOG_TRACE, "-- user code --");
     keyboard_post_init_user();
 
     return 0;

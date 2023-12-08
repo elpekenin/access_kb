@@ -36,7 +36,7 @@ void sendchar_qp_hook(uint8_t c) {
             qp_log_levels[i]   = qp_log_levels[i + 1];
         }
         qp_log_pointers[LOG_N_LINES - 1] = temp;
-        qp_log_levels[LOG_N_LINES - 1]   = NONE;
+        qp_log_levels[LOG_N_LINES - 1]   = LOG_NONE;
 
         // Reset stuff
         qp_log_current_col                                   = 0;
@@ -53,12 +53,12 @@ void sendchar_qp_hook(uint8_t c) {
 }
 
 static const HSV log_colors[] = {
-    [NONE]  = {HSV_WHITE},
-    [TRACE] = {0, 0, 100},
-    [DEBUG] = {HSV_YELLOW},
-    [INFO]  = {HSV_BLUE},
-    [WARN]  = {HSV_ORANGE},
-    [ERROR] = {HSV_RED},
+    [LOG_NONE]  = {HSV_WHITE},
+    [LOG_TRACE] = {0, 0, 100},
+    [LOG_DEBUG] = {HSV_YELLOW},
+    [LOG_INFO]  = {HSV_BLUE},
+    [LOG_WARN]  = {HSV_ORANGE},
+    [LOG_ERROR] = {HSV_RED},
 };
 ASSERT_LEVELS(log_colors);
 

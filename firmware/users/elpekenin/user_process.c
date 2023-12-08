@@ -27,7 +27,7 @@
 
 #if defined(AUTOCORRECT_ENABLE)
 bool apply_autocorrect(uint8_t backspaces, const char *str, char *typo, char *correct) {
-    logging(UNKNOWN, INFO, "'%s' - '%s'", typo, correct);
+    logging(UNKNOWN, LOG_INFO, "'%s' - '%s'", typo, correct);
     return true;
 }
 

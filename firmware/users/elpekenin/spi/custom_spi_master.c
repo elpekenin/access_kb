@@ -35,7 +35,7 @@ bool is_initialised[] = {[0 ... SPI_COUNT-1] = false};
 
 __attribute__((weak)) void custom_spi_init(uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, ERROR, "Index %d invalid", index);
+        logging(SPI, LOG_ERROR, "Index %d invalid", index);
         return;
     }
 
@@ -70,7 +70,7 @@ __attribute__((weak)) void custom_spi_init(uint8_t index) {
 
 bool custom_spi_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divisor, uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, ERROR, "Index %d invalid", index);
+        logging(SPI, LOG_ERROR, "Index %d invalid", index);
         return false;
     }
 
@@ -282,7 +282,7 @@ bool custom_spi_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divi
 
 spi_status_t custom_spi_write(uint8_t data, uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, ERROR, "Index %d invalid", index);
+        logging(SPI, LOG_ERROR, "Index %d invalid", index);
         return SPI_STATUS_ERROR;
     }
 
@@ -294,7 +294,7 @@ spi_status_t custom_spi_write(uint8_t data, uint8_t index) {
 
 spi_status_t custom_spi_read(uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, ERROR, "Index %d invalid", index);
+        logging(SPI, LOG_ERROR, "Index %d invalid", index);
         return SPI_STATUS_ERROR;
     }
 
@@ -306,7 +306,7 @@ spi_status_t custom_spi_read(uint8_t index) {
 
 spi_status_t custom_spi_transmit(const uint8_t *data, uint16_t length, uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, ERROR, "Index %d invalid", index);
+        logging(SPI, LOG_ERROR, "Index %d invalid", index);
         return SPI_STATUS_ERROR;
     }
 
@@ -316,7 +316,7 @@ spi_status_t custom_spi_transmit(const uint8_t *data, uint16_t length, uint8_t i
 
 spi_status_t custom_spi_receive(uint8_t *data, uint16_t length, uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, ERROR, "Index %d invalid", index);
+        logging(SPI, LOG_ERROR, "Index %d invalid", index);
         return SPI_STATUS_ERROR;
     }
 
@@ -326,7 +326,7 @@ spi_status_t custom_spi_receive(uint8_t *data, uint16_t length, uint8_t index) {
 
 void custom_spi_stop(uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, ERROR, "Index %d invalid", index);
+        logging(SPI, LOG_ERROR, "Index %d invalid", index);
         return;
     }
 

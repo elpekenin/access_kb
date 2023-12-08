@@ -77,7 +77,7 @@ void suspend_wakeup_init_user(void) {
 
     // restore debug and log event after suspend
     debug_enable = suspend_debug_state;
-    logging(UNKNOWN, TRACE, "waking up...");
+    logging(UNKNOWN, LOG_TRACE, "waking up...");
 
     suspend_wakeup_init_keymap();
 }

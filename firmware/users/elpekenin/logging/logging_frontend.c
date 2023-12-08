@@ -15,12 +15,12 @@
 
 // stringify log levels
 static const char *level_str[] = {
-    [NONE]  = "UNREACHABLE",
-    [TRACE] = "TRACE",
-    [DEBUG] = "DEBUG",
-    [INFO]  = "INFO",
-    [WARN]  = "WARN",
-    [ERROR] = "ERROR",
+    [LOG_NONE]  = "UNREACHABLE",
+    [LOG_TRACE] = "LOG_TRACE",
+    [LOG_DEBUG] = "LOG_DEBUG",
+    [LOG_INFO]  = "LOG_INFO",
+    [LOG_WARN]  = "LOG_WARN",
+    [LOG_ERROR] = "LOG_ERROR",
 };
 ASSERT_LEVELS(level_str);
 
@@ -39,14 +39,14 @@ ASSERT_FEATURES(feature_str);
 
 // logging level for each feature
 log_level_t feature_levels[] = {
-    [UNKNOWN]    = INFO,
-    [LOGGER]     = ERROR,
-    [QP]         = ERROR,
-    [SCROLL_TXT] = ERROR,
-    [SIPO]       = NONE,
-    [SPLIT]      = ERROR,
-    [SPI]        = NONE,
-    [TOUCH]      = ERROR,
+    [UNKNOWN]    = LOG_INFO,
+    [LOGGER]     = LOG_ERROR,
+    [QP]         = LOG_ERROR,
+    [SCROLL_TXT] = LOG_ERROR,
+    [SIPO]       = LOG_NONE,
+    [SPLIT]      = LOG_ERROR,
+    [SPI]        = LOG_NONE,
+    [TOUCH]      = LOG_ERROR,
 };
 ASSERT_FEATURES(feature_levels);
 
@@ -57,11 +57,11 @@ log_level_t get_level_for(feature_t feature) {
 void set_level_for(feature_t feature, log_level_t level) {
     if (
         (feature < UNKNOWN) // is this possible ?
-        || (level < NONE)
+        || (level < LOG_NONE)
         || (feature >= __N_FEATURES__)
         || (level >= __N_LEVELS__)
     ) {
-        logging(LOGGER, ERROR, "%s", __func__);
+        logging(LOGGER, LOG_ERROR, "%s", __func__);
         return;
     }
 
@@ -72,10 +72,10 @@ void step_level_for(feature_t feature, bool increase) {
     log_level_t level = get_level_for(feature);
 
     if (
-        ((level == NONE) && !increase)
+        ((level == LOG_NONE) && !increase)
         || (((level + 1) == __N_LEVELS__) && increase)
     ) {
-        logging(LOGGER, ERROR, "%s", __func__);
+        logging(LOGGER, LOG_ERROR, "%s", __func__);
         return;
     }
 
@@ -130,7 +130,7 @@ static token_t get_token(const char **str) {
             return INVALID_SPEC;
     }
 
-    logging(LOGGER, ERROR, "%s", __func__);
+    logging(LOGGER, LOG_ERROR, "%s", __func__);
     return INVALID_SPEC;
 }
 
@@ -148,7 +148,7 @@ void get_logging_fmt(char *dest) {
 
 bool set_logging_fmt(const char *new_fmt) {
     if (strlen(new_fmt) >= ARRAY_SIZE(fmt)) {
-        logging(LOGGER, ERROR, "Format too long");
+        logging(LOGGER, LOG_ERROR, "Format too long");
         return false;
     }
 
@@ -162,7 +162,7 @@ bool set_logging_fmt(const char *new_fmt) {
         }
 
         if (spec == INVALID_SPEC) {
-            logging(LOGGER, ERROR, "Invalid format");
+            logging(LOGGER, LOG_ERROR, "Invalid format");
             return false;
         }
 
@@ -170,7 +170,7 @@ bool set_logging_fmt(const char *new_fmt) {
     }
 }
 
-static log_level_t msg_level = NONE; // level of the text being logged
+static log_level_t msg_level = LOG_NONE; // level of the text being logged
 
 log_level_t get_message_level(void) {
     return msg_level;
@@ -185,7 +185,7 @@ WEAK char *log_time(void) {
 void logging(feature_t feature, log_level_t level, const char *msg, ...) {
     // message filtered out, quit
     log_level_t feat_level = feature_levels[feature];
-    if (level < feat_level || feat_level == NONE) {
+    if (level < feat_level || feat_level == LOG_NONE) {
         return;
     }
 
@@ -200,7 +200,7 @@ void logging(feature_t feature, log_level_t level, const char *msg, ...) {
         // order specs alphabetically, special cases first
         switch (get_token(&copy)) {
             case INVALID_SPEC: // unreachable, guarded by set_logging_fmt
-                logging(LOGGER, ERROR, "???");
+                logging(LOGGER, LOG_ERROR, "???");
                 return;
 
             case NO_SPEC: // print any char
@@ -208,7 +208,7 @@ void logging(feature_t feature, log_level_t level, const char *msg, ...) {
                 break;
 
             case STR_END:
-                msg_level = NONE;
+                msg_level = LOG_NONE;
                 return;
 
             // ----------

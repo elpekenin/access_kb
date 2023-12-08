@@ -24,7 +24,7 @@ void user_data_slave_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t 
 
         user_data_sync_keymap_callback();
     } else {
-        logging(SPLIT, ERROR, "%s size", __func__);
+        logging(SPLIT, LOG_ERROR, "%s size", __func__);
     }
 }
 
@@ -33,7 +33,7 @@ void user_shutdown_slave_callback(uint8_t m2s_size, const void* m2s_buffer, uint
         void shutdown_quantum(bool jump_to_bootloader);
         shutdown_quantum(*(bool *)m2s_buffer);
     } else {
-        logging(SPLIT, ERROR, "%s size", __func__);
+        logging(SPLIT, LOG_ERROR, "%s size", __func__);
     }
 }
 
@@ -41,7 +41,7 @@ void user_ee_clr_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m_
     if (m2s_size == 0) {
         eeconfig_init();
     } else {
-        logging(SPLIT, ERROR, "%s size", __func__);
+        logging(SPLIT, LOG_ERROR, "%s size", __func__);
     }
 }
 
@@ -49,7 +49,7 @@ void user_ee_test_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m
     if (m2s_size == sizeof(uint32_t)) {
         eeconfig_update_user(*(uint32_t*)m2s_buffer);
     } else {
-        logging(SPLIT, ERROR, "%s size", __func__);
+        logging(SPLIT, LOG_ERROR, "%s size", __func__);
     }
 }
 

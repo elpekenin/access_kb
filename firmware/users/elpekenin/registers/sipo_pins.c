@@ -16,7 +16,7 @@ void set_sipo_pin(uint8_t  position, bool state) {
     // Check if pin already had that state
     uint8_t curr_value = (sipo_pin_state[byte_offset] >> bit_offset) & 1;
     if (curr_value == state) {
-        logging(SIPO, TRACE, "%s: no changes", __func__);
+        logging(SIPO, LOG_TRACE, "%s: no changes", __func__);
         return;
     }
 
@@ -31,7 +31,7 @@ void set_sipo_pin(uint8_t  position, bool state) {
 
 void send_sipo_state() {
     if (!sipo_state_changed) {
-        logging(SIPO, TRACE, "%s: no changes", __func__);
+        logging(SIPO, LOG_TRACE, "%s: no changes", __func__);
         return;
     }
 
@@ -40,7 +40,7 @@ void send_sipo_state() {
     custom_spi_init(REGISTERS_SPI_DRIVER_ID);
 
     if(!custom_spi_start(SIPO_CS_PIN, false, REGISTERS_SPI_MODE, REGISTERS_SPI_DIV, REGISTERS_SPI_DRIVER_ID)) {
-        logging(SIPO, ERROR, "%s (init SPI)", __func__);
+        logging(SIPO, LOG_ERROR, "%s (init SPI)", __func__);
         return;
     }
 

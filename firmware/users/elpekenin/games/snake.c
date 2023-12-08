@@ -154,7 +154,7 @@ void advance_snake_game(game_state_t *state) {
             break;
 
         case NO_MOVEMENT:
-            logging(UNKNOWN, ERROR, "%s unreachable.", __func__);
+            logging(UNKNOWN, LOG_ERROR, "%s unreachable.", __func__);
             return;
     }
 
@@ -168,7 +168,7 @@ void advance_snake_game(game_state_t *state) {
             return;
         }
     } else {
-        logging(UNKNOWN, ERROR, "%s not implemented", __func__);
+        logging(UNKNOWN, LOG_ERROR, "%s not implemented", __func__);
         state->playing = false;
         return;
     }

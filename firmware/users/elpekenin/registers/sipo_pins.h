@@ -5,7 +5,7 @@
 
 #define get_sipo_bit(byte, bit) ((sipo_pin_state[byte] >> bit) & 0x1)
 #define print_sipo_byte(byte)      \
-        logging(SIPO, DEBUG,       \
+        logging(SIPO, LOG_DEBUG,       \
             "%d%d%d%d%d%d%d%d",    \
             get_sipo_bit(byte, 0), \
             get_sipo_bit(byte, 1), \
@@ -17,11 +17,11 @@
             get_sipo_bit(byte, 7)  \
         )
 #define sipo_print_status()                    \
-        logging(SIPO, DEBUG, "MCU");           \
+        logging(SIPO, LOG_DEBUG, "MCU");           \
         for (int i=_SIPO_BYTES-1; i>=0; --i) { \
             print_sipo_byte(i);                \
         }                                      \
-        logging(SIPO, DEBUG, "END")
+        logging(SIPO, LOG_DEBUG, "END")
 
 // compute the amount of bytes needed
 #define _SIPO_BYTES ((N_SIPO_PINS+7)/8)
