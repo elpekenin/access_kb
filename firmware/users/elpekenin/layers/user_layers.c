@@ -2,9 +2,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "placeholders.h"
-#include "tri_layer.h"
 #include "user_layers.h"
-#include "user_xap.h"
+
+#if defined(TRI_LAYER_ENABLE)
+#    include "tri_layer.h"
+#endif
+
+#if defined(XAP_ENABLE)
+#    include "user_xap.h"
+#endif
 
 #if defined(TRI_LAYER_ENABLE)
 void configure_tri_layer(void) {

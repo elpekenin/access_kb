@@ -49,12 +49,18 @@ def file_exists(path: Path) -> bool:
     return path.exists() and path.is_file()
 
 
+def debug(*args, **kwargs):
+    with open("debug.log", "a") as f:
+        print(*args, **kwargs, file=f)
+
+
 __all__ = [
     "CLI_ERROR",
     "C_HEADER",
     "H_HEADER",
     "MK_HEADER",
     "current_filename",
+    "debug",
     "dir_exists",
     "file_exists",
     "lines",

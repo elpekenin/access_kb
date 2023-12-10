@@ -16,11 +16,11 @@
 // stringify log levels
 static const char *level_str[] = {
     [LOG_NONE]  = "UNREACHABLE",
-    [LOG_TRACE] = "LOG_TRACE",
-    [LOG_DEBUG] = "LOG_DEBUG",
-    [LOG_INFO]  = "LOG_INFO",
-    [LOG_WARN]  = "LOG_WARN",
-    [LOG_ERROR] = "LOG_ERROR",
+    [LOG_TRACE] = "TRACE",
+    [LOG_DEBUG] = "DEBUG",
+    [LOG_INFO]  = "INFO",
+    [LOG_WARN]  = "WARN",
+    [LOG_ERROR] = "ERROR",
 };
 ASSERT_LEVELS(level_str);
 
@@ -176,7 +176,7 @@ log_level_t get_message_level(void) {
     return msg_level;
 }
 
-WEAK char *log_time(void) {
+WEAK const char *log_time(void) {
     static char buff[10] = {0};
     _itoa(timer_read32() / 1000, buff);
     return buff;

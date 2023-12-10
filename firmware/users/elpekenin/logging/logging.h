@@ -66,7 +66,7 @@ typedef enum {
 
     // %T - Current time, you can override `char *log_time(void);` func to hook it with a RTC or whatever. Defaults to seconds since boot 
     //    >>> itoa(timer_read32() / 1000)
-char *log_time(void);
+const char *log_time(void);
 
     // %% - Write a "%"
 

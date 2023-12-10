@@ -1,6 +1,8 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "sendchar.h"
+
 #if defined(QUANTUM_PAINTER_ENABLE)
 #    include "qp_logging_backend.h"
 #endif

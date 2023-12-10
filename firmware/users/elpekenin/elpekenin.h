@@ -3,6 +3,6 @@
 
 #pragma once
 
-// Basic stuff
+// just the most-basic stuff
 #include "user_layers.h"
 #include "user_keycodes.h"

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "eeconfig.h"
+#include "print.h"
 #include "version.h"
 
 #include "elpekenin.h"
@@ -9,10 +10,11 @@
 #include "logging.h"
 #include "placeholders.h"
 
-// My generated files
-#include "generated_features.h"
-
 // Conditional imports
+#if defined(AUTOCORRECT_ENABLE)
+#    include "process_autocorrect.h"
+#endif
+
 #if defined(GAME_ENABLE)
 #    include "snake.h"
 #endif // defined(GAME_ENABLE)
@@ -28,6 +30,9 @@
 #if defined(SPLIT_KEYBOARD)
 #    include "user_transactions.h"
 #endif // defined(SPLIT_KEYBOARD)
+
+// generated files
+#include "generated_features.h"
 
 
 void housekeeping_task_user(void) {

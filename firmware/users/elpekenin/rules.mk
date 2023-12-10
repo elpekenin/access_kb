@@ -43,3 +43,7 @@ include $(MK_PATH)/rng.mk
 include $(MK_PATH)/split.mk
 include $(MK_PATH)/unicode.mk
 include $(MK_PATH)/xap.mk
+
+# downloaded (sometimes) using qmk_build
+# dont error if it is missing
+-include $(MK_PATH)/rtc.mk

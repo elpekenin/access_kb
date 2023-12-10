@@ -5,23 +5,29 @@
 #include "sendstring_spanish.h"
 #define DELAY 10 // ms between sendstring actions
 
-#include "qp_logging_backend.h"
 #include "placeholders.h"
 #include "user_keycodes.h"
 #include "logging.h"
-#include "user_xap.h"
 
 #if defined(GAME_ENABLE)
 #    include "game.h"
-#endif // defined(GAME_ENABLE)
+#endif
 
 #if defined(KEYLOG_ENABLE)
 #    include "user_keylog.h"
-#endif // defined(KEYLOG_ENABLE)
+#endif
+
+#if defined(QUANTUM_PAINTER_ENABLE)
+#    include "qp_logging_backend.h"
+#endif
 
 #if defined(SPLIT_KEYBOARD)
 #    include "user_transactions.h"
-#endif // defined(SPLIT_KEYBOARD)
+#endif
+
+#if defined(XAP_ENABLE)
+#    include "user_xap.h"
+#endif
 
 // *** Logic start ***
 
@@ -69,9 +75,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 #endif // defined(KEYLOG_ENABLE)
 
-    #if defined(XAP_ENABLE)
+#if defined(XAP_ENABLE)
         xap_keyevent(keycode, record);
-    #endif // defined(XAP_ENABLE)
+#endif // defined(XAP_ENABLE)
 
 
     if (!process_record_keymap(keycode, record)) {
@@ -83,13 +89,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool    l_sft   = mods & MOD_BIT(KC_LSFT);
 
     switch (keycode) {
-    #if defined(SPLIT_KEYBOARD)
+#if defined(SPLIT_KEYBOARD)
         case EE_CLR:
             if (pressed) {
                 reset_ee_slave(); // reset on slave too
             }
             return true;
-    #endif // defined(SPLIT_KEYBOARD)
+#endif // defined(SPLIT_KEYBOARD)
 
         case PK_CPYR:
             // avoid messing up when i press GUI instead of TRI_LAYER for QK_RST
@@ -105,7 +111,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 
-    #if defined(QUANTUM_PAINTER_ENABLE)
+#if defined(QUANTUM_PAINTER_ENABLE)
         case PK_QCLR:
             if (pressed) {
                 for (uint8_t i = 0; i < LOG_N_LINES; ++i) {
@@ -113,9 +119,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             return false;
-    #endif // defined(QUANTUM_PAINTER_ENABLE)
+#endif // defined(QUANTUM_PAINTER_ENABLE)
 
-    #if defined(KEYLOG_ENABLE)
+#if defined(KEYLOG_ENABLE)
         case PK_KLOG:
             if (pressed) {
                 keylog_enabled = !keylog_enabled;
@@ -123,13 +129,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
     #endif // defined(KEYLOG_ENABLE)
 
-    #if defined(UCIS_ENABLE)
+#if defined(UCIS_ENABLE)
         case PK_UCIS:
             if (pressed) {
                 ucis_start();
             }
             return false;
-    #endif // defined(UCIS_ENABLE)
+#endif // defined(UCIS_ENABLE)
 
         case PK_LOG:
             if (pressed) {
@@ -137,7 +143,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 
-    #if defined(GAME_ENABLE)
+#if defined(GAME_ENABLE)
         case KC_W:
             set_game_movement(TOP);
             break;
@@ -159,8 +165,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 game_reset();
             }
             return false;
-
-    #endif // defined(GAME_ENABLE)
+#endif // defined(GAME_ENABLE)
 
         default:
             break;

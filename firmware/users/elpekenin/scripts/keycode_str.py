@@ -84,7 +84,7 @@ def _remove_comments(raw_file: str) -> str:
 
 def _extract_layout_name(clean_file: str) -> str:
     suffix = LAYOUT.search(clean_file).groups()[-1]
-    return f"LAYOUT{suffix}(" 
+    return f"LAYOUT{suffix}"
 
 
 def _extract_layer_names(clean_file: str) -> list[str]:
@@ -123,13 +123,13 @@ def _extract_keycodes(clean_file: str) -> list[str]:
 
 def _coord2index_array_generator(layers: list[str], layout_name: str) -> str:
     return (
-        f"static const uint8_t {COORD_TO_INDEX_ARRAY}[MATRIX_ROWS][MATRIX_COLS] = {layout_name}"
+        f"static const uint8_t {COORD_TO_INDEX_ARRAY}[MATRIX_ROWS][MATRIX_COLS] = {layout_name}("
         f'{", ".join(str(i+1) for i in range(len(layers[0].split(","))))}'
         ");"
     )
 
 
-def _keycode_generator(layers: list[str], layer_names: list[str]) -> str:
+def _keycode_generator(layers: list[str], layer_names: list[str], layout_name: str) -> str:
     def _string(kc: str) -> str:
         """Helper to pretty format the keycodes."""
         return f'"{kc.strip()}"'.rjust(10)
@@ -138,7 +138,7 @@ def _keycode_generator(layers: list[str], layer_names: list[str]) -> str:
     for name, layer in zip(layer_names, layers):
         name = f"[{name}]".rjust(15)
         names = ", ".join(_string(keycode) for keycode in layer.split(","))
-        strings += f"{name} = LAYOUT({names}),\n"
+        strings += f"{name} = {layout_name}({names}),\n"
     strings += "};"
 
     return strings
@@ -212,7 +212,7 @@ if __name__ == "__main__":
 
     # generate file
     coord2index_array = _coord2index_array_generator(layers, layout_name)
-    keycode_array = _keycode_generator(layers, layer_names)
+    keycode_array = _keycode_generator(layers, layer_names, layout_name)
     getter_func = _getter_generator()
     index2coord = _index2coord_generator()
     coord2index = _coord2index_generator()

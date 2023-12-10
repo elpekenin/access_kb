@@ -26,15 +26,15 @@ bool led_update_user(led_t led_state) {
     // i dont really want debug here:
     //    - rgb matrix mode [NOEEPROM]: x
     //    - rgb matrix set hsv [NOEEPROM]: x, y, z
-    bool old_debug_state = debug_enable;
-    debug_enable         = false;
+    bool old_debug_state = debug_config.enable;
+    debug_config.enable  = false;
     if (led_state.caps_lock) {
         rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_COLOR);
         rgb_matrix_sethsv_noeeprom(165, 255, rgb_matrix_get_val());
     } else {
         rgb_matrix_mode_noeeprom(RGB_MATRIX_CYCLE_LEFT_RIGHT);
     }
-    debug_enable = old_debug_state;
+    debug_config.enable = old_debug_state;
 
     return false;
 }
