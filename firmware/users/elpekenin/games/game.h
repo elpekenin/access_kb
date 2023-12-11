@@ -5,7 +5,7 @@
 
 #include "qp.h"
 
-#include "user_utils.h"
+#include "utils/compiler.h"
 
 typedef enum {
     NO_MOVEMENT, // only on start

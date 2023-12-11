@@ -8,7 +8,7 @@
 
 #include "logging.h"
 
-#include "generated_qp_resources.h"
+#include "generated/qp_resources.h"
 
 #if !defined(QUANTUM_PAINTER_NUM_DISPLAYS)
 #    define QUANTUM_PAINTER_NUM_DISPLAYS 1

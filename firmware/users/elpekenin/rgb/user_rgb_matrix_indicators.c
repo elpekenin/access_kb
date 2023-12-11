@@ -10,7 +10,7 @@
 #include "keymap_introspection.h"
 
 #include "elpekenin.h" // layers names and custom keycodes
-#include "user_utils.h"
+#include "utils/compiler.h"
 
 // ***************
 // * Definitions *
@@ -45,33 +45,43 @@ static const uint8_t ledmap[][MATRIX_ROWS][MATRIX_COLS] = {
 // * Checks *
 // **********
 
-#define __keycode() (args->keycode == indicator->keycode)
-#define __layer()   (args->layer == indicator->layer)
-#define __mods()    (args->mods & indicator->mods)
+// helper tiny checks
+UNUSED static inline bool keycode(indicator_t *indicator, indicator_fn_args_t *args) {
+    return indicator->keycode == args->keycode;
+}
+
+UNUSED static inline bool layer(indicator_t *indicator, indicator_fn_args_t *args) {
+    return indicator->layer == args->layer;
+}
+
+UNUSED static inline bool mods(indicator_t *indicator, indicator_fn_args_t *args) {
+    return indicator->mods == args->mods;
+}
+
 
 // draw the given keycode
 UNUSED bool keycode_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return __keycode();
+    return keycode(indicator, args);
 }
 
 // draw every key while on the given layer
 UNUSED bool layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return __layer();
+    return layer(indicator, args);
 }
 
 // draw the given keycode while on the given layer
 UNUSED bool keycode_and_layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return __keycode() && __layer();
+    return keycode(indicator, args) && layer(indicator, args);
 }
 
 // draw every keycode configured (i.e. not KC_NO nor KC_TRNS) on the given layer
 UNUSED bool layer_and_configured_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return __layer() && indicator->keycode > KC_TRNS;
+    return layer(indicator, args) && indicator->keycode > KC_TRNS;
 }
 
 // draw the given keycode if given mods are set (i.e. display shortcuts)
 UNUSED bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return __keycode() && __mods();
+    return keycode(indicator, args) && mods(indicator, args);
 }
 
 // **********

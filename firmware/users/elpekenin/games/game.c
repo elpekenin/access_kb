@@ -4,7 +4,7 @@
 #include "game.h"
 
 // TODO: Support for different games
-#include "snake.h"
+#include "games/snake.h"
 
 static game_state_t game;
 

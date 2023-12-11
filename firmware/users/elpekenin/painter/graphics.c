@@ -8,7 +8,9 @@
 #include "graphics.h"
 #include "qp_logging_backend.h"
 #include "user_data.h"
-#include "user_utils.h"
+
+#include "utils/compiler.h"
+#include "utils/time.h"
 
 #if defined(KEYLOG_ENABLE)
 #    include "user_keylog.h"

@@ -1,4 +1,3 @@
 SRC += rng.c
 
 LIB8TION_ENABLE = yes
-ANALOG_DRIVER_REQUIRED = yes

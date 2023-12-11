@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "generated_features.h"
+#include "generated/features.h"
 
 #define COMMIT_TEXT_LEN 11
 typedef struct user_data_t {

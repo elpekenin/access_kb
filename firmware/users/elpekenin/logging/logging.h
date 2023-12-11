@@ -4,7 +4,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "user_utils.h"
+#include "utils/compiler.h"
 
 // to change printf's "backend", dont use.
 int8_t user_sendchar(uint8_t c);
@@ -80,7 +80,9 @@ void get_logging_fmt(char *dest);
 // returns whether the format was valid (thus, got applied)
 // NOTE: make sure the pointer is still valid (ie: not an automatic variable)
 //       code doesn't make a copy of it, but just keep a pointer to its start
-// NOTE2: can't be longer than 255 bytes
+#ifndef MAX_LOG_FMT_LEN
+#    define MAX_LOG_FMT_LEN 255
+#endif
 bool set_logging_fmt(const char *fmt);
 
 #define ASSERT_FEATURES(__array) _Static_assert(ARRAY_SIZE(__array) == __N_FEATURES__, "Wrong size")

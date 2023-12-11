@@ -22,6 +22,11 @@
             "id": 20032
         },
         {
+            // return code
+            "operation": "pr",
+            "id": 22639
+        },
+        {
             // TODO: Remove this test code. coupled with a diff right now :(
             "operation": "checkout",
             "files": [

@@ -6,7 +6,7 @@
 #include "timer.h"
 #define MAX_PAYLOAD_SIZE (XAP_EPSIZE - sizeof(xap_broadcast_header_t))
 
-#include "user_utils.h"
+#include "utils/compiler.h"
 
 
 static uint8_t i = 0;

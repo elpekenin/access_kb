@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "user_keylog.h"
-#include "user_utils.h"
 
-#include "generated_keycode_str.h"
+#include "generated/keycode_str.h"
 
 
 // ==========================
@@ -117,7 +116,7 @@ void replace_mods(char **str) {
     };
 
 
-    uint8_t mods = MODIFIERS();
+    uint8_t mods = get_mods();
     for (uint8_t i = 0; i < ARRAY_SIZE(replacements); ++i) {
         mod_replacement_t replacement = replacements[i];
         uint8_t           mask        = replacement.mod_mask;
@@ -150,7 +149,7 @@ void apply_casing(char **str) {
         return;
     }
 
-    uint8_t mods  = MODIFIERS();
+    uint8_t mods  = get_mods();
     bool    shift = mods & MOD_MASK_SHIFT;
     bool    caps  = host_keyboard_led_state().caps_lock;
 
@@ -256,7 +255,7 @@ void keylog_process(uint16_t keycode, keyrecord_t *record) {
     uint8_t     column    = record->event.key.col;
     const char *str       = get_keycode_str_at(layer_num, row, column);
 
-    uint8_t mods = MODIFIERS();
+    uint8_t mods = get_mods();
     bool    ctrl = mods & MOD_MASK_CTRL;
 
     // delete from tail

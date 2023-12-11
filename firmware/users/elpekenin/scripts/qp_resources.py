@@ -16,7 +16,7 @@ from typing import Callable
 
 from scripts import *
 
-OUTPUT_NAME = "generated_qp_resources"
+OUTPUT_NAME = "qp_resources"
 
 H_FILE = lines(
     H_HEADER,

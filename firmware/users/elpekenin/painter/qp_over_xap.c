@@ -8,7 +8,7 @@
 #include "xap.h"
 
 #include "graphics.h"
-#include "user_utils.h"
+#include "utils/shortcuts.h"
 
 #define DEVICE (qp_devices_pekenin[arg->device_id])
 #define FONT   (qp_fonts[arg->font_id])
@@ -129,7 +129,7 @@ bool xap_execute_qp_get_geometry(xap_token_t token, xap_route_user_quantum_paint
 
     qp_get_geometry(DEVICE, &width, &height, &rotation, &offset_x, &offset_y);
 
-    uint8_t ret[9] = {u16_TO_u8(width), u16_TO_u8(height), rotation, u16_TO_u8(offset_x), u16_TO_u8(offset_y)};
+    uint8_t ret[9] = {U16_TO_U8(width), U16_TO_U8(height), rotation, U16_TO_U8(offset_x), U16_TO_U8(offset_y)};
     xap_send(token, XAP_RESPONSE_FLAG_SUCCESS, (const void *)ret, sizeof(ret));
 
     return true;
@@ -181,7 +181,7 @@ bool xap_respond_qp_textwidth(xap_token_t token, const uint8_t *data, size_t dat
 
     int16_t width = qp_textwidth(FONT, (const char *)arg->text);
 
-    uint8_t ret[2] = { u16_TO_u8(width) };
+    uint8_t ret[2] = { U16_TO_U8(width) };
     xap_send(token, XAP_RESPONSE_FLAG_SUCCESS, (const void *)ret, sizeof(ret));
 
     return true;

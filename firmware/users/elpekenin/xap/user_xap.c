@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "quantum.h"
-#include "user_utils.h"
 #include "user_xap.h"
 
-#include "generated_keycode_str.h"
+#include "generated/keycode_str.h"
 
+#include "utils/compiler.h"
+
+#if defined(TOUCH_SCREEN_ENABLE)
 void xap_screen_pressed(uint8_t screen_id, touch_report_t report) {
     screen_pressed_msg_t msg = {
         .msg_id = _SCREEN_PRESSED,
@@ -26,6 +28,7 @@ void xap_screen_released(uint8_t screen_id) {
 
     xap_broadcast_user(&msg, sizeof(msg));
 }
+#endif // defined(TOUCH_SCREEN_ENABLE)
 
 void xap_layer(layer_state_t state) {
     layer_change_msg_t msg = {
@@ -44,7 +47,7 @@ void xap_keyevent(uint16_t keycode, keyrecord_t *record) {
         .base.layer = get_highest_layer(layer_state),
         .base.row = record->event.key.row,
         .base.col = record->event.key.col,
-        .base.mods = MODIFIERS()
+        .base.mods = get_mods()
     };
 
     strcpy(msg.str, get_keycode_str_at(msg.base.layer, msg.base.row, msg.base.col));

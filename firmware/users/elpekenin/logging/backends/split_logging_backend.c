@@ -10,15 +10,15 @@
 
 #include "logging.h"
 #include "transaction_ids.h"
-#include "user_utils.h"
+#include "utils/compiler.h"
 
 // *** Split data ***
 
-typedef struct {
+typedef struct PACKED {
     bool    flush;
     uint8_t bytes;
     uint8_t buff[RPC_S2M_BUFFER_SIZE - 2];
-} PACKED split_logging_t;
+} split_logging_t;
 _Static_assert(sizeof(split_logging_t) == RPC_S2M_BUFFER_SIZE, "Wrong size");
 
 

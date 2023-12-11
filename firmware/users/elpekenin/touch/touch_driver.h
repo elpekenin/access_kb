@@ -3,19 +3,19 @@
 
 #pragma once
 
-#include "user_utils.h"
+#include "utils/compiler.h"
 
 typedef const void * touch_device_t;
 
-typedef struct touch_report_t {
+typedef struct PACKED {
     uint16_t x;
     uint16_t y;
     bool     pressed;
-} PACKED touch_report_t;
+} touch_report_t;
 
 typedef enum { TOUCH_ROTATION_0, TOUCH_ROTATION_90, TOUCH_ROTATION_180, TOUCH_ROTATION_270} touch_rotation_t;
 
-typedef struct spi_touch_comms_config_t {
+typedef struct PACKED {
     pin_t    chip_select_pin;
     uint16_t divisor;
     bool     lsb_first;
@@ -23,9 +23,9 @@ typedef struct spi_touch_comms_config_t {
     pin_t    irq_pin;
     uint8_t  x_cmd;
     uint8_t  y_cmd;
-} PACKED spi_touch_comms_config_t;
+} spi_touch_comms_config_t;
 
-typedef struct touch_driver_t {
+typedef struct PACKED {
     uint16_t width;
     uint16_t height;
     float scale_x;
@@ -35,7 +35,7 @@ typedef struct touch_driver_t {
     touch_rotation_t rotation;
     bool upside_down;
     spi_touch_comms_config_t spi_config;
-} PACKED touch_driver_t;
+} touch_driver_t;
 
 
 bool touch_spi_init(touch_device_t device);

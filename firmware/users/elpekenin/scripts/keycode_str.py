@@ -26,7 +26,7 @@ COMMENT = re.compile("//(.*)")
 MULTI_COMMENT = re.compile(r"/\*(.*?)\*/")
 LAYOUT = re.compile(r"\[(.*)\]( *)=( *)LAYOUT(.*)\(")
 
-OUTPUT_NAME = "generated_keycode_str"
+OUTPUT_NAME = "keycode_str"
 
 COORD_TO_INDEX_ARRAY = "__col_row_to_index_mapping"
 KEYCODE_ARRAY = "__keycodes"

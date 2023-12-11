@@ -6,7 +6,11 @@
 #include "quantum.h"
 #include "usb_descriptor.h" // contains XAP_EPSIZE
 
-#include "touch_driver.h"
+#include "utils/compiler.h"
+
+#if defined(TOUCH_SCREEN_ENABLE)
+#    include "touch_driver.h"
+#endif
 
 // =====
 // Helper to compute max string length
@@ -34,36 +38,37 @@ typedef enum {
 typedef uint8_t xap_msg_id_t;
 
 // =====
-// Actual messages
-typedef struct {
+// Messages
+
+#if defined(TOUCH_SCREEN_ENABLE)
+typedef struct PACKED {
     xap_msg_id_t msg_id;
     uint8_t      screen_id;
     uint16_t     x;
     uint16_t     y;
-} PACKED screen_pressed_msg_t;
+} screen_pressed_msg_t;
 
 void xap_screen_pressed(uint8_t screen_id, touch_report_t report);
 
 
-// ---
-typedef struct {
+typedef struct PACKED {
     xap_msg_id_t msg_id;
     uint8_t      screen_id;
-} PACKED screen_released_msg_t;
+} screen_released_msg_t;
 
 void xap_screen_released(uint8_t screen_id);
+#endif // defined(TOUCH_SCREEN_ENABLE)
 
-// ---
-typedef struct {
+
+typedef struct PACKED {
     xap_msg_id_t msg_id;
     uint8_t      layer;
-} PACKED layer_change_msg_t;
+} layer_change_msg_t;
 
 void xap_layer(layer_state_t state);
 
 
-// ---
-typedef struct {
+typedef struct PACKED {
     xap_msg_id_t msg_id;
     uint16_t     keycode;
     bool         pressed;
@@ -71,23 +76,21 @@ typedef struct {
     uint8_t      row;
     uint8_t      col;
     uint8_t      mods;
-} PACKED _keyevent_msg_t;
+} _keyevent_msg_t;
 
-typedef struct {
+typedef struct PACKED {
     _keyevent_msg_t base;
     char            str[_MAX_STR_LEN(_keyevent_msg_t)];
     uint8_t         null;
-} PACKED keyevent_msg_t;
+} keyevent_msg_t;
 _Static_assert(sizeof(keyevent_msg_t) == MAX_PAYLOAD, "wrong size for keyevent_msg_t");
-
 
 void xap_keyevent(uint16_t keycode, keyrecord_t *record);
 
 
-// ---
-typedef struct {
+typedef struct PACKED {
     xap_msg_id_t msg_id;
     bool         bootloader;
-} PACKED shutdown_msg_t;
+} shutdown_msg_t;
 
 void xap_shutdown(bool jump_to_bootloader);

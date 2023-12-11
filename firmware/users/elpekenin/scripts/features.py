@@ -45,7 +45,7 @@ SHORT_NAMES = {
 }
 
 # == Do not edit past here ==
-OUTPUT_NAME = "generated_features"
+OUTPUT_NAME = "features"
 MAX_WIDTH = max(map(len, FEATURES))
 
 # ===== Templates
@@ -91,7 +91,6 @@ DRAW_FILE = lines(
     '#include "graphics.h"',
     '#include "user_data.h"',
     '#include "logging.h"',
-    '#include "user_utils.h"',
     "",
     "void draw_features(painter_device_t device) {{",
     "    enabled_features_t    features    = user_data.features;",

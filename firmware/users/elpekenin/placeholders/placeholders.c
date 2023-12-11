@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "placeholders.h"
-#include "user_utils.h"
+#include "utils/compiler.h"
 
 WEAK void housekeeping_task_keymap(void) { }
 

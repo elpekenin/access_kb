@@ -21,17 +21,14 @@ void _reverse(char *str) {
     }
 }
 
-// custom impl of itoa
+// custom (small-ish) impl of itoa
 void _itoa(uint32_t value, char *result) {
     // convert to string by doing value/10
     char *copy = result;
     do {
-        // this digit
-        *copy++ = '0' + value % 10;
-        // add terminator upfront
-        *copy   = '\0';
+        *copy++ = '0' + value % 10; // this digit
+        *copy   = '\0'; // add terminator upfront
     } while (value /= 10);
 
-    // invert the str
-    _reverse(result);
+    _reverse(result); // invert the str
 }

@@ -31,8 +31,7 @@
 #    include "user_transactions.h"
 #endif // defined(SPLIT_KEYBOARD)
 
-// generated files
-#include "generated_features.h"
+#include "generated/features.h"
 
 
 void housekeeping_task_user(void) {

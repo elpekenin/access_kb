@@ -10,8 +10,9 @@
 
 #include "logging.h"
 #include "user_data.h"
-#include "user_utils.h"
 #include "user_transactions.h"
+
+#include "utils/compiler.h"
 
 
 // *** Callbacks ***

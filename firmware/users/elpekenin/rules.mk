@@ -21,7 +21,7 @@ SRC += elpekenin.c \
        user_layers.c \
        user_power.c \
        user_process.c \
-       user_utils.c
+       utils/string.c
 
 # Default configuration
 AUTOCORRECT_ENABLE ?= yes

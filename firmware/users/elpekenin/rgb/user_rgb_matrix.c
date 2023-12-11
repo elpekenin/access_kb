@@ -3,11 +3,12 @@
 
 #include "quantum.h"
 
-#include "user_utils.h"
 #include "user_layers.h"
 #include "placeholders.h"
 #include "user_rgb_matrix_indicators.h"
 #include "user_rgb_functions.h"
+
+#include "utils/compiler.h"
 
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {

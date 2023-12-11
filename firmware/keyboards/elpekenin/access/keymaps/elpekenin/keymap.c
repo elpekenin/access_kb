@@ -78,7 +78,6 @@ void keyboard_post_init_keymap(void) {
     // qp_rect(surface, 30, 30, 80, 80, HSV_RED, true);
     // qp_drawtext(surface, 30, 40, qp_fonts[2], "Testing");
     // qp_surface_draw(surface, ili9163, 0, 0, true);
-
 #    endif // defined(INIT_EE_HANDS_LEFT)
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 

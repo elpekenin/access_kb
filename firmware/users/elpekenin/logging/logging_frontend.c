@@ -9,7 +9,7 @@
 #include "timer.h"
 
 #include "logging.h"
-#include "user_utils.h"
+#include "utils/string.h"
 
 // *** Actual logging ***
 
@@ -135,7 +135,7 @@ static token_t get_token(const char **str) {
 }
 
 // format used in the logger
-static char fmt[50] = "[%LS] (%F) %M\n"; // array so we can ARRAY_SIZE it (pointer can not)
+static char fmt[MAX_LOG_FMT_LEN] = "[%LS] (%F) %M\n";
 
 // current size, not max size
 uint8_t get_logging_fmt_len(void) {
@@ -147,7 +147,7 @@ void get_logging_fmt(char *dest) {
 }
 
 bool set_logging_fmt(const char *new_fmt) {
-    if (strlen(new_fmt) >= ARRAY_SIZE(fmt)) {
+    if (strlen(new_fmt) >= MAX_LOG_FMT_LEN) {
         logging(LOGGER, LOG_ERROR, "Format too long");
         return false;
     }
