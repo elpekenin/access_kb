@@ -20,7 +20,7 @@
  *    >>> map.set(&map, key, &value)
  *
  *    >>> uint32_t *p_value;
- *    >>> map.get(&map, key, (void *)&p_value);
+ *    >>> map.get(&map, key, (void **)&p_value);
  *    >>> uint32_t value = *p_value;
  */
 

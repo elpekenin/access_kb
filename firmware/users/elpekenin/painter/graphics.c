@@ -86,17 +86,17 @@ hash_map_t img_map;
 
 painter_device_t get_device(const char *name) {
     painter_device_t *p_dev;
-    return display_map.get(&display_map, name, (void*)&p_dev) ? *p_dev : NULL;
+    return display_map.get(&display_map, name, (void **)&p_dev) ? *p_dev : NULL;
 }
 
 painter_font_handle_t get_font(const char *name) {
     painter_font_handle_t *p_font;
-    return font_map.get(&font_map, name, (void*)&p_font) ? *p_font : NULL;
+    return font_map.get(&font_map, name, (void **)&p_font) ? *p_font : NULL;
 }
 
 painter_image_handle_t get_img(const char *name) {
     painter_image_handle_t *p_img;
-    return img_map.get(&img_map, name, (void*)&p_img) ? *p_img : NULL;
+    return img_map.get(&img_map, name, (void **)&p_img) ? *p_img : NULL;
 }
 
 // =======
