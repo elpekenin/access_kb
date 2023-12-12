@@ -103,6 +103,6 @@ void keyboard_post_init_user(void) {
 
 #if defined(GAME_ENABLE)
     // **after** init_keymap to access the display
-    game_init(qp_devices_pekenin[1]);
+    game_init(get_device("ili9341"));
 #endif // defined(GAME_ENABLE)
 }

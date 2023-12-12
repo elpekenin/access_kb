@@ -18,7 +18,7 @@ typedef struct {
     uint16_t keycode;
 } indicator_fn_args_t;
 
-typedef bool(* indicator_fn_t)(indicator_t *indicator, indicator_fn_args_t *args);
+typedef bool(* indicator_fn_t)(indicator_t *self, indicator_fn_args_t *args);
 
 // indicator specification: condition when it has to be drawn + color
 struct indicator_t {

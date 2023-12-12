@@ -57,10 +57,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 
-// #if !defined(INIT_EE_HANDS_LEFT)
-// static uint8_t framebuffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(ILI9163_WIDTH, ILI9163_HEIGHT, 16)];
-// static painter_device_t surface;
-// #endif
+const char *fmt = "[%F] (%LL) -- %M\n";
+void keyboard_pre_init_keymap(void) {
+    set_logging_fmt(fmt);
+}
 
 void keyboard_post_init_keymap(void) {
 #if defined(QUANTUM_PAINTER_ENABLE)
@@ -71,13 +71,6 @@ void keyboard_post_init_keymap(void) {
     load_display(ili9163);
     load_display(ili9341);
     qp_log_target_device = ili9341;
-
-    // // transparent text test
-    // surface = qp_make_rgb565_surface(ILI9163_WIDTH, ILI9163_HEIGHT, framebuffer);
-    // qp_init(surface, QP_ROTATION_0);
-    // qp_rect(surface, 30, 30, 80, 80, HSV_RED, true);
-    // qp_drawtext(surface, 30, 40, qp_fonts[2], "Testing");
-    // qp_surface_draw(surface, ili9163, 0, 0, true);
 #    endif // defined(INIT_EE_HANDS_LEFT)
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
@@ -119,8 +112,3 @@ void housekeeping_task_keymap(void) {
 #    endif // ONE_HAND_ENABLE
 }
 #endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
-
-const char *fmt = "%M\n";
-void keyboard_pre_init_keymap(void) {
-    set_logging_fmt(fmt);
-}

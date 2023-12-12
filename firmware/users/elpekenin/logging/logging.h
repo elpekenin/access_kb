@@ -19,8 +19,9 @@ typedef enum {
     SPLIT,
     SPI,
     TOUCH,
+    HASH,
     __N_FEATURES__
-} feature_t;
+} feature_t; // ALWAYS ADD AT THE END, FOR ASSERT TO WORK
 
 typedef enum {
     LOG_NONE,
@@ -30,7 +31,7 @@ typedef enum {
     LOG_WARN,
     LOG_ERROR,
     __N_LEVELS__
-} log_level_t;
+} log_level_t; // ALWAYS ADD AT THE END, FOR ASSERT TO WORK
 
 log_level_t get_level_for(feature_t feature);
 void        set_level_for(feature_t feature, log_level_t level);

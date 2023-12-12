@@ -25,8 +25,9 @@ static const char *level_str[] = {
 ASSERT_LEVELS(level_str);
 
 // stringify features
-static const char *feature_str[] = {
+static const char *feature_str[] = { // sorted alphabetically
     [UNKNOWN]    = "",
+    [HASH]       = "HASH",
     [LOGGER]     = "LOG",
     [QP]         = "QP",
     [SCROLL_TXT] = "SCROLL",
@@ -38,10 +39,11 @@ static const char *feature_str[] = {
 ASSERT_FEATURES(feature_str);
 
 // logging level for each feature
-log_level_t feature_levels[] = {
+log_level_t feature_levels[] = { // sorted alphabetically
     [UNKNOWN]    = LOG_INFO,
+    [HASH]       = LOG_ERROR,
     [LOGGER]     = LOG_ERROR,
-    [QP]         = LOG_ERROR,
+    [QP]         = LOG_INFO,
     [SCROLL_TXT] = LOG_ERROR,
     [SIPO]       = LOG_NONE,
     [SPLIT]      = LOG_ERROR,

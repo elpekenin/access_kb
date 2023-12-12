@@ -24,38 +24,44 @@ painter_image_handle_t qp_images[QUANTUM_PAINTER_NUM_IMAGES] = {};
 // =======
 // Load resources
 static uint8_t display_counter = 0;
-void _load_display(painter_device_t display) {
+void _load_display(painter_device_t display, const char *name) {
     if (display_counter >= QUANTUM_PAINTER_NUM_DISPLAYS) {
-        logging(QP, LOG_ERROR, "' failed. OOOB");
+        logging(QP, LOG_ERROR, "Loading '%s' failed. OOB", name);
         return;
     }
 
-    logging(QP, LOG_DEBUG, "' at [%d]", display_counter);
-    qp_devices_pekenin[display_counter++] = display;
+    qp_devices_pekenin[display_counter] = display;
+    display_map.add(&display_map, name, &qp_devices_pekenin[display_counter]);
+
+    logging(QP, LOG_DEBUG, "Loaded '%s' at [%d]", name, display_counter++);
 }
 
 static uint8_t font_counter = 0;
-void _load_font(const uint8_t *font) {
+void _load_font(const uint8_t *font, const char *name) {
     if (font_counter >= QUANTUM_PAINTER_NUM_FONTS) {
-        logging(QP, LOG_ERROR, "' failed. OOOB");
+        logging(QP, LOG_ERROR, "Loading '%s' failed. OOB", name);
         return;
     }
 
-    logging(QP, LOG_DEBUG, "' at [%d]", font_counter);
     painter_font_handle_t dummy = qp_load_font_mem(font);
-    qp_fonts[font_counter++] = dummy;
+    qp_fonts[font_counter] = dummy;
+    font_map.add(&font_map, name, &qp_fonts[font_counter]);
+
+    logging(QP, LOG_DEBUG, "Loaded '%s' at [%d]", name, display_counter++);
 }
 
 static uint8_t img_counter;
-void _load_image(const uint8_t *img) {
+void _load_image(const uint8_t *img, const char *name) {
     if (img_counter >= QUANTUM_PAINTER_NUM_IMAGES) {
-        logging(QP, LOG_ERROR, "' failed. OOOB");
+        logging(QP, LOG_ERROR, "Loading '%s' failed. OOB", name);
         return;
     }
 
-    logging(QP, LOG_DEBUG, "' at [%d]", img_counter);
     painter_image_handle_t dummy = qp_load_image_mem(img);
-    qp_images[img_counter++] = dummy;
+    qp_images[img_counter] = dummy;
+    img_map.add(&img_map, name, &qp_images[img_counter]);
+
+    logging(QP, LOG_DEBUG, "Loaded '%s' at [%d]", name, img_counter++);
 }
 
 // ===========
@@ -72,13 +78,34 @@ uint8_t num_imgs(void) {
     return img_counter;
 }
 
+// ===========
+// hash maps
+hash_map_t display_map;
+hash_map_t font_map;
+hash_map_t img_map;
+
+painter_device_t get_device(const char *name) {
+    painter_device_t *p_dev;
+    return display_map.get(&display_map, name, (void*)&p_dev) ? *p_dev : NULL;
+}
+
+painter_font_handle_t get_font(const char *name) {
+    painter_font_handle_t *p_font;
+    return font_map.get(&font_map, name, (void*)&p_font) ? *p_font : NULL;
+}
+
+painter_image_handle_t get_img(const char *name) {
+    painter_image_handle_t *p_img;
+    return img_map.get(&img_map, name, (void*)&p_img) ? *p_img : NULL;
+}
+
 // =======
 // Drawing
 
 // Compilation info
 void draw_commit(painter_device_t device) {
     painter_driver_t *    driver     = (painter_driver_t *)device;
-    painter_font_handle_t font       = qp_fonts[1];
+    painter_font_handle_t font       = get_font("font_fira_code");
     uint16_t              width      = driver->panel_width;
     uint16_t              height     = driver->panel_height;
     int16_t               hash_width = qp_textwidth(font, user_data.commit);
@@ -289,7 +316,7 @@ void housekeeping_qp(uint32_t now) {
     uint16_t height = qp_get_height(device);
     (void)height;
 
-    painter_font_handle_t font = qp_fonts[1];
+    painter_font_handle_t font = get_font("font_fira_code");
 
     /* Key logger */
 #if defined(KEYLOG_ENABLE)

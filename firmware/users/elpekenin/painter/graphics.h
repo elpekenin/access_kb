@@ -10,6 +10,8 @@
 
 #include "generated/qp_resources.h"
 
+#include "utils/hash_map.h"
+
 #if !defined(QUANTUM_PAINTER_NUM_DISPLAYS)
 #    define QUANTUM_PAINTER_NUM_DISPLAYS 1
 #endif // QUANTUM_PAINTER_NUM_DISPLAYS
@@ -22,17 +24,24 @@ extern painter_image_handle_t qp_images[QUANTUM_PAINTER_NUM_IMAGES];
 
 // =======
 // Loading
-void _load_display(painter_device_t display);
-void _load_font(const uint8_t *font);
-void _load_image(const uint8_t *img);
-#define load_display(x) logging(QP, LOG_DEBUG, "Loading '" XSTR(x)); _load_display(x)
-#define load_font(x) logging(QP, LOG_DEBUG, "Loading '" XSTR(x)); _load_font(x)
-#define load_image(x) logging(QP, LOG_DEBUG, "Loading '" XSTR(x)); _load_image(x)
+void _load_display(painter_device_t display, const char *name);
+void _load_font(const uint8_t *font, const char *name);
+void _load_image(const uint8_t *img, const char *name);
+#define load_display(x) _load_display(x, #x)
+#define load_font(x) _load_font(x, #x)
+#define load_image(x) _load_image(x, #x)
 void load_qp_resources(void);
 
 uint8_t num_displays(void);
 uint8_t num_imgs(void);
 uint8_t num_fonts(void);
+
+extern hash_map_t display_map;
+extern hash_map_t font_map;
+extern hash_map_t img_map;
+painter_device_t       get_device(const char *name);
+painter_font_handle_t  get_font(const char *name);
+painter_image_handle_t get_img(const char *name);
 
 // ======
 // States

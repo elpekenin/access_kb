@@ -94,7 +94,7 @@ DRAW_FILE = lines(
     "",
     "void draw_features(painter_device_t device) {{",
     "    enabled_features_t    features    = user_data.features;",
-    "    painter_font_handle_t font        = qp_fonts[1];",
+    '    painter_font_handle_t font        = get_font("font_fira_code");',
     "    uint8_t               font_height = font->line_height;",
     "    uint8_t               x           = 0;",
     "    uint8_t               y           = 0;",

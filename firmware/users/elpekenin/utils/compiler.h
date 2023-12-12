@@ -6,8 +6,17 @@
 // re-export QMK utils
 #include "quantum/util.h"
 
+
+#if !defined(LIKELY)
+#    define LIKELY(x) __builtin_expect(!!(x), 1)
+#endif
+
 #if !defined(PACKED)
 #    define PACKED __attribute__((packed))
+#endif
+
+#if !defined(UNLIKELY)
+#    define UNLIKELY(x) __builtin_expect(!!(x), 0)
 #endif
 
 #if !defined(UNUSED)
