@@ -46,7 +46,7 @@ C_FILE = lines(
     C_HEADER,
     "",
     '#include "default_keyboard.h" // for LAYOUT',
-    '#include "user_layers.h" // for layer names',
+    '#include "elpekenin/layers.h" // for layer names',
     "",
     "{coord2index_array}",
     "",

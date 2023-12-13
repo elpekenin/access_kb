@@ -1,14 +1,14 @@
-ifeq ($(strip $(QUANTUM_PAINTER_ENABLE_ENABLE)), yes)
-    SRC += qp_logging_backend.c
+ifeq ($(strip $(QUANTUM_PAINTER_ENABLE)), yes)
+    SRC += $(USER_SRC)/logging/backends/qp.c
 endif
 
 ifeq ($(strip $(SPLIT_KEYBOARD)), yes)
-    SRC += split_logging_backend.c
+    SRC += $(USER_SRC)/logging/backends/split.c
 endif
 
 ifeq ($(strip $(XAP_ENABLE)), yes)
-    SRC += xap_logging_backend.c
+    SRC += $(USER_SRC)/logging/backends/xap.c
 endif
 
-SRC += logging_backend.c \
-       logging_frontend.c
+SRC += $(USER_SRC)/logging/backend.c \
+       $(USER_SRC)/logging/frontend.c

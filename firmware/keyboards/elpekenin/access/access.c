@@ -3,7 +3,7 @@
 
 #include QMK_KEYBOARD_H
 
-#include "logging.h"
+#include "elpekenin/logging.h"
 
 #if defined(ONE_HAND_ENABLE)
 uint8_t one_hand_col;

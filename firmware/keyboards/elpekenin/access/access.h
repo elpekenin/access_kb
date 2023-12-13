@@ -5,7 +5,7 @@
 
 #if defined(QUANTUM_PAINTER_ENABLE)
 #    include "qp.h"
-#    include "sipo_pins.h"
+#    include "elpekenin/sipo.h"
 #    if defined(INIT_EE_HANDS_LEFT)
 #        include "qp_surface.h"
 #        include "qp_eink_panel.h"
@@ -30,7 +30,7 @@ extern one_hand_movement_t one_hand_movement;
 #endif // RGB_MATRIX_ENABLE && ONE_HAND_ENABLE
 
 #if defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
-#    include "touch_driver.h"
+#    include "elpekenin/touch.h"
 extern touch_device_t ili9341_touch;
 extern bool ili9341_pressed;
 #    if defined(ONE_HAND_ENABLE)

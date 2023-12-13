@@ -5,10 +5,11 @@
 
 #include "qp_surface.h"
 
+#include "elpekenin/painter/graphics.h"
+
 #include "elpekenin.h"
-#include "graphics.h"
-#include "rng.h"
-#include "user_xap.h"
+#include "elpekenin/rng.h"
+#include "elpekenin/xap.h"
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -57,7 +58,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 
-const char *fmt = "[%F] (%LL) -- %M\n";
+const char *fmt = "%M\n";
 void keyboard_pre_init_keymap(void) {
     set_logging_fmt(fmt);
 }
@@ -73,11 +74,10 @@ void keyboard_post_init_keymap(void) {
     qp_log_target_device = ili9341;
 #    endif // defined(INIT_EE_HANDS_LEFT)
 #endif // defined(QUANTUM_PAINTER_ENABLE)
-
     rng_set_seed(analogReadPin(GP28) * analogReadPin(GP28));
 }
 
-void user_data_sync_keymap_callback(void) {
+void build_info_sync_keymap_callback(void) {
 #if defined(INIT_EE_HANDS_LEFT) && defined(QUANTUM_PAINTER_ENABLE)
     draw_commit(il91874);
     draw_features(il91874);

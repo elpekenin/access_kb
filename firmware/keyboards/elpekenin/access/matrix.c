@@ -8,10 +8,11 @@
  */
 
 #include "quantum.h"
-#include "custom_spi_master.h"
+
+#include "elpekenin/spi_custom.h"
 
 #if defined(TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
-#    include "touch_driver.h"
+#    include "elpekenin/touch.h"
 #    include "access.h"
 #endif // TOUCH_SCREEN_ENABLE && INIT_EE_HANDS_RIGHT
 
@@ -20,7 +21,7 @@ extern uint8_t thisHand, thatHand;
 void matrix_init_custom(void) {
     setPinOutput(PISO_CS_PIN);
     writePinHigh(PISO_CS_PIN);
-    custom_spi_init(REGISTERS_SPI_DRIVER_ID);
+    spi_custom_init(REGISTERS_SPI_DRIVER_ID);
 }
 
 static inline bool check_changes(matrix_row_t *current_matrix, matrix_row_t *temp_matrix) {
@@ -38,9 +39,9 @@ bool matrix_scan_custom(matrix_row_t *current_matrix) {
     matrix_row_t temp_matrix[N_PISO_REGISTERS];
 
     // Read matrix over SPI
-    custom_spi_start(PISO_CS_PIN, false, REGISTERS_SPI_MODE, PISO_SPI_DIV, REGISTERS_SPI_DRIVER_ID);
-    custom_spi_receive((uint8_t *)temp_matrix, N_PISO_REGISTERS, REGISTERS_SPI_DRIVER_ID);
-    custom_spi_stop(REGISTERS_SPI_DRIVER_ID);
+    spi_custom_start(PISO_CS_PIN, false, REGISTERS_SPI_MODE, PISO_SPI_DIV, REGISTERS_SPI_DRIVER_ID);
+    spi_custom_receive((uint8_t *)temp_matrix, N_PISO_REGISTERS, REGISTERS_SPI_DRIVER_ID);
+    spi_custom_stop(REGISTERS_SPI_DRIVER_ID);
 
 #if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
     // IRQ pin is connected to the 1st input of the last shift register

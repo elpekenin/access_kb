@@ -1,3 +1,3 @@
 ifeq ($(strip $(SPLIT_KEYBOARD)), yes)
-    SRC += user_transactions.c
+    SRC += $(USER_SRC)/transactions.c
 endif

@@ -53,7 +53,7 @@
 // - Default values
 #if !defined(INIT_DELAY)
 // if debug is enabled, 3 second timeout
-#    if defined(CUSTOM_SPI_DEBUG) || defined(QUANTUM_PAINTER_DEBUG) || defined(TOUCH_SCREEN_DEBUG) || defined(SIPO_PINS_DEBUG)
+#    if defined(SPI_CUSTOM_DEBUG) || defined(QUANTUM_PAINTER_DEBUG) || defined(TOUCH_SCREEN_DEBUG) || defined(SIPO_PINS_DEBUG)
 #        define INIT_DELAY 3000
 #    else
 // if no debug active, minimal delay
