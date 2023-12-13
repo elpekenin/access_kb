@@ -5,7 +5,6 @@
 #include "action_util.h"
 #include "default_keyboard.h" // for LAYOUT
 #include "keymap_common.h"
-#include "keymap_introspection.h"
 
 #include "elpekenin.h" // layers names and custom keycodes
 #include "elpekenin/rgb/matrix/indicators.h"

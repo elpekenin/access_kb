@@ -6,14 +6,13 @@
 #include "generated/keycode_str.h"
 
 
-// ==========================
 // *** Internal variables ***
-// ==========================
+
 char keylog[KEYLOG_SIZE + 1]; // extra space for terminator
 
-// ==========================
+
 // *** Formatting helpers ***
-/// =========================
+
 void remove_prefixes(char **str) {
     char *prefixes[] = { "KC_", "RGB_", "QK_", "ES_", "TD_" };
 
@@ -163,9 +162,9 @@ void apply_casing(char **str) {
     *str = lowercase_letters[**str - 'A'];
 }
 
-// ========================
+
 // *** Updating the log ***
-// ========================
+
 bool is_utf8_continuation(char c) {
     return (c & 0xC0) == 0x80;
 }
@@ -220,9 +219,9 @@ void keylog_append(const char *str) {
     }
 }
 
-// ======================
+
 // *** Event handling ***
-// ======================
+
 void keylog_process(uint16_t keycode, keyrecord_t *record) {
     // initial setup
     static bool keylog_init = false;

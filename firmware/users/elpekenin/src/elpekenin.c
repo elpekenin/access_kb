@@ -5,9 +5,8 @@
 #include "print.h"
 #include "version.h"
 
-#include "elpekenin/build_info.h"
-
 #include "elpekenin.h"
+#include "elpekenin/build_info.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/placeholders.h"
 
@@ -25,7 +24,7 @@
 #endif // defined (KEYLOG_ENABLE)
 
 #if defined(QUANTUM_PAINTER_ENABLE)
-#    include "elpekenin/painter/graphics.h"
+#    include "elpekenin/qp/graphics.h"
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
 #if defined(SPLIT_KEYBOARD)

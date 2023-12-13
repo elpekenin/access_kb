@@ -18,6 +18,7 @@
 #include "elpekenin/logging.h"
 #include "elpekenin/spi_custom.h"
 
+
 static pin_t slave_pins[] = {[0 ... SPI_COUNT-1] = NO_PIN};
 
 static pin_t spi_sck_pins[]  = SPI_SCK_PINS;

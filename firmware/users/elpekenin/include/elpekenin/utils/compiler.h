@@ -6,7 +6,6 @@
 // re-export QMK utils
 #include "quantum/util.h"
 
-
 #if !defined(LIKELY)
 #    define LIKELY(x) __builtin_expect(!!(x), 1)
 #endif

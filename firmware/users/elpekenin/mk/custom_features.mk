@@ -24,7 +24,7 @@ ifeq ($(strip $(SIPO_PINS)), yes)
     endif
 
     ifeq ($(strip $(QUANTUM_PAINTER_ENABLE)), yes)
-        SRC += $(USER_SRC)/painter/sipo.c
+        SRC += $(USER_SRC)/qp/sipo.c
     endif
 endif
 

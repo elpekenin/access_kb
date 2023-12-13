@@ -5,7 +5,7 @@ ifeq ($(strip $(XAP_ENABLE)), yes)
     ifeq ($(strip $(QUANTUM_PAINTER_ENABLE)), yes)
         ifeq ($(strip $(QP_XAP)), yes)
             OPT_DEFS += -DQP_XAP_ENABLE
-            SRC += $(USER_SRC)/painter/xap.c
+            SRC += $(USER_SRC)/qp/xap.c
         endif
     endif
 endif

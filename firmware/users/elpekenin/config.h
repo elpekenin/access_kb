@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "elpekenin/painter/config.h"
+#include "elpekenin/qp/config.h"
 #include "elpekenin/rgb/matrix/config.h"
 #include "elpekenin/split/config.h"
 

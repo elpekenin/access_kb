@@ -6,10 +6,8 @@
 #include "eeconfig.h"
 
 #include "elpekenin/build_info.h"
-
 #include "elpekenin/logging.h"
 #include "elpekenin/logging/backends/split.h"
-
 #include "elpekenin/split/transactions.h"
 #include "elpekenin/utils/compiler.h"
 

@@ -6,10 +6,10 @@
 #include "qp.h"
 #include "qp_internal.h"
 
-#include "generated/qp_resources.h"
-
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/hash_map.h"
+
+#include "generated/qp_resources.h"
 
 #if !defined(QUANTUM_PAINTER_NUM_DISPLAYS)
 #    define QUANTUM_PAINTER_NUM_DISPLAYS 1

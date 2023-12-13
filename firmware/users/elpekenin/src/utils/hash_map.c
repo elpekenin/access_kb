@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "elpekenin/logging.h"
-
 #include "elpekenin/utils/hash_map.h"
 
 static inline hash_t _hash(const char *key) {

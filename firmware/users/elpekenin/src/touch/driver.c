@@ -1,12 +1,11 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "elpekenin/touch.h"
-
 #include "spi_master.h"
 #include "wait.h"
 
 #include "elpekenin/logging.h"
+#include "elpekenin/touch.h"
 
 WEAK bool touch_spi_init(touch_device_t device) {
     touch_driver_t           *driver      = (touch_driver_t *)device;

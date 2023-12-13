@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include "keycodes.h"
+#include_next "keycodes.h"
+
 #include "keymap_spanish.h"
 
 #define _______ KC_TRNS

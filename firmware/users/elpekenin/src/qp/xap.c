@@ -7,7 +7,7 @@
 #include "qp.h"
 #include "xap.h"
 
-#include "elpekenin/painter/graphics.h"
+#include "elpekenin/qp/graphics.h"
 #include "elpekenin/utils/shortcuts.h"
 
 #define DEVICE (qp_devices_pekenin[arg->device_id])

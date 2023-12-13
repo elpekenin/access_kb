@@ -3,23 +3,25 @@
 
 #pragma once
 
-#define get_sipo_bit(byte, bit) ((sipo_pin_state[byte] >> bit) & 0x1)
-#define print_sipo_byte(byte)      \
-        logging(SIPO, LOG_DEBUG,       \
-            "%d%d%d%d%d%d%d%d",    \
-            get_sipo_bit(byte, 0), \
-            get_sipo_bit(byte, 1), \
-            get_sipo_bit(byte, 2), \
-            get_sipo_bit(byte, 3), \
-            get_sipo_bit(byte, 4), \
-            get_sipo_bit(byte, 5), \
-            get_sipo_bit(byte, 6), \
-            get_sipo_bit(byte, 7)  \
+#include "elpekenin/utils/shortcuts.h"
+
+#define GET_SIPO_BIT(x, bit) GET_BIT(sipo_pin_state[x], bit)
+#define PRINT_SIPO_BYTE(x)       \
+        logging(SIPO, LOG_DEBUG, \
+            "%d%d%d%d%d%d%d%d",  \
+            GET_SIPO_BIT(x, 0),  \
+            GET_SIPO_BIT(x, 1),  \
+            GET_SIPO_BIT(x, 2),  \
+            GET_SIPO_BIT(x, 3),  \
+            GET_SIPO_BIT(x, 4),  \
+            GET_SIPO_BIT(x, 5),  \
+            GET_SIPO_BIT(x, 6),  \
+            GET_SIPO_BIT(x, 7)   \
         )
-#define sipo_print_status()                    \
-        logging(SIPO, LOG_DEBUG, "MCU");           \
+#define PRINT_SIPO_STATUS()                    \
+        logging(SIPO, LOG_DEBUG, "MCU");       \
         for (int i=_SIPO_BYTES-1; i>=0; --i) { \
-            print_sipo_byte(i);                \
+            PRINT_SIPO_BYTE(i);                \
         }                                      \
         logging(SIPO, LOG_DEBUG, "END")
 

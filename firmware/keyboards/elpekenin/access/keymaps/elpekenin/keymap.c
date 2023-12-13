@@ -5,11 +5,10 @@
 
 #include "qp_surface.h"
 
-#include "elpekenin/painter/graphics.h"
-
 #include "elpekenin.h"
 #include "elpekenin/rng.h"
 #include "elpekenin/xap.h"
+#include "elpekenin/qp/graphics.h"
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {

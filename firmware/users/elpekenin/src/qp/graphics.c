@@ -5,10 +5,9 @@
 #    include "wpm.h"
 #endif // defined(WPM_ENABLE)
 
-#include "elpekenin/painter/graphics.h"
 #include "elpekenin/build_info.h"
-
 #include "elpekenin/logging/backends/qp.h"
+#include "elpekenin/qp/graphics.h"
 #include "elpekenin/utils/compiler.h"
 #include "elpekenin/utils/time.h"
 

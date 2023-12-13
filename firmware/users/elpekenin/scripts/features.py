@@ -88,7 +88,7 @@ DRAW_FILE = lines(
     '#include "color.h"',
     "",
     f'#include "{OUTPUT_NAME}.h"',
-    '#include "elpekenin/painter/graphics.h"',
+    '#include "elpekenin/qp/graphics.h"',
     '#include "elpekenin/build_info.h"',
     '#include "elpekenin/logging.h"',
     "",

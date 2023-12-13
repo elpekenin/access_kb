@@ -12,8 +12,8 @@
 #include "elpekenin/spi_custom.h"
 
 #if defined(TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
-#    include "elpekenin/touch.h"
 #    include "access.h"
+#    include "elpekenin/touch.h"
 #endif // TOUCH_SCREEN_ENABLE && INIT_EE_HANDS_RIGHT
 
 extern uint8_t thisHand, thatHand;

@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "quantum.h"
+
 #include "elpekenin/xap.h"
+#include "elpekenin/utils/compiler.h"
 
 #include "generated/keycode_str.h"
 
-#include "elpekenin/utils/compiler.h"
 
 #if defined(TOUCH_SCREEN_ENABLE)
 void xap_screen_pressed(uint8_t screen_id, touch_report_t report) {

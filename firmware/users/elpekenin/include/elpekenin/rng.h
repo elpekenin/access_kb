@@ -4,7 +4,7 @@
 #pragma once
 
 // will be seeding with ADC reading
-// remove the requirement to include it
+// TODO?: Conditional
 #include "analog.h"
 
 void rng_set_seed(uint16_t seed);

@@ -1,12 +1,12 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "elpekenin/layers.h"
-#include "elpekenin/placeholders.h"
-
 #if defined(TRI_LAYER_ENABLE)
 #    include "tri_layer.h"
 #endif
+
+#include "elpekenin/layers.h"
+#include "elpekenin/placeholders.h"
 
 #if defined(XAP_ENABLE)
 #    include "elpekenin/xap.h"

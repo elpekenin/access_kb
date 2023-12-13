@@ -8,7 +8,7 @@
 #include "elpekenin/placeholders.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
-#    include "elpekenin/painter/graphics.h"
+#    include "elpekenin/qp/graphics.h"
 #endif
 
 #if defined(RGB_MATRIX_ENABLE)

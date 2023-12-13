@@ -4,7 +4,7 @@
 #pragma once
 
 #include "quantum.h"
-#include "usb_descriptor.h" // contains XAP_EPSIZE
+#include "usb_descriptor.h" // XAP_EPSIZE
 
 #include "elpekenin/utils/compiler.h"
 

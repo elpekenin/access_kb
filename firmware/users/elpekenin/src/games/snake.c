@@ -1,11 +1,10 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "elpekenin/painter/graphics.h"
-
 #include "elpekenin/rng.h"
 #include "elpekenin/games/snake.h"
 #include "elpekenin/logging.h"
+#include "elpekenin/qp/graphics.h"
 
 static inline position_t random_position(void) {
     return (position_t) {

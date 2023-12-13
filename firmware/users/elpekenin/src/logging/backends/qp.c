@@ -1,10 +1,9 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "elpekenin/painter/graphics.h"
-
 #include "elpekenin/logging.h"
 #include "elpekenin/logging/backends/qp.h"
+#include "elpekenin/qp/graphics.h"
 
 static char           qp_log[LOG_N_LINES][LOG_N_CHARS + 1];
 static uint8_t        qp_log_current_col;

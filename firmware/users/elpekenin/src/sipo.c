@@ -1,7 +1,6 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-
 #include "elpekenin/logging.h"
 #include "elpekenin/sipo.h"
 #include "elpekenin/spi_custom.h"
@@ -51,5 +50,5 @@ void send_sipo_state() {
 
     spi_custom_stop(REGISTERS_SPI_DRIVER_ID);
 
-    sipo_print_status();
+    PRINT_SIPO_STATUS();
 }

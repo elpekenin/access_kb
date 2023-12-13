@@ -4,3 +4,4 @@
 #pragma once
 
 #define U16_TO_U8(x) ((x) & 0xFF), ((x) >> 8)
+#define GET_BIT(x, bit) (((x) >> (bit)) & 1)

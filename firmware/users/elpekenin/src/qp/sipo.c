@@ -4,8 +4,9 @@
 
 #ifdef QUANTUM_PAINTER_SPI_ENABLE
 
-#    include "elpekenin/sipo.h"
 #    include "qp_comms_spi.h"
+
+#    include "elpekenin/sipo.h"
 #    include "elpekenin/spi_custom.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

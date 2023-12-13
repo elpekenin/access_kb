@@ -27,7 +27,7 @@ H_FILE = lines(
 C_FILE = lines(
     C_HEADER,
     "",
-    f'#include "elpekenin/painter/graphics.h"',
+    f'#include "elpekenin/qp/graphics.h"',
     "",
     "void load_qp_resources(void) {{",
         "{generated_code}"  # no comma here intentionally

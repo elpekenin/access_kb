@@ -6,7 +6,6 @@
 #include QMK_KEYBOARD_H
 
 #include "elpekenin/layers.h"
-#include "keymap_introspection.h"
 
 #ifndef KEYLOG_SIZE
 #    define KEYLOG_SIZE 40

@@ -18,7 +18,7 @@
 #endif
 
 #if defined(QUANTUM_PAINTER_ENABLE)
-#include "elpekenin/logging/backends/qp.h"
+#    include "elpekenin/logging/backends/qp.h"
 #endif
 
 #if defined(SPLIT_KEYBOARD)
@@ -28,6 +28,7 @@
 #if defined(XAP_ENABLE)
 #    include "elpekenin/xap.h"
 #endif
+
 
 // *** Logic start ***
 
