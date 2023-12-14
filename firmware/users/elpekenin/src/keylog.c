@@ -1,20 +1,154 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "action_layer.h" // get_highest_layer
+#include "action_util.h" // get_mods
+#include "host.h" // host_keyboard_led_state
+
 #include "elpekenin/keylog.h"
+#include "elpekenin/logging.h"
+#include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/hash_map.h"
 
 #include "generated/keycode_str.h"
 
 
 // *** Internal variables ***
 
-char keylog[KEYLOG_SIZE + 1]; // extra space for terminator
+#ifndef KEYLOG_SIZE
+#    define KEYLOG_SIZE (40)
+#endif
+
+char keylog[KEYLOG_SIZE + 1] = " "; // extra space for terminator
+
+
+// *** Replacements implementation ***
+
+typedef enum {
+    NO_MODS,
+    SHIFT,
+    AL_GR,
+    // TODO: implement more when needed
+    __N_MODS__,
+} active_mods_t;
+
+typedef struct PACKED {
+    const char *strings[__N_MODS__];
+} replacements_t;
+
+static hash_map_t replacements_map;
+
+static inline replacements_t *find_replacements(const char *find) {
+    replacements_t *p_replacements;
+
+    // disable hash logging momentarily, as a lot of strings wont be in the replacements map
+    log_level_t old_level = get_level_for(HASH);
+    set_level_for(HASH, LOG_NONE);
+    replacements_map.get(&replacements_map, find, (void **)&p_replacements);
+    set_level_for(HASH, old_level);
+
+    return p_replacements;
+}
+
+static inline bool add_replacement(const char *find, const char *replace, active_mods_t mods) {
+    // try and find existing entry
+    replacements_t *replacement = find_replacements(find);
+
+    // if not found, create it
+    // ... on heap because hashmap
+    if (LIKELY(replacement == NULL)) { // most keycodes have a single replacement, wont exist yet when adding it
+        replacement = calloc(1, sizeof(replacements_t));  // ensure we have zeros
+
+        if (UNLIKELY(replacement == NULL)) { // we should have spare heap
+            logging(UNKNOWN, LOG_ERROR, "%s: fail (allocation)", __func__);
+            return false;
+        }
+
+        // couldnt add -> dealloc
+        if (UNLIKELY(!replacements_map.add(&replacements_map, find, replacement))) { // lets hope there's no collisions
+            free(replacement);
+            return false;
+        }
+    }
+
+    // add the new replacement
+    replacement->strings[mods] = replace;
+
+    return true;
+}
+
+static void init_replacements(void) {
+    replacements_map = new_hash_map();
+
+    // *** Mod-independent ***
+    add_replacement("SPC", " ", NO_MODS);
+    // arrow (ish)
+    add_replacement("UPPR",  "▲", NO_MODS);
+    add_replacement("LOWR",  "▼", NO_MODS);
+    add_replacement("TAB",   "⇥", NO_MODS);
+    add_replacement("BSPC",  "⇤", NO_MODS);
+    add_replacement("CAPS",  "↕", NO_MODS);
+    add_replacement("ENT",   "↲", NO_MODS);
+    add_replacement("UP",    "↑", NO_MODS);
+    add_replacement("DOWN",  "↓", NO_MODS);
+    add_replacement("RIGHT", "→", NO_MODS);
+    add_replacement("LEFT",  "←", NO_MODS);
+    // various symbols
+    add_replacement("PLUS", "+",  NO_MODS);
+    add_replacement("MINS", "-",  NO_MODS);
+    add_replacement("NTIL", "´",  NO_MODS);
+    add_replacement("QUOT", "'",  NO_MODS);
+    add_replacement("GRV",  "`",  NO_MODS);
+    add_replacement("COMM", ",",  NO_MODS);
+    add_replacement("DOT",  ".",  NO_MODS);
+    add_replacement("BSLS", "\\", NO_MODS);
+    add_replacement("HASH", "#",  NO_MODS);
+    add_replacement("AT",   "@",  NO_MODS);
+    add_replacement("PIPE", "|",  NO_MODS);
+    add_replacement("TILD", "~",  NO_MODS);
+    add_replacement("LBRC", "[",  NO_MODS);
+    add_replacement("RBRC", "]",  NO_MODS);
+    add_replacement("LCBR", "{",  NO_MODS);
+    add_replacement("RCBR", "}",  NO_MODS);
+    add_replacement("VOLU", "♪",  NO_MODS);
+    // shorter aliases
+    add_replacement("DB_TOGG", "DBG", NO_MODS);
+    add_replacement("XXXXXXX", "XX",  NO_MODS);
+    add_replacement("_______", "__",  NO_MODS);
+
+    // *** Mods ***
+    // shift
+    add_replacement("1", "!",  SHIFT);
+    add_replacement("2", "\"", SHIFT);
+    add_replacement("3", "·",  SHIFT);
+    add_replacement("4", "$",  SHIFT);
+    add_replacement("5", "%",  SHIFT);
+    add_replacement("6", "&",  SHIFT);
+    add_replacement("7", "/",  SHIFT);
+    add_replacement("8", "(",  SHIFT);
+    add_replacement("9", ")",  SHIFT);
+    add_replacement("0", "=",  SHIFT);
+    add_replacement("+", "*",  SHIFT);
+    add_replacement("'", "?",  SHIFT);
+    add_replacement("`", "^",  SHIFT);
+    add_replacement(".", ":",  SHIFT);
+    add_replacement(",", ";",  SHIFT);
+    add_replacement("-", "_",  SHIFT);
+
+    add_replacement("1", "|", AL_GR);
+    add_replacement("2", "@", AL_GR);
+    add_replacement("3", "#", AL_GR);
+    add_replacement("4", "~", AL_GR);
+}
 
 
 // *** Formatting helpers ***
 
-void remove_prefixes(char **str) {
-    char *prefixes[] = { "KC_", "RGB_", "QK_", "ES_", "TD_" };
+static void skip_prefix(const char **str) {
+    char *prefixes[] = { "KC_", "RGB_", "QK_", "ES_", "TD_", "TL_" };
 
     for (uint8_t i = 0; i < ARRAY_SIZE(prefixes); ++i) {
         char *  prefix = prefixes[i];
@@ -27,117 +161,43 @@ void remove_prefixes(char **str) {
     }
 }
 
-bool find_and_replace(char **str, char *find, char *replace) {
-    if (strstr(*str, find) != NULL) {
-        *str = replace;
-        return true;
+static void maybe_symbol(const char **str) {
+    replacements_t *p_replacements = find_replacements(*str);
+
+    if (LIKELY(p_replacements == NULL)) { // most keycodes dont have replacements
+        return;
     }
 
-    return false;
-}
+    const char *target;
+    switch (get_mods()) {
+        case 0:
+            target = p_replacements->strings[NO_MODS];
+            break;
 
-void replace_symbols(char **str) {
-    str_replacement_t replacements[] = {
-        REPLACE("SPC", " "),
+        case MOD_BIT(KC_LSFT):
+        case MOD_BIT(KC_RSFT):
+            target = p_replacements->strings[SHIFT];
+            break;
 
-        // arrow (ish)
-        REPLACE("TL_UPPR", "▲"),
-        REPLACE("TL_LOWR", "▼"),
-        REPLACE("TAB", "⇥"),
-        REPLACE("BSPC", "⇤"),
-        REPLACE("CAPS", "↕"),
-        REPLACE("ENT", "↲"),
-        REPLACE("UP", "↑"),
-        REPLACE("DOWN", "↓"),
-        REPLACE("RIGHT", "→"),
-        REPLACE("LEFT", "←"),
+        case MOD_BIT(KC_ALGR):
+            target = p_replacements->strings[AL_GR];
+            break;
 
-        // various symbols
-        REPLACE("PLUS", "+"),
-        REPLACE("MINS", "-"),
-        REPLACE("NTIL", "´"),
-        REPLACE("QUOT", "'"),
-        REPLACE("GRV", "`"),
-        REPLACE("COMM", ","),
-        REPLACE("DOT", "."),
-        REPLACE("BSLS", "\\"),
-        REPLACE("HASH", "#"),
-        REPLACE("AT", "@"),
-        REPLACE("PIPE", "|"),
-        REPLACE("TILD", "~"),
-        REPLACE("LBRC", "["),
-        REPLACE("RBRC", "]"),
-        REPLACE("LCBR", "{"),
-        REPLACE("RCBR", "}"),
-        REPLACE("VOLU", "♪"),
-
-        // shorter aliases
-        REPLACE("DB_TOGG", "DBG"),
-        REPLACE("XXXXXXX", "XX"),
-        REPLACE("_______", "__"),
-    };
-
-    for (uint8_t i = 0; i < ARRAY_SIZE(replacements); ++i) {
-        str_replacement_t replacement = replacements[i];
-        char *            find        = replacement.find;
-        char *            replace     = replacement.replace;
-
-        // if we find a replacement, stop iterating
-        if (find_and_replace(str, find, replace)) {
+        default:
+            // nothing to be done here
             return;
-        }
     }
-}
 
-void replace_mods(char **str) {
-    mod_replacement_t replacements[] = {
-        REPLACE_SFT("1", "!"),
-        REPLACE_SFT("2", "\""),
-        // REPLACE_SFT("3", "·"),
-        REPLACE_SFT("4", "$"),
-        REPLACE_SFT("5", "%"),
-        REPLACE_SFT("6", "&"),
-        REPLACE_SFT("7", "/"),
-        REPLACE_SFT("8", "("),
-        REPLACE_SFT("9", ")"),
-        REPLACE_SFT("0", "="),
-        REPLACE_SFT("+", "*"),
-        REPLACE_SFT("'", "?"),
-        REPLACE_SFT("`", "^"),
-        REPLACE_SFT(".", ":"),
-        REPLACE_SFT(",", ";"),
-        REPLACE_SFT("-", "_"),
-
-        REPLACE_ALGR("1", "|"),
-        REPLACE_ALGR("2", "@"),
-        REPLACE_ALGR("3", "#"),
-        REPLACE_ALGR("4", "~"),
-    };
-
-
-    uint8_t mods = get_mods();
-    for (uint8_t i = 0; i < ARRAY_SIZE(replacements); ++i) {
-        mod_replacement_t replacement = replacements[i];
-        uint8_t           mask        = replacement.mod_mask;
-        char *            find        = replacement.replace.find;
-        char *            replace     = replacement.replace.replace;
-
-        // if we find a replacement, stop iterating
-        if ((mods & mask) && find_and_replace(str, find, replace)) {
-            return;
-        }
+    // we may get here with a combinatin with no replacement, eg shift+arrows
+    // dont want to assign str to NULL
+    if (target != NULL) {
+        *str = target;
     }
-}
-
-void keycode_repr(char **str) {
-    remove_prefixes(str);
-    replace_symbols(str);
-    replace_mods(str);
 }
 
 // convert to lowercase based on shift/caps
 // overengineered so it can also work on strings and whatnot on future
-void apply_casing(char **str) {
+static void apply_casing(const char **str) {
     // not a single char
     if (strlen(*str) > 1) {
         return;
@@ -165,28 +225,28 @@ void apply_casing(char **str) {
 
 // *** Updating the log ***
 
-bool is_utf8_continuation(char c) {
+static bool is_utf8_continuation(char c) {
     return (c & 0xC0) == 0x80;
 }
 
-bool is_utf8(char c) {
+UNUSED static bool is_utf8(char c) {
     return (c & 0xF0);
 }
 
-void keylog_clear(void) {
+static void keylog_clear(void) {
     // spaces (not 0) so `qp_drawtext` actually renders something
     memset(keylog, ' ', KEYLOG_SIZE);
     keylog[KEYLOG_SIZE] = '\0';
 }
 
-void _keylog_shift_right_byte(void) {
+static void _keylog_shift_right_byte(void) {
     for (uint8_t i = KEYLOG_SIZE - 1; i > 0; --i) {
         keylog[i] = keylog[i - 1];
     }
     keylog[0] = ' ';
 }
 
-void keylog_shift_right(void) {
+static void keylog_shift_right(void) {
     // pop all utf-continuation bytes
     while (is_utf8_continuation(keylog[KEYLOG_SIZE - 1])) {
        _keylog_shift_right_byte();
@@ -196,7 +256,7 @@ void keylog_shift_right(void) {
     _keylog_shift_right_byte();
 }
 
-void keylog_shift_left(uint8_t len) {
+static void keylog_shift_left(uint8_t len) {
     memmove(keylog, keylog + len, KEYLOG_SIZE - len);
 
     uint8_t counter = 0;
@@ -210,7 +270,7 @@ void keylog_shift_left(uint8_t len) {
     memset(keylog, ' ', counter);
 }
 
-void keylog_append(const char *str) {
+static void keylog_append(const char *str) {
     uint8_t len = strlen(str);
 
     keylog_shift_left(len);
@@ -220,14 +280,21 @@ void keylog_append(const char *str) {
 }
 
 
-// *** Event handling ***
+// *** API ***
+
+void keycode_repr(const char **str) {
+    skip_prefix(str);
+    maybe_symbol(str);
+}
 
 void keylog_process(uint16_t keycode, keyrecord_t *record) {
     // initial setup
     static bool keylog_init = false;
     if (!keylog_init) {
-        keylog_clear();
         keylog_init = true;
+
+        keylog_clear();
+        init_replacements();
     }
 
     // nothing on release (for now)
@@ -271,10 +338,10 @@ void keylog_process(uint16_t keycode, keyrecord_t *record) {
     }
 
     // convert string into symbols
-    keycode_repr((char **)&str);
+    keycode_repr((const char **)&str);
 
     // casing is separate so that drawing keycodes on screen is always uppercase
-    apply_casing((char **)&str);
+    apply_casing((const char **)&str);
 
     keylog_append(str);
 }

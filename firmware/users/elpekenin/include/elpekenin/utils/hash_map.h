@@ -16,12 +16,22 @@
  *    - No collisions: Can't have two items with same hash
  *
  * Usage:
+ *    SET
  *    >>> uint32_t value = 42;
  *    >>> map.set(&map, key, &value)
  *
+ *    GET - Option 1
  *    >>> uint32_t *p_value;
  *    >>> map.get(&map, key, (void **)&p_value);
- *    >>> uint32_t value = *p_value;
+ *    >>> if (p_value != NULL) {
+ *    >>>     uint32_t value = *p_value;
+ *    >>> }
+ *
+ *    GET - Option 2
+ *    >>> uint32_t *p_value;
+ *    >>> if (map.get(&map, key, (void **)&p_value)) {
+ *    >>>     uint32_t value = *p_value;
+ *    >>> }
  */
 
 typedef struct hash_map_t hash_map_t;
@@ -29,10 +39,14 @@ typedef struct hash_map_t hash_map_t;
 typedef bool (*add_fn)(hash_map_t *self, const char *key, const void *value);
 typedef bool (*get_fn)(hash_map_t *self, const char *key, void **value);
 
-typedef uint8_t hash_t;
+typedef uint16_t hash_t;
+
+#ifndef HASH_MAP_SIZE
+#    define HASH_MAP_SIZE (300)
+#endif
 
 struct PACKED hash_map_t {
-    void *addrs[((hash_t)(~0))];
+    void *addrs[HASH_MAP_SIZE];
     add_fn add;
     get_fn get;
 };

@@ -106,7 +106,7 @@ void user_logging_master_poll(void) {
     // flush if asked to
     if (data.flush) {
         printf("--- SLAVE ---\n");
-        // for now, let's assume flush => '\n' on last position
+        // for now, lets assume flush => '\n' on last position
         printf("%s", master_buffer);
         printf("-------------\n");
         clear_master_buffer();

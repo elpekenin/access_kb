@@ -1,4 +1,4 @@
-KEYLOG_ENABLE    = no
+KEYLOG_ENABLE    = yes
 ONE_HAND         = no
 TAP_DANCE_ENABLE = yes
 TOUCH_SCREEN     = no

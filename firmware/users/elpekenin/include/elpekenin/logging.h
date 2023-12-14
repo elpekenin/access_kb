@@ -83,7 +83,7 @@ void get_logging_fmt(char *dest);
 // NOTE: make sure the pointer is still valid (ie: not an automatic variable)
 //       code doesn't make a copy of it, but just keep a pointer to its start
 #ifndef MAX_LOG_FMT_LEN
-#    define MAX_LOG_FMT_LEN 255
+#    define MAX_LOG_FMT_LEN (255)
 #endif
 bool set_logging_fmt(const char *fmt);
 

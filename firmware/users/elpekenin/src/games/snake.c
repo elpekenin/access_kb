@@ -123,7 +123,7 @@ static inline void draw_game(game_state_t *state) {
 
 // return value: "snake still alive"
 void advance_snake_game(game_state_t *state) {
-    if (!state || !state->playing) {
+    if (state == NULL || !state->playing) {
         return;
     }
 

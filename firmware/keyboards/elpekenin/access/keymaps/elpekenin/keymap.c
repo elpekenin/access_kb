@@ -96,7 +96,7 @@ void housekeeping_task_keymap(void) {
     touch_timer = now;
 
     // Do nothing until sensor initialised or when screen isn't pressed
-    if (!ili9341_touch || !ili9341_pressed) {
+    if (ili9341_touch == NULL || ili9341_pressed == NULL) {
         xap_screen_released(ILI9341_ID);
         return;
     }

@@ -63,7 +63,7 @@ static const HSV log_colors[] = {
 ASSERT_LEVELS(log_colors);
 
 void qp_logging_backend_render(qp_logging_backend_render_args_t args) {
-    if (!qp_log_redraw || !args.device) {
+    if (!qp_log_redraw || args.device == NULL) {
         return;
     }
 

@@ -208,7 +208,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
         }
     }
 
-    if (!scrolling_state) {
+    if (scrolling_state == NULL) {
         logging(SCROLL_TXT, LOG_ERROR, "%s: fail (no free slot)", __func__);
         return INVALID_DEFERRED_TOKEN;
     }
@@ -305,7 +305,7 @@ void housekeeping_qp(uint32_t now) {
     // Handle scrolling texts
     internal_scrolling_text_tick();
 
-    if (!qp_log_target_device) {
+    if (qp_log_target_device == NULL) {
         return;
     }
 
@@ -319,6 +319,8 @@ void housekeeping_qp(uint32_t now) {
 
     /* Key logger */
 #if defined(KEYLOG_ENABLE)
+    extern char keylog[];
+
     int16_t textwidth = qp_textwidth(font, keylog);
     qp_rect(device, 0, height - font->line_height, width - textwidth, height, HSV_BLACK, true);
 

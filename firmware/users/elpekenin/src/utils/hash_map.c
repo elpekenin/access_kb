@@ -4,20 +4,21 @@
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/hash_map.h"
 
+
+// slight edit of the implementation at <http://www.cse.yorku.ca/~oz/hash.html>
 static inline hash_t _hash(const char *key) {
-    size_t i    = 0;
+    char   c;
     hash_t hash = 0;
 
-    const char *cpy = key;
-    while (*cpy) {
-        hash += *cpy++ * ++i;
+    while ((c = *key++)) {
+        hash = c + (hash << 6) + (hash << 16) - hash;
     }
 
-    return hash;
+    return hash % HASH_MAP_SIZE;
 }
 
 static bool _add(hash_map_t *self, const char *key, const void *value) {
-    if (UNLIKELY(addr_in_stack(value))) {
+    if (UNLIKELY(addr_in_stack(value))) { // lets hope users do the intended thing
         logging(HASH, LOG_ERROR, "Value on stack");
         logging(HASH, LOG_TRACE, "Address: %p", value);
         return false;
@@ -25,7 +26,7 @@ static bool _add(hash_map_t *self, const char *key, const void *value) {
 
     hash_t hash = _hash(key);
 
-    if (UNLIKELY(self->addrs[hash] != NULL)) {
+    if (UNLIKELY(self->addrs[hash] != NULL)) { // lets hope we don't try and add the same key twice (nor get collisions)
         logging(HASH, LOG_ERROR, "Duplicated hash for key '%s'", key);
         return false;
     }
@@ -38,8 +39,9 @@ static bool _add(hash_map_t *self, const char *key, const void *value) {
 static bool _get(hash_map_t *self, const char *key, void **value) {
     hash_t hash = _hash(key);
 
-    if (UNLIKELY(self->addrs[hash] == NULL)) {
+    if (UNLIKELY(self->addrs[hash] == NULL)) { // lets hope users dont try reading something that hasn't been set
         logging(HASH, LOG_ERROR, "Key '%s' not found", key);
+        *value = NULL; // so the address can be checked too
         return false;
     }
 
