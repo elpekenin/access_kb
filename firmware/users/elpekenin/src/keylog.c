@@ -22,7 +22,8 @@
 #    define KEYLOG_SIZE (40)
 #endif
 
-char keylog[KEYLOG_SIZE + 1] = " "; // extra space for terminator
+static bool keylog_dirty = true;
+static char keylog[KEYLOG_SIZE + 1] = " "; // extra space for terminator
 
 
 // *** Replacements implementation ***
@@ -84,46 +85,39 @@ static void init_replacements(void) {
     replacements_map = new_hash_map();
 
     // *** Mod-independent ***
-    add_replacement("SPC", " ", NO_MODS);
-    // arrow (ish)
-    add_replacement("UPPR",  "▲", NO_MODS);
-    add_replacement("LOWR",  "▼", NO_MODS);
-    add_replacement("TAB",   "⇥", NO_MODS);
-    add_replacement("BSPC",  "⇤", NO_MODS);
-    add_replacement("CAPS",  "↕", NO_MODS);
-    add_replacement("ENT",   "↲", NO_MODS);
-    add_replacement("UP",    "↑", NO_MODS);
-    add_replacement("DOWN",  "↓", NO_MODS);
-    add_replacement("RIGHT", "→", NO_MODS);
-    add_replacement("LEFT",  "←", NO_MODS);
-    // various symbols
-    add_replacement("PLUS", "+",  NO_MODS);
-    add_replacement("MINS", "-",  NO_MODS);
-    add_replacement("NTIL", "´",  NO_MODS);
-    add_replacement("QUOT", "'",  NO_MODS);
-    add_replacement("GRV",  "`",  NO_MODS);
-    add_replacement("COMM", ",",  NO_MODS);
-    add_replacement("DOT",  ".",  NO_MODS);
-    add_replacement("BSLS", "\\", NO_MODS);
-    add_replacement("HASH", "#",  NO_MODS);
-    add_replacement("AT",   "@",  NO_MODS);
-    add_replacement("PIPE", "|",  NO_MODS);
-    add_replacement("TILD", "~",  NO_MODS);
-    add_replacement("LBRC", "[",  NO_MODS);
-    add_replacement("RBRC", "]",  NO_MODS);
-    add_replacement("LCBR", "{",  NO_MODS);
-    add_replacement("RCBR", "}",  NO_MODS);
-    add_replacement("VOLU", "♪",  NO_MODS);
-    // shorter aliases
-    add_replacement("DB_TOGG", "DBG", NO_MODS);
+    add_replacement("SPC",     " ",   NO_MODS);
+    add_replacement("R_SPC",   " ",   NO_MODS);
+    add_replacement("UPPR",    "▲",   NO_MODS); // arrow (ish)
+    add_replacement("LOWR",    "▼",   NO_MODS);
+    add_replacement("TAB",     "⇥",   NO_MODS);
+    add_replacement("BSPC",    "⇤",   NO_MODS);
+    add_replacement("CAPS",    "↕",   NO_MODS);
+    add_replacement("ENT",     "↲",   NO_MODS);
+    add_replacement("UP",      "↑",   NO_MODS);
+    add_replacement("DOWN",    "↓",   NO_MODS);
+    add_replacement("RIGHT",   "→",   NO_MODS);
+    add_replacement("LEFT",    "←",   NO_MODS);
+    add_replacement("PLUS",    "+",   NO_MODS); // symbols
+    add_replacement("MINS",    "-",   NO_MODS);
+    add_replacement("QUOT",    "'",   NO_MODS);
+    add_replacement("GRV",     "`",   NO_MODS);
+    add_replacement("COMM",    ",",   NO_MODS);
+    add_replacement("DOT",     ".",   NO_MODS);
+    add_replacement("HASH",    "#",   NO_MODS);
+    add_replacement("AT",      "@",   NO_MODS);
+    add_replacement("PIPE",    "|",   NO_MODS);
+    add_replacement("TILD",    "~",   NO_MODS);
+    add_replacement("LBRC",    "[",   NO_MODS);
+    add_replacement("RBRC",    "]",   NO_MODS);
+    add_replacement("LCBR",    "{",   NO_MODS);
+    add_replacement("RCBR",    "}",   NO_MODS);
+    add_replacement("DB_TOGG", "DBG", NO_MODS); // short
     add_replacement("XXXXXXX", "XX",  NO_MODS);
     add_replacement("_______", "__",  NO_MODS);
 
     // *** Mods ***
-    // shift
-    add_replacement("1", "!",  SHIFT);
+    add_replacement("1", "!",  SHIFT); // shift
     add_replacement("2", "\"", SHIFT);
-    add_replacement("3", "·",  SHIFT);
     add_replacement("4", "$",  SHIFT);
     add_replacement("5", "%",  SHIFT);
     add_replacement("6", "&",  SHIFT);
@@ -137,11 +131,17 @@ static void init_replacements(void) {
     add_replacement(".", ":",  SHIFT);
     add_replacement(",", ";",  SHIFT);
     add_replacement("-", "_",  SHIFT);
+    add_replacement("1", "|",  AL_GR); // algr
+    add_replacement("2", "@",  AL_GR);
+    add_replacement("3", "#",  AL_GR);
+    add_replacement("4", "~",  AL_GR);
 
-    add_replacement("1", "|", AL_GR);
-    add_replacement("2", "@", AL_GR);
-    add_replacement("3", "#", AL_GR);
-    add_replacement("4", "~", AL_GR);
+    // *** weird shit ***
+    add_replacement("NTIL", "\xc2\xb4", NO_MODS); // ´
+    add_replacement("3",    "\xc2\xb7", SHIFT);   // ·
+    add_replacement("BSLS", "\\",       NO_MODS);
+    add_replacement("VOLU", "♪",        NO_MODS);
+    add_replacement("VOLU", "♪",        SHIFT);   // VOLD, key override
 }
 
 
@@ -282,6 +282,16 @@ static void keylog_append(const char *str) {
 
 // *** API ***
 
+bool is_keylog_dirty(void) {
+    return keylog_dirty;
+}
+
+const char *get_keylog(void) {
+    // after code gets gets a "view", reset dirty-ness
+    keylog_dirty = false;
+    return keylog;
+}
+
 void keycode_repr(const char **str) {
     skip_prefix(str);
     maybe_symbol(str);
@@ -314,6 +324,8 @@ void keylog_process(uint16_t keycode, keyrecord_t *record) {
     {
         return;
     }
+
+    keylog_dirty = true;
 
     // get the string representation of the pressed key
     uint8_t     layer_num = get_highest_layer(layer_state);

@@ -17,11 +17,15 @@
 static const indicator_t indicators[] = {
     LAYER(_RST, RGB_OFF),
 
+    // QMK keycodes
     KC_LAYER(QK_BOOT, _RST, RGB_RED),
-    KC_LAYER(QK_RBT,  _RST, RGB_GREEN),
-    KC_LAYER(EE_CLR,  _RST, RGB_YELLOW),
+    KC_LAYER(QK_RBT,  _RST, RGB_RED),
+    KC_LAYER(EE_CLR,  _RST, RGB_RED),
+    KC_LAYER(DB_TOGG, _RST, RGB_RED),
+
+    // custom keycodes
     KC_LAYER(PK_LOG,  _RST, RGB_BLUE),
-    KC_LAYER(DB_TOGG, _RST, MAX_WHITE),
+    KC_LAYER(PK_KLOG, _RST, RGB_BLUE),
 };
 
 // NOTES:

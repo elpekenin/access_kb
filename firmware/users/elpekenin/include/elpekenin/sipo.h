@@ -28,8 +28,6 @@
 // compute the amount of bytes needed
 #define _SIPO_BYTES ((N_SIPO_PINS+7)/8)
 
-extern uint8_t sipo_pin_state[_SIPO_BYTES];
-
 // create pin lists
 #define configure_sipo_pins(...)           \
         enum { __VA_ARGS__, __SIPO_PINS }; \

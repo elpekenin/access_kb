@@ -7,3 +7,6 @@
 
 void keycode_repr(const char **str);
 void keylog_process(uint16_t keycode, keyrecord_t *record);
+
+bool is_keylog_dirty(void);
+const char *get_keylog(void);

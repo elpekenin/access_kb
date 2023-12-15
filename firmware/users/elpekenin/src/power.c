@@ -36,7 +36,7 @@ bool shutdown_user(bool jump_to_bootloader) {
 
 #if defined(QUANTUM_PAINTER_ENABLE)
     for (uint8_t i = 0; i < QUANTUM_PAINTER_NUM_DISPLAYS; ++i) {
-        qp_power(qp_devices_pekenin[i], false);
+        qp_power(qp_get_device_by_index(i), false);
     }
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 

@@ -10,4 +10,5 @@ typedef struct build_info_t {
     char               commit[COMMIT_TEXT_LEN];
     enabled_features_t features;
 } build_info_t;
+
 extern build_info_t build_info;

@@ -12,7 +12,6 @@
 #include "elpekenin/spi_custom.h"
 
 #if defined(TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
-#    include "access.h"
 #    include "elpekenin/touch.h"
 #endif // TOUCH_SCREEN_ENABLE && INIT_EE_HANDS_RIGHT
 
@@ -47,26 +46,6 @@ bool matrix_scan_custom(matrix_row_t *current_matrix) {
     // IRQ pin is connected to the 1st input of the last shift register
     // invert its value so it reflects whether the screen is pressed
     temp_matrix[4] ^= (1 << 0);
-
-#    if defined(ONE_HAND_MODE_ENABLE)
-    // Do nothing until sensor initialised or when screen isn't pressed
-    if (ili9341_touch == NULL || ili9341_pressed == false) {
-        // Set the selected key's position in the matrix to 0 as screen isn't pressed
-        current_matrix[one_hand_row] &= ~(1 << one_hand_col);
-
-        return check_changes(current_matrix, temp_matrix);
-    }
-
-    touch_report_t touch_report = get_spi_touch_report(ili9341_touch, false);
-
-    // Convert left-based to center-based coord
-    int16_t x = touch_report.x - ILI9341_WIDTH / 2;
-
-    // If screen pressed on the "trigger" area, virtually press selected key
-    if (-30 < x && x < 30) {
-        current_matrix[one_hand_row] |= 1 << one_hand_col;
-    }
-#    endif // ONE_HAND_MODE_ENABLE
 #endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
 
     return check_changes(current_matrix, temp_matrix);

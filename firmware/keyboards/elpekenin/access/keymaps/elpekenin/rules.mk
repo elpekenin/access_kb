@@ -1,5 +1,4 @@
 KEYLOG_ENABLE    = yes
-ONE_HAND         = no
 TAP_DANCE_ENABLE = yes
 TOUCH_SCREEN     = no
 UCIS_ENABLE      = yes

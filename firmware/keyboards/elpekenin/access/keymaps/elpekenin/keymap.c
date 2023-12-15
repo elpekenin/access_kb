@@ -3,13 +3,10 @@
 
 #include QMK_KEYBOARD_H
 
-#include "qp_surface.h"
-
 #include "elpekenin.h"
 #include "elpekenin/rng.h"
 #include "elpekenin/xap.h"
 #include "elpekenin/qp/graphics.h"
-
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY] = LAYOUT(
@@ -66,13 +63,19 @@ void keyboard_post_init_keymap(void) {
 #if defined(QUANTUM_PAINTER_ENABLE)
 #    if defined(INIT_EE_HANDS_LEFT)
     load_display(il91874);
-    qp_log_target_device = NULL;
 #    else
     load_display(ili9163);
     load_display(ili9341);
-    qp_log_target_device = ili9341;
+
+    set_uptime_device(ili9341);
+    set_qp_logging_device(ili9341);
+
+#        if defined(KEYLOG_ENABLE)
+    set_keylog_device(ili9341);
+#        endif
 #    endif // defined(INIT_EE_HANDS_LEFT)
 #endif // defined(QUANTUM_PAINTER_ENABLE)
+
     rng_set_seed(analogReadPin(GP28) * analogReadPin(GP28));
 }
 
@@ -105,9 +108,5 @@ void housekeeping_task_keymap(void) {
     touch_report_t ili9341_touch_report = get_spi_touch_report(ili9341_touch, false);
 
     xap_screen_pressed(ILI9341_ID, ili9341_touch_report);
-
-#    if defined(ONE_HAND_ENABLE)
-    screen_one_hand(ili9341_touch_report);
-#    endif // ONE_HAND_ENABLE
 }
 #endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)

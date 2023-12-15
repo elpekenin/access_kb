@@ -46,7 +46,7 @@ void housekeeping_task_user(void) {
 #endif // defined(GAME_ENABLE)
 
 #if defined(QUANTUM_PAINTER_ENABLE)
-    housekeeping_qp(now);
+    scrolling_text_tick();
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
 #if defined(SPLIT_KEYBOARD)
@@ -69,7 +69,7 @@ void keyboard_post_init_user(void) {
 #endif // defined(AUTOCORRECT_ENABLE)
 
 #if defined(QUANTUM_PAINTER_ENABLE)
-    load_qp_resources();
+    elpekenin_qp_init();
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
 #if defined(SPLIT_KEYBOARD)
@@ -94,7 +94,8 @@ void keyboard_post_init_user(void) {
     keyboard_post_init_keymap();
 
 #if defined(GAME_ENABLE)
+    // TODO: Abstract this shit
     // **after** init_keymap to access the display
-    game_init(get_device("ili9341"));
+    game_init(qp_get_device_by_name("ili9341"));
 #endif // defined(GAME_ENABLE)
 }

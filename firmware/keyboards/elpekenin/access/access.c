@@ -5,15 +5,11 @@
 
 #include "elpekenin/logging.h"
 
-#if defined(ONE_HAND_ENABLE)
-uint8_t one_hand_col;
-uint8_t one_hand_row;
-one_hand_movement_t one_hand_movement;
-#endif // ONE_HAND_ENABLE
-
 #if defined(QUANTUM_PAINTER_ENABLE)
+#    include "elpekenin/sipo.h"
 // eInk is on left side, dont allocate framebuffer on right
 #    if defined(INIT_EE_HANDS_LEFT)
+#        include "qp_eink_panel.h"
 configure_sipo_pins(
     __PADDING__,
     IL91874_RST_PIN,
@@ -123,16 +119,3 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
 void keyboard_post_init_kb(void) {
     defer_exec(INIT_DELAY, deferred_init, NULL);
 }
-
-#if defined(ONE_HAND_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
-void screen_one_hand(touch_report_t touch_report) {
-    int16_t x = touch_report.x - ILI9341_WIDTH / 2;
-    int16_t y = touch_report.y - ILI9341_HEIGHT / 2;
-
-    if (x > 30) {
-        one_hand_movement = y > 0 ? DIRECTION_RIGHT : DIRECTION_LEFT;
-    } else if (x < -30){
-        one_hand_movement = y > 0 ? DIRECTION_UP : DIRECTION_DOWN;
-    }
-}
-#endif // ONE_HAND_ENABLE && TOUCH_SCREEN_ENABLE && INIT_EE_HANDS_RIGHT

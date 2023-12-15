@@ -62,49 +62,59 @@ static const HSV log_colors[] = {
 };
 ASSERT_LEVELS(log_colors);
 
-void qp_logging_backend_render(qp_logging_backend_render_args_t args) {
-    if (!qp_log_redraw || args.device == NULL) {
+void qp_logging_backend_render(qp_callback_args_t *args) {
+    if (!qp_log_redraw || args->device == NULL) {
         return;
     }
 
     qp_log_redraw = false;
 
     // Clear space
-    qp_rect(args.device, args.x, args.y, args.screen_w, args.y + LOG_N_LINES * args.font->line_height, HSV_BLACK, true);
+    qp_rect(
+        args->device,
+        args->x,
+        args->y,
+        qp_get_width(args->device),
+        args->y + LOG_N_LINES * args->font->line_height,
+        HSV_BLACK,
+        true
+    );
 
-    uint16_t y = args.y;
+    uint16_t y = args->y;
     for (uint8_t i = 0; i < LOG_N_LINES; ++i) {
-        bool text_fits = qp_textwidth(args.font, (const char *)qp_log_pointers[i]) < (args.screen_w - args.x);
+        int16_t textwidth = qp_textwidth(args->font, (const char *)qp_log_pointers[i]);
+
+        bool text_fits = textwidth < (qp_get_width(args->device) - args->x);
 
         if (qp_log_tokens[i] != INVALID_DEFERRED_TOKEN) {
             stop_scrolling_text(qp_log_tokens[i]);
             qp_log_tokens[i] = INVALID_DEFERRED_TOKEN;
         }
 
-        y += args.font->line_height;
+        y += args->font->line_height;
 
         HSV bg = {HSV_BLACK};
         HSV fg = log_colors[qp_log_levels[i]];
 
         if (text_fits) {
             qp_drawtext_recolor(
-                args.device,
-                args.x,
+                args->device,
+                args->x,
                 y,
-                args.font,
+                args->font,
                 (const char *)qp_log_pointers[i],
                 fg.h, fg.s, fg.v,
                 bg.h, bg.s, bg.v
             );
         } else {
             qp_log_tokens[i] = draw_scrolling_text_recolor(
-                args.device,
-                args.x,
+                args->device,
+                args->x,
                 y,
-                args.font,
+                args->font,
                 (const char *)qp_log_pointers[i],
-                args.n_chars,
-                args.delay,
+                args->scrolling_args.n_chars,
+                args->scrolling_args.delay,
                 fg.h, fg.s, fg.v,
                 bg.h, bg.s, bg.v
             );

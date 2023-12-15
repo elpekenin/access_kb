@@ -129,17 +129,15 @@ if __name__ == "__main__":
     # Gen files
     _for_all_assets = partial(__for_all_assets, assets=assets)
 
-    gen_h = _for_all_assets(_h_generator)
+    gen_h = lines(
+        _for_all_assets(_h_generator),
+        "",
+        "void load_qp_resources(void);"
+    )
     with open(output_dir / f"{OUTPUT_NAME}.h", "w") as f:
         f.write(H_FILE.format(generated_code=gen_h))
 
-    gen_c = lines(
-        "    display_map = new_hash_map();",
-        "    font_map = new_hash_map();",
-        "    img_map = new_hash_map();",
-        "",
-        _for_all_assets(_c_generator)
-    )
+    gen_c = _for_all_assets(_c_generator)
     with open(output_dir / f"{OUTPUT_NAME}.c", "w") as f:
         f.write(C_FILE.format(generated_code=gen_c))
 
