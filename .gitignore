@@ -1,6 +1,5 @@
 # Adapted from [ardabbour](https://gist.github.com/ardabbour/5da917e8bece5ce8aa397aada5ed1880)
 
-# ---------------------------------- CUSTOM ---------------------------------- #
 # Firmware binaries
 firmware/binaries/
 
@@ -45,8 +44,6 @@ dist-ssr
 target/
 
 
-
-# ---------------------------------- PYTHON ---------------------------------- #
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -162,7 +159,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# ------------------------------------ C++ ----------------------------------- #
 # Prerequisites
 *.d
 

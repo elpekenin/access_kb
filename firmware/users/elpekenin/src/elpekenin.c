@@ -38,6 +38,7 @@ void housekeeping_task_user(void) {
     __attribute__((unused)) uint32_t now  = timer_read32();
 
 #if defined(GAME_ENABLE)
+    // TODO: defer_exec
     static uint32_t last_frame = 0;
     if (TIMER_DIFF_32(now, last_frame) > 500) {
         last_frame = now;
@@ -48,10 +49,6 @@ void housekeeping_task_user(void) {
 #if defined(QUANTUM_PAINTER_ENABLE)
     scrolling_text_tick();
 #endif // defined(QUANTUM_PAINTER_ENABLE)
-
-#if defined(SPLIT_KEYBOARD)
-    housekeeping_split_sync(now);
-#endif // defined(SPLIT_KEYBOARD)
 
     housekeeping_task_keymap();
 }
@@ -73,8 +70,8 @@ void keyboard_post_init_user(void) {
 #endif // defined(QUANTUM_PAINTER_ENABLE)
 
 #if defined(SPLIT_KEYBOARD)
-    transactions_init();
-    // has to be after transactions_init, because it memset's build_info to 0
+    split_init();
+    // has to be after split_init, because it memset's build_info to 0
     if (is_keyboard_master()) {
 #endif // defined(SPLIT_KEYBOARD)
 

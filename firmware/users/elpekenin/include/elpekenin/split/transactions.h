@@ -5,7 +5,7 @@
 
 #include_next "transactions.h" // QMK's
 
-void build_info_sync_keymap_callback(void);
-void housekeeping_split_sync(uint32_t now);
-void transactions_init(void);
+void split_init(void);
+
 void reset_ee_slave(void);
+void build_info_sync_keymap_callback(void);

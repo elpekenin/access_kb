@@ -43,12 +43,12 @@ SHORT_NAMES = {
     "QUANTUM_PAINTER": "PAINTER",
     "UNICODE_COMMON": "UNICODE",
 }
-
 # == Do not edit past here ==
+
 OUTPUT_NAME = "features"
 MAX_WIDTH = max(map(len, FEATURES))
 
-# ===== Templates
+# *** Templates ***
 H_FILE = lines(
     H_HEADER,
     "",

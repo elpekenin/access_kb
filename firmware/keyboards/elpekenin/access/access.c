@@ -65,20 +65,21 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     __attribute__((unused)) bool ret = true;
 
 #if defined (QUANTUM_PAINTER_ENABLE)
-    // =======
-    // SIPO
+    // *** SIPO ***
+
     setPinOutput(SIPO_CS_PIN);
     writePinHigh(SIPO_CS_PIN);
 
-    // =======
-    // QP
+
+    // *** QP ***
+
     wait_ms(150); //Let screens draw some power
 
 #    if defined(INIT_EE_HANDS_LEFT)
     il91874 = qp_il91874_make_spi_device(_IL91874_WIDTH, _IL91874_HEIGHT, IL91874_CS_PIN, SCREENS_DC_PIN, IL91874_RST_PIN, SCREENS_SPI_DIV, SCREENS_SPI_MODE, (void *)il91874_buffer);
     ret &= qp_init(il91874, IL91874_ROTATION);
     ret &= qp_power(il91874, true);
-#    else // --------------------  Right half --------------------
+#    else
     ili9163 = qp_ili9163_make_spi_device(_ILI9163_WIDTH, _ILI9163_HEIGHT, ILI9163_CS_PIN, SCREENS_DC_PIN, ILI9163_RST_PIN, SCREENS_SPI_DIV, SCREENS_SPI_MODE);
     ret &= qp_init(ili9163, ILI9163_ROTATION);
     ret &= qp_power(ili9163, true);
@@ -108,8 +109,9 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     }
 #endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
 
-    // =======
-    // Call user code
+
+    // *** User ***
+
     logging(UNKNOWN, LOG_TRACE, "-- user code --");
     keyboard_post_init_user();
 

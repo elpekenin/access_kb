@@ -3,6 +3,7 @@
 
 #include <string.h>
 
+#include "deferred_exec.h"
 #include "eeconfig.h"
 
 #include "elpekenin/build_info.h"
@@ -52,24 +53,16 @@ void user_ee_test_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m
 }
 
 
-// *** Periodic task ***
+// *** Periodic tasks ***
 
-void housekeeping_split_sync(uint32_t now) {
-    if (!is_keyboard_master()) {
-        return;
-    }
-    
-    static uint32_t data_sync_timer = 0;
-    if (TIMER_DIFF_32(now, data_sync_timer) > 30000) {
-        data_sync_timer = now;
-        transaction_rpc_send(RPC_ID_BUILD_INFO, sizeof(build_info_t), &build_info);
-    }
+static inline uint32_t build_info_sync_callback(uint32_t trigger_time, void *cb_arg) {
+    transaction_rpc_send(RPC_ID_BUILD_INFO, sizeof(build_info_t), &build_info);
+    return 30000;
+}
 
-    static uint32_t log_sync_timer = 0;
-    if (TIMER_DIFF_32(now, log_sync_timer) > 3000) {
-        log_sync_timer = now;
-        user_logging_master_poll();
-    } 
+static inline uint32_t slave_log_sync_callback(uint32_t trigger_time, void *cb_arg) {
+    user_logging_master_poll();
+    return 3000;
 }
 
 
@@ -82,10 +75,15 @@ void reset_ee_slave(void) {
 
 // *** Register messages ***
 
-void transactions_init(void) {
+void split_init(void) {
     memset(&build_info, 0, sizeof(build_info_t));
     transaction_register_rpc(RPC_ID_BUILD_INFO, build_info_slave_callback);
     transaction_register_rpc(RPC_ID_USER_SHUTDOWN, user_shutdown_slave_callback);
     transaction_register_rpc(RPC_ID_USER_LOGGING, user_logging_slave_callback);
     transaction_register_rpc(RPC_ID_USER_EE_CLR, user_ee_clr_callback);
+
+    if (is_keyboard_master()) {
+        defer_exec(10, build_info_sync_callback, NULL);
+        defer_exec(10, slave_log_sync_callback,  NULL);
+    }
 }

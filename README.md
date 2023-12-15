@@ -12,9 +12,7 @@ This project's goal is to make a highly customizable keyboard with a bunch of ac
 File structure:
 ```
 📂 access_kb
-├─ 📂firmware/     - Code running on the keyboard
-|  ├─ 📂backups/       * Files saved by `download.sh` **Untracked**
-|  └─ 📂qmk-code/      * QMK version of the firmware
+├─ 📂firmware/     - Code running on the keyboard, compiled using qmk_build
 ├─ 📂hardware/     - PCB files
 |  └─ 📂libraries/     * References to KiCAD symbols and footprints 
 ├─ 📂software      - Client running on the PC to control the keyboard
@@ -34,11 +32,8 @@ Firmware
 ========
 Firmware made using [QMK](https://github.com/qmk/qmk_firmware)(C).
 
-Code can be found at my [fork](https://github.com/elpekenin/qmk_firmware) (will try and get it merged ASAP), most of my code lives at:
-- [Keyboard's folder](https://github.com/elpekenin/qmk_firmware/tree/pekelop/keyboards/elpekenin/access)
-- [My userspace](https://github.com/elpekenin/qmk_firmware/tree/pekelop/users/elpekenin)
-- [WIP eInk driver](https://github.com/elpekenin/qmk_firmware/tree/pekelop/drivers/painter/eink_panel)
-- Some other pieces here and there
+All the extra code/patches needed to build the firmware can be found on the folder, it it built using [qmk_build](https://github.com/elpekenin/qmk_build)
+
 
 Hardware
 ========
@@ -72,5 +67,5 @@ This folder contains some bash scripts to make life easier:
 
 Software 
 ========
-Program using [Vue](https://vuejs.org/) and [Tauri](https://tauri.app/) on your computer, that can control some features of the keyboard and send information. Based on [KarlK90's work](https://github.com/KarlK90/xap-client-tauri)
+Program using [Vue](https://vuejs.org/) and [Tauri](https://tauri.app/) on your computer, that can control some features of the keyboard and send information. Based on [KarlK90's work](https://github.com/qmk/qmk_xap)
 

@@ -12,8 +12,9 @@
 #    include "elpekenin/touch.h"
 #endif
 
-// =====
-// Helper to compute max string length
+
+// *** Max string length helper ***
+
 #define MAX_PAYLOAD (XAP_EPSIZE - sizeof(xap_broadcast_header_t))
 /* the final type will be
  *
@@ -23,10 +24,11 @@
  *     byte; // make sure we have a terminator
  * }
  */
- #define _MAX_STR_LEN(base_type) (MAX_PAYLOAD - sizeof(base_type) - 1)
+#define _MAX_STR_LEN(base_type) (MAX_PAYLOAD - sizeof(base_type) - 1)
 
-// =====
-// Identifiers
+
+// *** Identifiers ***
+
 typedef enum {
     _SCREEN_PRESSED,
     _SCREEN_RELEASED,
@@ -37,8 +39,8 @@ typedef enum {
 
 typedef uint8_t xap_msg_id_t;
 
-// =====
-// Messages
+
+// *** Messages ***
 
 #if defined(TOUCH_SCREEN_ENABLE)
 typedef struct PACKED {

@@ -92,6 +92,7 @@ void housekeeping_task_keymap(void) {
 
     static uint32_t touch_timer = 0;
 
+    // TODO: defer_exec
     // We only read once in a while
     if (TIMER_DIFF_32(now, touch_timer) < TOUCH_MS)
         return;

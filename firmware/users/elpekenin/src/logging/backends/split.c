@@ -5,7 +5,6 @@
 
 #include "keyboard.h"
 #include "printf.h"
-#include "timer.h"
 
 #include "elpekenin/logging.h"
 #include "elpekenin/split/transactions.h"

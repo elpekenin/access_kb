@@ -10,9 +10,8 @@
 #include "elpekenin/rgb/matrix/indicators.h"
 #include "elpekenin/utils/compiler.h"
 
-// ***************
-// * Definitions *
-// ***************
+
+// *** Definitions ***
 
 static const indicator_t indicators[] = {
     LAYER(_RST, RGB_OFF),
@@ -43,9 +42,8 @@ static const uint8_t ledmap[][MATRIX_ROWS][MATRIX_COLS] = {
     // )
 };
 
-// **********
-// * Checks *
-// **********
+
+// *** Checks ***
 
 // helper tiny checks
 UNUSED static inline bool keycode(indicator_t *indicator, indicator_fn_args_t *args) {
@@ -86,9 +84,7 @@ UNUSED bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_
     return keycode(indicator, args) && mods(indicator, args);
 }
 
-// **********
-// * Ledmap *
-// **********
+// *** Ledmap ***
 
 #define LEDMAP_LAYERS (sizeof(ledmap) / (MATRIX_ROWS * MATRIX_COLS))
 
@@ -129,9 +125,8 @@ static inline bool get_ledmap_color(uint8_t layer, uint8_t row, uint8_t col, rgb
     return true;
 }
 
-// ************
-// * Callback *
-// ************
+
+// *** Callback ***
 
 bool draw_indicators(uint8_t led_min, uint8_t led_max) {
     uint8_t mods  = get_mods();

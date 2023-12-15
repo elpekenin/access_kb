@@ -19,7 +19,7 @@
 // *** Internal variables ***
 
 static painter_device_t       qp_devices_pekenin[QUANTUM_PAINTER_NUM_DISPLAYS] = {0}; // Has to be filled by the user
-static painter_font_handle_t  qp_fonts[QUANTUM_PAINTER_NUM_FONTS] = {0};
+static painter_font_handle_t  qp_fonts[QUANTUM_PAINTER_NUM_FONTS]   = {0};
 static painter_image_handle_t qp_images[QUANTUM_PAINTER_NUM_IMAGES] = {0};
 
 static uint8_t display_counter = 0;
@@ -34,11 +34,8 @@ static deferred_executor_t    scrolling_text_executors[QUANTUM_PAINTER_CONCURREN
 static scrolling_text_state_t scrolling_text_states[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS] = {0};
 
 
-static deferred_token logging_token = INVALID_DEFERRED_TOKEN;
-static deferred_token uptime_token  = INVALID_DEFERRED_TOKEN;
-static deferred_token keylog_token  = INVALID_DEFERRED_TOKEN;
-
-static qp_callback_args_t logging_args = {
+static deferred_token     logging_token = INVALID_DEFERRED_TOKEN;
+static qp_callback_args_t logging_args  = {
     .device = NULL,
     .font   = NULL,
     // hard-coded for ILI9341 on access
@@ -48,7 +45,8 @@ static qp_callback_args_t logging_args = {
     .scrolling_args.delay = 500,
 };
 
-static qp_callback_args_t uptime_args = {
+static deferred_token     uptime_token = INVALID_DEFERRED_TOKEN;
+static qp_callback_args_t uptime_args  = {
     .device = NULL,
     .font   = NULL,
     // hard-coded for ILI9341 on access
@@ -57,7 +55,8 @@ static qp_callback_args_t uptime_args = {
 };
 
 #if defined(KEYLOG_ENABLE)
-static qp_callback_args_t keylog_args = {
+static deferred_token     keylog_token = INVALID_DEFERRED_TOKEN;
+static qp_callback_args_t keylog_args  = {
     .device = NULL,
     .font   = NULL,
 };
@@ -88,7 +87,7 @@ void _load_font(const uint8_t *font, const char *name) {
     qp_fonts[font_counter] = dummy;
     font_map.add(&font_map, name, &qp_fonts[font_counter]);
 
-    logging(QP, LOG_DEBUG, "Loaded '%s' at [%d]", name, display_counter++);
+    logging(QP, LOG_DEBUG, "Loaded '%s' at [%d]", name, font_counter++);
 }
 
 void _load_image(const uint8_t *img, const char *name) {

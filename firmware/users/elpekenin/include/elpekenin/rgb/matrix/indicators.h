@@ -5,9 +5,8 @@
 
 #include "color.h"
 
-// *********
-// * Types *
-// *********
+
+// *** Types ***
 
 typedef struct indicator_t indicator_t;
 
@@ -32,9 +31,8 @@ struct indicator_t {
     uint16_t keycode;
 };
 
-// **********************
-// * Internal functions *
-// **********************
+
+// *** Internal functions ***
 
 bool keycode_callback(indicator_t *indicator, indicator_fn_args_t *args);
 bool layer_callback(indicator_t *indicator, indicator_fn_args_t *args);
@@ -42,9 +40,8 @@ bool keycode_and_layer_callback(indicator_t *indicator, indicator_fn_args_t *arg
 bool layer_and_configured_callback(indicator_t *indicator, indicator_fn_args_t *args);
 bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_t *args);
 
-// **********
-// * Macros *
-// **********
+
+// *** Macros ***
 
 // this crap is needed for RGB color macros to work nicely...
 // relying on position aka: (rgb_led_t){_col} doesnt work
@@ -86,9 +83,8 @@ bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_t *args
     .mods = _mods, \
 }
 
-// **********
-// * Colors *
-// **********
+
+// *** Colors ***
 
 #define MAX_WHITE RGB_MATRIX_MAXIMUM_BRIGHTNESS, RGB_MATRIX_MAXIMUM_BRIGHTNESS, RGB_MATRIX_MAXIMUM_BRIGHTNESS
 
@@ -116,8 +112,7 @@ enum colors {
     _MARKER_ = TRNS,
 };
 
-// *******
-// * API *
-// *******
+
+// *** API ***
 
 bool draw_indicators(uint8_t led_min, uint8_t led_max);

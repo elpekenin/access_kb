@@ -1,6 +1,4 @@
-# =======
 # SPANISH
-# =======
 absorver->absorber
 absorviendo->absorbiendo
 acetado->aceptado
@@ -67,9 +65,7 @@ tagea->tajea
 vacear->vaciar
 watios->vatios
 
-# =======
 # ENGLISH
-# =======
 # Copyright 2021 Google LLC
 # Copyright 2022 @drashna
 # Copyright 2022 @filterpaper

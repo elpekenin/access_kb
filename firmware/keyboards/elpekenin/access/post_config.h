@@ -3,8 +3,8 @@
 
 #pragma once
 
-// =======
-// Quantum Painter config
+
+// *** QP config ***
 // - Real size, used for init function
 #define _IL91874_WIDTH 176
 #define _IL91874_HEIGHT 264
@@ -49,8 +49,9 @@
 #    define IL91874_HEIGHT _IL91874_WIDTH
 #endif
 
-// =======
-// - Default values
+
+// *** Default values ***
+
 #if !defined(INIT_DELAY)
 // if debug is enabled, 3 second timeout
 #    if defined(SPI_CUSTOM_DEBUG) || defined(QUANTUM_PAINTER_DEBUG) || defined(TOUCH_SCREEN_DEBUG) || defined(SIPO_PINS_DEBUG)
