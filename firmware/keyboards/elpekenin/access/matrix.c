@@ -16,6 +16,7 @@
 #endif // TOUCH_SCREEN_ENABLE && INIT_EE_HANDS_RIGHT
 
 extern uint8_t thisHand, thatHand;
+#define ROWS_PER_HAND (MATRIX_ROWS / 2)
 
 void matrix_init_custom(void) {
     setPinOutput(PISO_CS_PIN);
@@ -23,37 +24,31 @@ void matrix_init_custom(void) {
     spi_custom_init(REGISTERS_SPI_DRIVER_ID);
 }
 
-static inline bool check_changes(matrix_row_t *current_matrix, matrix_row_t *temp_matrix) {
-    thisHand = is_keyboard_left() ? 0 : ROWS_PER_HAND;
-    thatHand = ROWS_PER_HAND - thisHand;
-
-    bool changed = memcmp(current_matrix, temp_matrix, N_PISO_REGISTERS) != 0;
-    if (changed) {
-        memcpy(current_matrix, temp_matrix, N_PISO_REGISTERS);
-    }
-    return changed;
-}
 
 bool matrix_scan_custom(matrix_row_t *current_matrix) {
-    matrix_row_t temp_matrix[N_PISO_REGISTERS];
+    matrix_row_t temp_matrix[ROWS_PER_HAND];
 
     // Read matrix over SPI
     spi_custom_start(PISO_CS_PIN, false, REGISTERS_SPI_MODE, PISO_SPI_DIV, REGISTERS_SPI_DRIVER_ID);
-    spi_custom_receive((uint8_t *)temp_matrix, N_PISO_REGISTERS, REGISTERS_SPI_DRIVER_ID);
+    spi_custom_receive((uint8_t *)temp_matrix, ROWS_PER_HAND, REGISTERS_SPI_DRIVER_ID);
     spi_custom_stop(REGISTERS_SPI_DRIVER_ID);
 
-#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
-    // IRQ pin is connected to the 1st input of the last shift register
-    // invert its value so it reflects whether the screen is pressed
-    temp_matrix[4] ^= (1 << 0);
-#endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+    if (!is_keyboard_left()) {
+        // IRQ pin is connected to the 1st input of the last shift register
+        // invert its value so it reflects whether the screen is pressed
+        temp_matrix[4] ^= (1 << 0); // column 0
+    }
 
-    return check_changes(current_matrix, temp_matrix);
+    bool changed = memcmp(current_matrix, temp_matrix, ROWS_PER_HAND) != 0;
+    if (changed) {
+        memcpy(current_matrix, temp_matrix, ROWS_PER_HAND);
+    }
+
+    return changed;
 }
 
 #if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
-void matrix_scan_kb(void) {
-    // check here so debounce is already applied
-    ili9341_pressed = matrix_is_on(9, 0);
+bool is_ili9341_pressed(void) {
+    return matrix_is_on(9, 0);
 }
-#endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+#endif

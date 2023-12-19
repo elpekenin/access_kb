@@ -12,6 +12,7 @@
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/compiler.h"
 #include "elpekenin/utils/hash_map.h"
+#include "elpekenin/utils/string.h"
 
 #include "generated/keycode_str.h"
 
@@ -224,14 +225,6 @@ static void apply_casing(const char **str) {
 
 
 // *** Updating the log ***
-
-static bool is_utf8_continuation(char c) {
-    return (c & 0xC0) == 0x80;
-}
-
-UNUSED static bool is_utf8(char c) {
-    return (c & 0xF0);
-}
 
 static void keylog_clear(void) {
     // spaces (not 0) so `qp_drawtext` actually renders something

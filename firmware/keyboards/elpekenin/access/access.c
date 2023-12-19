@@ -30,11 +30,10 @@ configure_sipo_pins(
 );
 painter_device_t ili9163;
 painter_device_t ili9341;
-#    endif // defined(INIT_EE_HANDS_LEFT)
-#endif // defined(QUANTUM_PAINTER_ENABLE)
+#    endif
+#endif
 
 #if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
-bool ili9341_pressed = false;
 
 // Calibration isn't very precise
 static const touch_driver_t ili9341_touch_driver = {
@@ -57,7 +56,7 @@ static const touch_driver_t ili9341_touch_driver = {
         },
     };
 touch_device_t ili9341_touch = &ili9341_touch_driver;
-#endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+#endif
 
 uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     logging(UNKNOWN, LOG_TRACE, "-- kb init --");
@@ -96,7 +95,7 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     } else {
         logging(QP, LOG_ERROR, "QP Setup: Error");
     }
-#endif // defined (QUANTUM_PAINTER_ENABLE)
+#endif
 
 
 #if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
@@ -107,7 +106,7 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     } else {
         logging(TOUCH, LOG_ERROR, "Touch Setup: Error");
     }
-#endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+#endif
 
 
     // *** User ***

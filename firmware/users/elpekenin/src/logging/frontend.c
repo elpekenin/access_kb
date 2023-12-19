@@ -4,8 +4,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "printf.h"
-#include "sendchar.h"
+#include "print.h"
 #include "timer.h"
 
 #include "elpekenin/logging.h"
@@ -243,5 +242,11 @@ void logging(feature_t feature, log_level_t level, const char *msg, ...) {
         }
 
         copy++;
+    }
+}
+
+void print_with(const char *str, sendchar_func_t func) {
+    for (size_t i = 0; i < strlen(str); ++i) {
+        func(str[i]);
     }
 }

@@ -20,7 +20,7 @@
         )
 #define PRINT_SIPO_STATUS()                    \
         logging(SIPO, LOG_DEBUG, "MCU");       \
-        for (int i=_SIPO_BYTES-1; i>=0; --i) { \
+        for (int i = (_SIPO_BYTES-1); i >= 0; --i) { \
             PRINT_SIPO_BYTE(i);                \
         }                                      \
         logging(SIPO, LOG_DEBUG, "END")

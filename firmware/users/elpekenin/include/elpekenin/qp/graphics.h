@@ -15,9 +15,7 @@
 #    define QUANTUM_PAINTER_NUM_DISPLAYS 1
 #endif // QUANTUM_PAINTER_NUM_DISPLAYS
 
-
 void elpekenin_qp_init(void); // qp_init used by QMK (:
-void scrolling_text_tick(void);
 
 
 // *** Asset handling ***
@@ -81,6 +79,7 @@ void set_uptime_device(painter_device_t device);
 void set_keylog_device(painter_device_t device);
 #endif
 
+// exposed for logging/backend/qp.c
 typedef struct PACKED {
     uint8_t  n_chars;
     uint32_t delay;

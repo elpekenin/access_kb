@@ -59,6 +59,25 @@ void keyboard_pre_init_keymap(void) {
     set_logging_fmt(fmt);
 }
 
+#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+static uint32_t read_touch_callback(uint32_t trigger_time, void *cb_arg) {
+    uint32_t interval = TOUCH_MS;
+
+    // Do nothing until sensor initialised or when screen isn't pressed
+    if (!is_ili9341_pressed()) {
+        xap_screen_released(ILI9341_ID);
+        return interval;
+    }
+
+    // Make a read and send it to Tauri
+    touch_report_t ili9341_touch_report = get_spi_touch_report(ili9341_touch, false);
+
+    xap_screen_pressed(ILI9341_ID, ili9341_touch_report);
+
+    return interval;
+}
+#endif
+
 void keyboard_post_init_keymap(void) {
 #if defined(QUANTUM_PAINTER_ENABLE)
 #    if defined(INIT_EE_HANDS_LEFT)
@@ -73,8 +92,13 @@ void keyboard_post_init_keymap(void) {
 #        if defined(KEYLOG_ENABLE)
     set_keylog_device(ili9341);
 #        endif
-#    endif // defined(INIT_EE_HANDS_LEFT)
-#endif // defined(QUANTUM_PAINTER_ENABLE)
+
+#        if defined (TOUCH_SCREEN_ENABLE)
+    defer_exec(10, read_touch_callback, NULL);
+#        endif
+
+#    endif
+#endif
 
     rng_set_seed(analogReadPin(GP28) * analogReadPin(GP28));
 }
@@ -83,31 +107,5 @@ void build_info_sync_keymap_callback(void) {
 #if defined(INIT_EE_HANDS_LEFT) && defined(QUANTUM_PAINTER_ENABLE)
     draw_commit(il91874);
     draw_features(il91874);
-#endif // defined(INIT_EE_HANDS_LEFT) && defined(QUANTUM_PAINTER_ENABLE)
+#endif
 }
-
-#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
-void housekeeping_task_keymap(void) {
-    uint32_t now = timer_read32();
-
-    static uint32_t touch_timer = 0;
-
-    // TODO: defer_exec
-    // We only read once in a while
-    if (TIMER_DIFF_32(now, touch_timer) < TOUCH_MS)
-        return;
-
-    touch_timer = now;
-
-    // Do nothing until sensor initialised or when screen isn't pressed
-    if (ili9341_touch == NULL || ili9341_pressed == NULL) {
-        xap_screen_released(ILI9341_ID);
-        return;
-    }
-
-    // Make a read and send it to Tauri
-    touch_report_t ili9341_touch_report = get_spi_touch_report(ili9341_touch, false);
-
-    xap_screen_pressed(ILI9341_ID, ili9341_touch_report);
-}
-#endif // defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)

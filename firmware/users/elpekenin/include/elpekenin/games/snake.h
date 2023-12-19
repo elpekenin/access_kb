@@ -12,7 +12,7 @@
 typedef struct PACKED {
     bool playing;
     movement_t direction;
-    painter_device_t display;
+    painter_device_t device;
 
     // whether end of map wraps around or kills
     bool death_walls;
@@ -23,7 +23,9 @@ typedef struct PACKED {
     position_t snake[100];
 
     position_t food;
+
+    uint32_t delay; // between frames
 } game_state_t;
 
-game_state_t new_snake_game(painter_device_t display);
+game_state_t new_snake_game(void);
 void advance_snake_game(game_state_t *state);

@@ -18,14 +18,14 @@ void configure_tri_layer(void) {
     set_tri_layer_upper_layer(_FN2);
     set_tri_layer_adjust_layer(_RST);
 }
-#endif // defined(TRI_LAYER_ENABLE)
+#endif
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     state = layer_state_set_keymap(state);
 
 #if defined(XAP_ENABLE)
     xap_layer(state);
-#endif // defined(XAP_ENABLE)
+#endif
 
     return state;
 }

@@ -6,6 +6,7 @@
 #include "elpekenin/logging.h"
 #include "elpekenin/qp/graphics.h"
 
+
 static inline position_t random_position(void) {
     return (position_t) {
         .x = rng_min_max(0, GAME_COLS),
@@ -57,7 +58,7 @@ static inline void draw_game(game_state_t *state) {
         }
     );
     qp_rect(
-        state->display,
+        state->device,
         board_start.x,
         board_start.y,
         board_end.x,
@@ -67,7 +68,7 @@ static inline void draw_game(game_state_t *state) {
     );
     // smal outline
         qp_rect(
-        state->display,
+        state->device,
         board_start.x - 1,
         board_start.y - 1,
         board_end.x + 1,
@@ -85,7 +86,7 @@ static inline void draw_game(game_state_t *state) {
         uint16_t board_h = board_end.y - board_start.y;
         
         qp_drawtext(
-            state->display,
+            state->device,
             board_start.x + (board_w - text_w) / 2,
             board_start.y + (board_h - font->line_height) / 2,
             font,
@@ -98,7 +99,7 @@ static inline void draw_game(game_state_t *state) {
     for (uint8_t i = 0; i < state->snake_len; ++i) {
         position_t snake_coords = to_pixels(state->snake[i]);
         qp_rect(
-            state->display,
+            state->device,
             snake_coords.x,
             snake_coords.y,
             snake_coords.x + TILE_SIZE,
@@ -111,7 +112,7 @@ static inline void draw_game(game_state_t *state) {
     // draw food
     position_t food_coords = to_pixels(state->food);
     qp_rect(
-        state->display,
+        state->device,
         food_coords.x,
         food_coords.y,
         food_coords.x + TILE_SIZE,
@@ -197,14 +198,15 @@ void advance_snake_game(game_state_t *state) {
     draw_game(state);
 }
 
-game_state_t new_snake_game(painter_device_t display) {
+game_state_t new_snake_game() {
     game_state_t state = {
-        .display = display,
-        .playing = true,
-        .direction = NO_MOVEMENT,
+        .device      = NULL,
+        .playing     = true,
+        .direction   = NO_MOVEMENT,
         .death_walls = true,
-        .snake = {random_position()},
-        .snake_len = 1
+        .snake       = {random_position()},
+        .snake_len   = 1,
+        .delay       = 500,
     };
     generate_food(&state);
     return state;

@@ -5,10 +5,14 @@
 
 #include <stdint.h>
 
+#include "print.h"
+
 #include "elpekenin/utils/compiler.h"
 
 // to change printf's "backend", dont use.
 int8_t user_sendchar(uint8_t c);
+
+void print_with(const char *str, sendchar_func_t func);
 
 // *** Custom logger *** (inspired by python's logging module)
 typedef enum {

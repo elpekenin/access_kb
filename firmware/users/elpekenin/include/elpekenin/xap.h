@@ -59,7 +59,7 @@ typedef struct PACKED {
 } screen_released_msg_t;
 
 void xap_screen_released(uint8_t screen_id);
-#endif // defined(TOUCH_SCREEN_ENABLE)
+#endif
 
 
 typedef struct PACKED {

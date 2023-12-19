@@ -9,7 +9,6 @@
 
 #define MATRIX_ROWS 10
 #define MATRIX_COLS 8
-#define ROWS_PER_HAND (MATRIX_ROWS / 2)
 
 
 // *** Debugging ***
@@ -40,7 +39,6 @@
 #define REGISTERS_SPI_DIV  0
 #define PISO_SPI_DIV 16
 #define N_SIPO_PINS 8
-#define N_PISO_REGISTERS 5
 
 // Multi-SPI driver config
 #define SCREENS_SPI_DRIVER_ID 0
@@ -64,14 +62,7 @@
 #define QUANTUM_PAINTER_PIXDATA_BUFFER_SIZE 24000
 
 
-// *** RGB ***
-#define RGB_DISABLE_WHEN_USB_SUSPENDED
-#define RGB_MATRIX_LED_COUNT 58
-#define RGB_MATRIX_SPLIT {29, 29}
-
-
 // *** Split ***
 
 #define EE_HANDS
-#define SERIAL_USART_TX_PIN GP15
 #define USB_VBUS_PIN GP24

@@ -12,7 +12,7 @@ static deferred_token qp_log_tokens[LOG_N_LINES];
 static bool           qp_log_redraw;
 static log_level_t    qp_log_levels[LOG_N_LINES];
 
-void sendchar_qp_hook(uint8_t c) {
+int8_t sendchar_qp_hook(uint8_t c) {
     // Setup the arrays on the 1st go
     static bool initialized = false;
     if (!initialized) {
@@ -40,16 +40,18 @@ void sendchar_qp_hook(uint8_t c) {
 
         // Reset stuff
         qp_log_current_col                                   = 0;
-        qp_log_pointers[LOG_N_LINES - 1][qp_log_current_col] = 0;
+        qp_log_pointers[LOG_N_LINES - 1][qp_log_current_col] = '\0';
         qp_log_redraw                                        = true;
     } else if (qp_log_current_col >= LOG_N_CHARS) {
-        return;
+        return 0;
     } else {
         qp_log_pointers[LOG_N_LINES - 1][qp_log_current_col++] = c;
-        qp_log_pointers[LOG_N_LINES - 1][qp_log_current_col]   = 0;
+        qp_log_pointers[LOG_N_LINES - 1][qp_log_current_col]   = '\0';
         qp_log_levels[LOG_N_LINES - 1]                         = get_message_level();
         qp_log_redraw                                          = true;
     }
+
+    return 0;
 }
 
 static const HSV log_colors[] = {

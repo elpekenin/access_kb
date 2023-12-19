@@ -12,10 +12,10 @@
 static uint8_t i = 0;
 static uint8_t buffer[MAX_PAYLOAD_SIZE] = {0};
 
-void sendchar_xap_hook(uint8_t c) {
+int8_t sendchar_xap_hook(uint8_t c) {
     // sending early on leads to issues, instead wait a bit for USB to settle
     if (timer_read() < 3000) {
-        return;
+        return 0;
     }
 
     // append data
@@ -29,4 +29,6 @@ void sendchar_xap_hook(uint8_t c) {
         i = 0;
         memset(buffer, 0,ARRAY_SIZE(buffer));
     }
+
+    return 0;
 }

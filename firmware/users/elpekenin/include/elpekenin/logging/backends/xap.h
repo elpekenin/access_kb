@@ -3,4 +3,4 @@
 
 #pragma once
 
-void sendchar_xap_hook(uint8_t c);
+int8_t sendchar_xap_hook(uint8_t c);

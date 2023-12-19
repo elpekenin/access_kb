@@ -3,7 +3,8 @@ USER_INCLUDE = $(USER_PATH)/include
 
 VPATH += $(USER_INCLUDE)
 
-SRC += $(USER_SRC)/elpekenin.c \
+SRC += $(USER_SRC)/build_info.c \
+       $(USER_SRC)/elpekenin.c \
        $(USER_SRC)/placeholders.c \
        $(USER_SRC)/layers.c \
        $(USER_SRC)/power.c \

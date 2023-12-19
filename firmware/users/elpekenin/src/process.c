@@ -50,11 +50,11 @@ bool process_autocorrect_user(uint16_t *keycode, keyrecord_t *record, uint8_t *t
             return process_autocorrect_default_handler(keycode, record, typo_buffer_size, mods);
     }
 }
-#endif // defined(AUTOCORRECT_ENABLE)
+#endif
 
 #if defined(KEYLOG_ENABLE)
 bool keylog_enabled = true;
-#endif // defined(KEYLOG_ENABLE)
+#endif
 
 #if defined(KEY_OVERRIDE_ENABLE)
 const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
@@ -66,7 +66,7 @@ const key_override_t **key_overrides = (const key_override_t *[]){
     &alt_f4_key_override,
     NULL
 };
-#endif // defined(KEY_OVERRIDE_ENABLE)
+#endif
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -74,12 +74,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (keylog_enabled) {
         keylog_process(keycode, record);
     }
-#endif // defined(KEYLOG_ENABLE)
+#endif
 
 #if defined(XAP_ENABLE)
         xap_keyevent(keycode, record);
-#endif // defined(XAP_ENABLE)
-
+#endif
 
     if (!process_record_keymap(keycode, record)) {
         return false;
@@ -96,7 +95,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 reset_ee_slave(); // reset on slave too
             }
             return true;
-#endif // defined(SPLIT_KEYBOARD)
+#endif
 
         case PK_CPYR:
             // avoid messing up when i press GUI instead of TRI_LAYER for QK_RST
@@ -120,7 +119,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             return false;
-#endif // defined(QUANTUM_PAINTER_ENABLE)
+#endif
 
 #if defined(KEYLOG_ENABLE)
         case PK_KLOG:
@@ -128,7 +127,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 keylog_enabled = !keylog_enabled;
             }
             return false;
-    #endif // defined(KEYLOG_ENABLE)
+#endif
 
 #if defined(UCIS_ENABLE)
         case PK_UCIS:
@@ -136,7 +135,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 ucis_start();
             }
             return false;
-#endif // defined(UCIS_ENABLE)
+#endif
 
         case PK_LOG:
             if (pressed) {
@@ -166,7 +165,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 game_reset();
             }
             return false;
-#endif // defined(GAME_ENABLE)
+#endif
 
         default:
             break;
@@ -249,4 +248,4 @@ tap_dance_action_t tap_dance_actions[] = {
     [_TD_SPC]  = ACTION_TAP_DANCE_FN_ADVANCED(td_spc_each, NULL, td_spc_reset),
     [_TD_GRV]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_grv_finished, NULL),
 };
-#endif // defined(TAP_DANCE_ENABLE)
+#endif

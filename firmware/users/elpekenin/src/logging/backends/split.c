@@ -4,31 +4,40 @@
 #include <string.h>
 
 #include "keyboard.h"
-#include "printf.h"
+#include "print.h"
 
 #include "elpekenin/logging.h"
 #include "elpekenin/split/transactions.h"
 #include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/string.h"
 
 // *** Split data ***
 
 typedef struct PACKED {
     bool    flush;
     uint8_t bytes;
-    uint8_t buff[RPC_S2M_BUFFER_SIZE - 2];
+    char    buff[RPC_S2M_BUFFER_SIZE - 3];
+    char    null;
 } split_logging_t;
 _Static_assert(sizeof(split_logging_t) == RPC_S2M_BUFFER_SIZE, "Wrong size");
 
 
-// *** Slave *** //
+// *** Slave ***
 
-static uint8_t slave_i = 0;
-static uint8_t slave_buffer[200] = {0};
+static size_t slave_i           = 0;
+static char   slave_buffer[200] = {0};
 
-void sendchar_split_hook(uint8_t c) {
+int8_t sendchar_split_hook(uint8_t c) {
     // on master, this does nothing
     if (is_keyboard_master()) {
-        return;
+        return 0;
+    }
+
+    if (
+        c < '\n' // terminator/non-printable chars
+        || is_utf8(c) // only accept ASCII
+    ) { 
+        return 0;
     }
 
     // append data
@@ -41,42 +50,52 @@ void sendchar_split_hook(uint8_t c) {
         memset(slave_buffer, 0, ARRAY_SIZE(slave_buffer));
         logging(LOGGER, LOG_ERROR, "Slave buffer filled");
     }
+
+    return 0;
 }
 
 void user_logging_slave_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m_size, void* s2m_buffer) {
-    // how many bytes we can read
-    split_logging_t data = {
-        .flush = false,
-        .bytes = MIN(slave_i, RPC_S2M_BUFFER_SIZE),
-    };
+    split_logging_t data = {0};
 
-    if (data.bytes == 0) {
-        memcpy(s2m_buffer, &data, sizeof(split_logging_t));
-        return;
-    }
+    uint8_t i;
+    size_t max_size = MIN(slave_i, ARRAY_SIZE(data.buff));
 
-    // copy bytes
-    memcpy(data.buff, slave_buffer, data.bytes);
+    // work out the data
+    for (i = 0; i < max_size; ++i) {
+        if (!slave_buffer[i]) { // end of buffer contents
+            break;
+        }
 
-    // move sendchar's buffer content to the beggining
-    memmove(slave_buffer, slave_buffer + data.bytes, ARRAY_SIZE(slave_buffer) - data.bytes - 1);
-    slave_i -= data.bytes;
+        // copy byte to msg
+        data.buff[i] = slave_buffer[i];
 
-    // flush?
-    for (uint8_t j = 0; j < data.bytes; ++j) {
-        if (data.buff[j] == '\n') {
+        // move char into just-copied position
+        slave_buffer[i] = slave_buffer[i + data.bytes];
+
+        // clear the char we just moved
+        slave_buffer[i + data.bytes] = '\0';
+
+        // update message: do we have to flush?
+        if (data.buff[i] == '\n') {
             data.flush = true;
         }
     }
 
+    // update msg counter
+    data.bytes = i;
+
+    // update buffer's write posiiton
+    slave_i -= data.bytes;
+
+    // copy data on send buffer
     memcpy(s2m_buffer, &data, sizeof(split_logging_t));
 }
 
 
 // *** Master ***
 
-static uint8_t master_i = 0;
-static uint8_t master_buffer[200] = {0};
+static size_t master_i           = 0;
+static char   master_buffer[200] = {0};
 
 static inline void clear_master_buffer(void) {
     master_i = 0;

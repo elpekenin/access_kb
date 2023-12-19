@@ -5,21 +5,32 @@
 #include "elpekenin/game.h"
 #include "elpekenin/games/snake.h"
 
-static game_state_t game;
+static game_state_t   game       = {0};
+static deferred_token game_token = INVALID_DEFERRED_TOKEN;
+
+static uint32_t game_callback(uint32_t trigger_time, void *cb_arg) {
+    advance_snake_game(&game);
+    return game.delay;
+}
+
+void set_game_device(painter_device_t device) {
+    game.device = device;
+
+    // dont want multiple "workers" at the same time
+    cancel_deferred_exec(game_token);
+    game_token = defer_exec(10, game_callback, NULL);
+}
+
+
+void game_init() {
+    game = new_snake_game();
+}
+
+// reset is just re-init
+void game_reset(void) {
+    game_init();
+}
 
 void set_game_movement(movement_t direction) {
     game.direction = direction;
-}
-
-void game_init(painter_device_t display) {
-    game = new_snake_game(display);
-}
-
-// reset is just init + re-use display
-void game_reset(void) {
-    game_init(game.display);
-}
-
-void game_frame(void) {
-    advance_snake_game(&game);
 }

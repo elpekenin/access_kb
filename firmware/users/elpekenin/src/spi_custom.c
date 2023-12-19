@@ -15,6 +15,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+// TODO: Support for NO_PIN
+
 #include "elpekenin/logging.h"
 #include "elpekenin/spi_custom.h"
 

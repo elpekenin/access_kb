@@ -29,7 +29,7 @@ void xap_screen_released(uint8_t screen_id) {
 
     xap_broadcast_user(&msg, sizeof(msg));
 }
-#endif // defined(TOUCH_SCREEN_ENABLE)
+#endif
 
 void xap_layer(layer_state_t state) {
     layer_change_msg_t msg = {

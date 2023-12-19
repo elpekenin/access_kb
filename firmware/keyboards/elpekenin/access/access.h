@@ -12,3 +12,9 @@ extern painter_device_t ili9163;
 extern painter_device_t ili9341;
 #    endif
 #endif
+
+#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+#    include "elpekenin/touch.h"
+extern touch_device_t ili9341_touch;
+bool is_ili9341_pressed(void);
+#endif

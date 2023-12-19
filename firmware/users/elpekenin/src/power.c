@@ -32,21 +32,21 @@ bool shutdown_user(bool jump_to_bootloader) {
     if (is_keyboard_master()) {
         transaction_rpc_send(RPC_ID_USER_SHUTDOWN, sizeof(jump_to_bootloader), &jump_to_bootloader);
     }
-#endif // defined(SPLIT_KEYBOARD)
+#endif
 
 #if defined(QUANTUM_PAINTER_ENABLE)
     for (uint8_t i = 0; i < QUANTUM_PAINTER_NUM_DISPLAYS; ++i) {
         qp_power(qp_get_device_by_index(i), false);
     }
-#endif // defined(QUANTUM_PAINTER_ENABLE)
+#endif
 
 #if defined(RGB_MATRIX_ENABLE)
     rgb_shutdown(jump_to_bootloader);
-#endif // RGB_MATRIX_ENABLE
+#endif
 
-#if defined(QP_XAP_ENABLE)
+#if defined(XAP_ENABLE)
     xap_shutdown(jump_to_bootloader);
-#endif // defined(QP_XAP_ENABLE)
+#endif
 
     return true;
 }

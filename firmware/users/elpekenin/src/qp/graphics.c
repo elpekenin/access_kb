@@ -3,7 +3,7 @@
 
 #if defined(WPM_ENABLE)
 #    include "wpm.h"
-#endif // defined(WPM_ENABLE)
+#endif
 
 #include "elpekenin/build_info.h"
 #include "elpekenin/logging/backends/qp.h"
@@ -13,7 +13,7 @@
 
 #if defined(KEYLOG_ENABLE)
 #    include "elpekenin/keylog.h"
-#endif // defined(KEYLOG_ENABLE)
+#endif
 
 
 // *** Internal variables ***
@@ -153,7 +153,7 @@ void draw_commit(painter_device_t device) {
     painter_font_handle_t font       = qp_get_font_by_name("font_fira_code");
     uint16_t              width      = driver->panel_width;
     uint16_t              height     = driver->panel_height;
-    int16_t               hash_width = qp_textwidth(font, build_info.commit);
+    int16_t               hash_width = qp_textwidth(font, get_build_info().commit);
 
     uint16_t real_width  = width;
     uint16_t real_height = height;
@@ -166,7 +166,7 @@ void draw_commit(painter_device_t device) {
     uint16_t x = real_width  - hash_width;
     uint16_t y = real_height - font->line_height;
 
-    qp_drawtext_recolor(device, x, y, font, build_info.commit, HSV_RED, HSV_WHITE);
+    qp_drawtext_recolor(device, x, y, font, get_build_info().commit, HSV_RED, HSV_WHITE);
 }
 
 
@@ -338,13 +338,14 @@ void stop_scrolling_text(deferred_token scrolling_token) {
     }
 }
 
-void scrolling_text_tick(void) {
-    static uint32_t last_scrolling_text_exec = 0;
-    deferred_exec_advanced_task(scrolling_text_executors, QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS, &last_scrolling_text_exec);
-}
-
 
 // *** Callbacks ***
+
+static uint32_t scrolling_text_tick_callback(uint32_t trigger_time, void *cb_arg) {
+    static uint32_t last_scrolling_text_exec = 0;
+    deferred_exec_advanced_task(scrolling_text_executors, QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS, &last_scrolling_text_exec);
+    return 100; // 100ms sounds fast enough for me, text moving at +10 frames/second doesnt sound too readable for me
+}
 
 static uint32_t qp_logging_callback(uint32_t trigger_time, void *cb_arg) {
     qp_callback_args_t *args = (qp_callback_args_t *)cb_arg;
@@ -419,7 +420,7 @@ static uint32_t qp_keylog_callback(uint32_t trigger_time, void *cb_arg) {
     if (wpm > 50) {
         color = (HSV){HSV_GREEN};
     }
-#    endif // defined(WPM_ENABLE)
+#    endif
 
     qp_drawtext_recolor(
         args->device,
@@ -433,7 +434,7 @@ static uint32_t qp_keylog_callback(uint32_t trigger_time, void *cb_arg) {
 
     return interval;
 }
-#endif // defined(KEYLOG_ENABLE)
+#endif
 
 
 // *** API ***
@@ -453,6 +454,8 @@ void elpekenin_qp_init(void) {
 #if defined(KEYLOG_ENABLE)
     keylog_args.font = fira_code;
 #endif
+
+    defer_exec(10, scrolling_text_tick_callback, NULL);
 }
 
 void set_qp_logging_device(painter_device_t device) {
@@ -464,7 +467,7 @@ void set_qp_logging_device(painter_device_t device) {
 }
 
 void set_uptime_device(painter_device_t device) {
-    logging_args.device = device;
+    uptime_args.device = device;
     
     // dont want multiple "workers" at the same time
     cancel_deferred_exec(uptime_token);
