@@ -5,8 +5,7 @@
 
 #include "elpekenin/utils/shortcuts.h"
 
-// reverse a string (inplace)
-void _reverse(char *str) {
+const char *_reverse(char *str) {
     size_t len = strlen(str);
 
     char   c;
@@ -21,18 +20,19 @@ void _reverse(char *str) {
         left++;
         right--;
     }
+
+    return str;
 }
 
-// custom (small-ish) impl of itoa
-void _itoa(uint32_t value, char *result) {
+const char *_itoa(uint32_t value, char *buffer) {
     // convert to string by doing value/10
-    char *copy = result;
+    char *copy = buffer;
     do {
         *copy++ = '0' + (value % 10); // this digit
         *copy   = '\0'; // add terminator upfront
     } while (value /= 10);
 
-    _reverse(result); // invert the str
+    return _reverse(buffer); // invert the str
 }
 
 bool is_utf8(char c) {

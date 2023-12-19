@@ -12,7 +12,13 @@
 // to change printf's "backend", dont use.
 int8_t user_sendchar(uint8_t c);
 
-void print_with(const char *str, sendchar_func_t func);
+
+// *** Debugging helpers ***  print on a single backend
+
+void print_str(const char *str, const sendchar_func_t func);
+void print_u8(const uint8_t val, const sendchar_func_t func);
+void print_u8_array(const uint8_t *list, const size_t len, const sendchar_func_t func);
+
 
 // *** Custom logger *** (inspired by python's logging module)
 typedef enum {

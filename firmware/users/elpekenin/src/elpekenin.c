@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "elpekenin.h"
-#include "elpekenin/build_info.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/placeholders.h"
 
@@ -40,11 +39,7 @@ void keyboard_pre_init_user(void) {
     keyboard_pre_init_keymap();
 }
 
-static build_info_t build_info = {0};
-
 void keyboard_post_init_user(void) {
-    build_info = get_build_info();
-
 #if defined(AUTOCORRECT_ENABLE)
     autocorrect_enable();
 #endif

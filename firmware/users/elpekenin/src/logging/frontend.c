@@ -179,8 +179,7 @@ log_level_t get_message_level(void) {
 
 WEAK const char *log_time(void) {
     static char buff[10] = {0};
-    _itoa(timer_read32() / 1000, buff);
-    return buff;
+    return _itoa(timer_read32() / 1000, buff);
 }
 
 void logging(feature_t feature, log_level_t level, const char *msg, ...) {
@@ -245,8 +244,24 @@ void logging(feature_t feature, log_level_t level, const char *msg, ...) {
     }
 }
 
-void print_with(const char *str, sendchar_func_t func) {
+void print_str(const char *str, const sendchar_func_t func) {
     for (size_t i = 0; i < strlen(str); ++i) {
         func(str[i]);
     }
+}
+
+void print_u8(const uint8_t val, const sendchar_func_t func) {
+    // max(u8) == 255 == 4 bytes, extra one for safety
+    char txt[5] = {0};
+    print_str(_itoa(val, txt), func);
+}
+
+void print_u8_array(const uint8_t *list, const size_t len, const sendchar_func_t func) {
+    func('[');
+    for (size_t i = 0; i < len - 1; ++i) {
+        print_u8(list[i], func);
+        print_str(", ", func);
+    }
+    print_u8(list[len - 1], func);
+    func(']');
 }

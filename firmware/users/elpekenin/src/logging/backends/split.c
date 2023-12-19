@@ -16,8 +16,7 @@
 typedef struct PACKED {
     bool    flush;
     uint8_t bytes;
-    char    buff[RPC_S2M_BUFFER_SIZE - 3];
-    char    null;
+    char    buff[RPC_S2M_BUFFER_SIZE - 2];
 } split_logging_t;
 _Static_assert(sizeof(split_logging_t) == RPC_S2M_BUFFER_SIZE, "Wrong size");
 
@@ -103,8 +102,8 @@ static inline void clear_master_buffer(void) {
 }
 
 void user_logging_master_poll(void) {
-    split_logging_t data;
-    transaction_rpc_recv(RPC_ID_USER_LOGGING, RPC_S2M_BUFFER_SIZE, &data);
+    split_logging_t data = {0};
+    transaction_rpc_recv(RPC_ID_USER_LOGGING, sizeof(data), &data);
 
     if (data.bytes == 0) {
         return;
