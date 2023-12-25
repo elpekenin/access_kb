@@ -16,6 +16,7 @@
 // *** Max string length helper ***
 
 #define MAX_PAYLOAD (XAP_EPSIZE - sizeof(xap_broadcast_header_t))
+
 /* the final type will be
  *
  * struct {

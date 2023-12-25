@@ -9,6 +9,7 @@
 
 #define MATRIX_ROWS 10
 #define MATRIX_COLS 8
+#define ROWS_PER_HAND (MATRIX_ROWS / 2)
 
 
 // *** Debugging ***

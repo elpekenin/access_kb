@@ -42,18 +42,27 @@ void xap_layer(layer_state_t state) {
 
 void xap_keyevent(uint16_t keycode, keyrecord_t *record) {
     keyevent_msg_t msg = {
-        .base.msg_id = _KEYEVENT,
-        .base.keycode = keycode,
-        .base.pressed = record->event.pressed,
-        .base.layer = get_highest_layer(layer_state),
-        .base.row = record->event.key.row,
-        .base.col = record->event.key.col,
-        .base.mods = get_mods()
+        .base = {
+            .msg_id = _KEYEVENT,
+            .keycode = keycode,
+            .pressed = record->event.pressed,
+            .layer = get_highest_layer(layer_state),
+            .row = record->event.key.row,
+            .col = record->event.key.col,
+            .mods = get_mods(),
+        },
     };
 
-    strcpy(msg.str, get_keycode_str_at(msg.base.layer, msg.base.row, msg.base.col));
+    strncpy(
+        msg.str,
+        get_keycode_str_at(msg.base.layer, msg.base.row, msg.base.col),
+        sizeof(msg.str)
+    );
 
-    xap_broadcast_user(&msg, sizeof(msg));
+    // variable size                          '\0' ~~~v
+    size_t len = sizeof(msg.base) + strlen(msg.str) + 1;
+    //                     ^~~~ keyevent_msg_t.base is not valid C
+    xap_broadcast_user(&msg, len);
 }
 
 void xap_shutdown(bool jump_to_bootloader) {

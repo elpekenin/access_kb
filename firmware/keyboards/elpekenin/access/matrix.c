@@ -15,9 +15,6 @@
 #    include "elpekenin/touch.h"
 #endif // TOUCH_SCREEN_ENABLE && INIT_EE_HANDS_RIGHT
 
-extern uint8_t thisHand, thatHand;
-#define ROWS_PER_HAND (MATRIX_ROWS / 2)
-
 void matrix_init_custom(void) {
     setPinOutput(PISO_CS_PIN);
     writePinHigh(PISO_CS_PIN);
