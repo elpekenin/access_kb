@@ -15,3 +15,12 @@
         __VA_ARGS__ \
         debug_config.enable = old_debug_state; \
     } while (0)
+
+// wrap the above, to also silence logging for a "feature"
+#define WITHOUT_LOGGING(feature, ...) \
+    do { \
+        log_level_t old_level = get_level_for(feature); \
+        set_level_for(feature, LOG_NONE); \
+        WITHOUT_DEBUG(__VA_ARGS__); \
+        set_level_for(feature, old_level); \
+    } while (0)

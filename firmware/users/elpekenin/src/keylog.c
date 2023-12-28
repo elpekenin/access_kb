@@ -7,11 +7,13 @@
 #include "action_layer.h" // get_highest_layer
 #include "action_util.h" // get_mods
 #include "host.h" // host_keyboard_led_state
+#include "debug.h" // debug_config
 
 #include "elpekenin/keylog.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/compiler.h"
 #include "elpekenin/utils/hash_map.h"
+#include "elpekenin/utils/shortcuts.h"
 #include "elpekenin/utils/string.h"
 
 #include "generated/keycode_str.h"
@@ -38,111 +40,63 @@ typedef enum {
 } active_mods_t;
 
 typedef struct PACKED {
+    const char *find;
     const char *strings[__N_MODS__];
-} replacements_t;
+} replacement_t;
 
 static hash_map_t replacements_map;
-
-static inline replacements_t *find_replacements(const char *find) {
-    replacements_t *p_replacements;
-
-    // disable hash logging momentarily, as a lot of strings wont be in the replacements map
-    log_level_t old_level = get_level_for(HASH);
-    set_level_for(HASH, LOG_NONE);
-    replacements_map.get(&replacements_map, find, (void **)&p_replacements);
-    set_level_for(HASH, old_level);
-
-    return p_replacements;
-}
-
-static inline bool add_replacement(const char *find, const char *replace, active_mods_t mods) {
-    // try and find existing entry
-    replacements_t *replacement = find_replacements(find);
-
-    // if not found, create it
-    // ... on heap because hashmap
-    if (LIKELY(replacement == NULL)) { // most keycodes have a single replacement, wont exist yet when adding it
-        replacement = calloc(1, sizeof(replacements_t));  // ensure we have zeros
-
-        if (UNLIKELY(replacement == NULL)) { // we should have spare heap
-            logging(UNKNOWN, LOG_ERROR, "%s: fail (allocation)", __func__);
-            return false;
-        }
-
-        // couldnt add -> dealloc
-        if (UNLIKELY(!replacements_map.add(&replacements_map, find, replacement))) { // lets hope there's no collisions
-            free(replacement);
-            return false;
-        }
-    }
-
-    // add the new replacement
-    replacement->strings[mods] = replace;
-
-    return true;
-}
+static const replacement_t replacements[] = {
+    {.find="0",       .strings={                [SHIFT]="="              }},
+    {.find="1",       .strings={                [SHIFT]="!",  [AL_GR]="|"}},
+    {.find="2",       .strings={                [SHIFT]="\"", [AL_GR]="@"}},
+    {.find="3",       .strings={                              [AL_GR]="#"}}, // · breaks keylog
+    {.find="4",       .strings={                [SHIFT]="$",  [AL_GR]="~"}},
+    {.find="5",       .strings={                [SHIFT]="%"              }},
+    {.find="6",       .strings={                [SHIFT]="&"              }},
+    {.find="7",       .strings={                [SHIFT]="/"              }},
+    {.find="8",       .strings={                [SHIFT]="("              }},
+    {.find="9",       .strings={                [SHIFT]=")"              }},
+    {.find="_______", .strings={[NO_MODS]="__"                           }},
+    {.find="AT",      .strings={[NO_MODS]="@"                            }},
+    {.find="BSLS",    .strings={[NO_MODS]="\\"                           }},
+    {.find="BSPC",    .strings={[NO_MODS]="⇤"                            }},
+    {.find="CAPS",    .strings={[NO_MODS]="↕"                            }},
+    {.find="COMM",    .strings={[NO_MODS]=",",   [SHIFT]=";"             }},
+    {.find="DB_TOGG", .strings={[NO_MODS]="DBG"                          }},
+    {.find="DOT",     .strings={[NO_MODS]=".",   [SHIFT]=":"             }},
+    {.find="DOWN",    .strings={[NO_MODS]="↓"                            }},
+    {.find="ENT",     .strings={[NO_MODS]="↲"                            }},
+    {.find="GRV",     .strings={[NO_MODS]="`",   [SHIFT]="^"             }},
+    {.find="HASH",    .strings={[NO_MODS]="#"                            }},
+    {.find="LBRC",    .strings={[NO_MODS]="["                            }},
+    {.find="LCBR",    .strings={[NO_MODS]="{"                            }},
+    {.find="LEFT",    .strings={[NO_MODS]="←"                            }},
+    {.find="LOWR",    .strings={[NO_MODS]="▼"                            }},
+    {.find="MINS",    .strings={[NO_MODS]="-",   [SHIFT]="_"             }},
+    {.find="NTIL",    .strings={[NO_MODS]="´",                           }},
+    {.find="R_SPC",   .strings={[NO_MODS]=" "                            }},
+    {.find="RBRC",    .strings={[NO_MODS]="]"                            }},
+    {.find="RCBR",    .strings={[NO_MODS]="}"                            }},
+    {.find="RIGHT",   .strings={[NO_MODS]="→"                            }},
+    {.find="PLUS",    .strings={[NO_MODS]="+",   [SHIFT]="*"             }},
+    {.find="PIPE",    .strings={[NO_MODS]="|"                            }},
+    {.find="QUOT",    .strings={[NO_MODS]="'",   [SHIFT]="?"             }},
+    {.find="SPC",     .strings={[NO_MODS]=" "                            }},
+    {.find="TAB",     .strings={[NO_MODS]="⇥"                            }},
+    {.find="TILD",    .strings={[NO_MODS]="~"                            }},
+    {.find="UP",      .strings={[NO_MODS]="↑"                            }},
+    {.find="UPPR",    .strings={[NO_MODS]="▲"                            }},
+    {.find="VOLU",    .strings={[NO_MODS]="♪",   [SHIFT]="♪"             }},
+    {.find="XXXXXXX", .strings={[NO_MODS]="XX"                           }},
+};
 
 static void init_replacements(void) {
     replacements_map = new_hash_map();
 
-    // *** Mod-independent ***
-    add_replacement("SPC",     " ",   NO_MODS);
-    add_replacement("R_SPC",   " ",   NO_MODS);
-    add_replacement("UPPR",    "▲",   NO_MODS); // arrow (ish)
-    add_replacement("LOWR",    "▼",   NO_MODS);
-    add_replacement("TAB",     "⇥",   NO_MODS);
-    add_replacement("BSPC",    "⇤",   NO_MODS);
-    add_replacement("CAPS",    "↕",   NO_MODS);
-    add_replacement("ENT",     "↲",   NO_MODS);
-    add_replacement("UP",      "↑",   NO_MODS);
-    add_replacement("DOWN",    "↓",   NO_MODS);
-    add_replacement("RIGHT",   "→",   NO_MODS);
-    add_replacement("LEFT",    "←",   NO_MODS);
-    add_replacement("PLUS",    "+",   NO_MODS); // symbols
-    add_replacement("MINS",    "-",   NO_MODS);
-    add_replacement("QUOT",    "'",   NO_MODS);
-    add_replacement("GRV",     "`",   NO_MODS);
-    add_replacement("COMM",    ",",   NO_MODS);
-    add_replacement("DOT",     ".",   NO_MODS);
-    add_replacement("HASH",    "#",   NO_MODS);
-    add_replacement("AT",      "@",   NO_MODS);
-    add_replacement("PIPE",    "|",   NO_MODS);
-    add_replacement("TILD",    "~",   NO_MODS);
-    add_replacement("LBRC",    "[",   NO_MODS);
-    add_replacement("RBRC",    "]",   NO_MODS);
-    add_replacement("LCBR",    "{",   NO_MODS);
-    add_replacement("RCBR",    "}",   NO_MODS);
-    add_replacement("DB_TOGG", "DBG", NO_MODS); // short
-    add_replacement("XXXXXXX", "XX",  NO_MODS);
-    add_replacement("_______", "__",  NO_MODS);
-
-    // *** Mods ***
-    add_replacement("1", "!",  SHIFT); // shift
-    add_replacement("2", "\"", SHIFT);
-    add_replacement("4", "$",  SHIFT);
-    add_replacement("5", "%",  SHIFT);
-    add_replacement("6", "&",  SHIFT);
-    add_replacement("7", "/",  SHIFT);
-    add_replacement("8", "(",  SHIFT);
-    add_replacement("9", ")",  SHIFT);
-    add_replacement("0", "=",  SHIFT);
-    add_replacement("+", "*",  SHIFT);
-    add_replacement("'", "?",  SHIFT);
-    add_replacement("`", "^",  SHIFT);
-    add_replacement(".", ":",  SHIFT);
-    add_replacement(",", ";",  SHIFT);
-    add_replacement("-", "_",  SHIFT);
-    add_replacement("1", "|",  AL_GR); // algr
-    add_replacement("2", "@",  AL_GR);
-    add_replacement("3", "#",  AL_GR);
-    add_replacement("4", "~",  AL_GR);
-
-    // *** weird shit ***
-    add_replacement("NTIL", "\xc2\xb4", NO_MODS); // ´
-    add_replacement("3",    "\xc2\xb7", SHIFT);   // ·
-    add_replacement("BSLS", "\\",       NO_MODS);
-    add_replacement("VOLU", "♪",        NO_MODS);
-    add_replacement("VOLU", "♪",        SHIFT);   // VOLD, key override
+    // add replacements to the hash map
+    for (uint8_t i = 0; i < ARRAY_SIZE(replacements); ++i) {
+        replacements_map.add(&replacements_map, replacements[i].find, &replacements[i]);
+    }
 }
 
 
@@ -163,9 +117,19 @@ static void skip_prefix(const char **str) {
 }
 
 static void maybe_symbol(const char **str) {
-    replacements_t *p_replacements = find_replacements(*str);
+    replacement_t *p_replacements;
+
+    // disable hash logging momentarily, as a lot of strings wont be in the replacements map
+    WITHOUT_LOGGING(
+        HASH,
+        replacements_map.get(&replacements_map, *str, (void **)&p_replacements);
+    );
 
     if (LIKELY(p_replacements == NULL)) { // most keycodes dont have replacements
+        return;
+    }
+
+    if (UNLIKELY(strcmp(p_replacements->find, *str) != 0)) { // if hash matches, likely the strings do too
         return;
     }
 
