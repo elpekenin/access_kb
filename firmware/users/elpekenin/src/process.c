@@ -8,6 +8,9 @@
 #include "elpekenin/keycodes.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/placeholders.h"
+#include "elpekenin/utils/shortcuts.h"
+
+#include "generated/keycode_str.h"
 
 #if defined(GAME_ENABLE)
 #    include "elpekenin/game.h"
@@ -77,7 +80,35 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
 
 #if defined(XAP_ENABLE)
-        xap_keyevent(keycode, record);
+    // log events over XAP
+    xap_keyevent(keycode, record);
+#endif
+
+#if defined(RGB_MATRIX_ENABLE)
+    // special case for RGB keycodes, disable debug while they do their thing, as they throw a long but useless output
+
+    static bool is_handling_rgb = false;
+    if (IS_RGB_KEYCODE(keycode)) {
+        // early exit, dont want to recursively call ourselves
+        if (is_handling_rgb) {
+            return true; // need true because RGB handling happens **after** the user callback
+        }
+
+        // disable debug and re-inject event into QMK to get the logic (instead of duplicating it)
+        is_handling_rgb = true;
+        WITHOUT_DEBUG(
+            process_record_quantum(record);
+        );
+        is_handling_rgb = false;
+
+        if (record->event.pressed) {
+            uint8_t  layer = get_highest_layer(layer_state | default_layer_state);
+            keypos_t pos   = record->event.key;
+            logging(UNKNOWN, LOG_INFO, "Used %s", get_keycode_str_at(layer, pos.row, pos.col));
+        }
+
+        return false;
+    }
 #endif
 
     if (!process_record_keymap(keycode, record)) {

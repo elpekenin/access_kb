@@ -45,14 +45,6 @@ void user_ee_clr_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m_
     }
 }
 
-void user_ee_test_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m_size, void* s2m_buffer) {
-    if (m2s_size == sizeof(uint32_t)) {
-        eeconfig_update_user(*(uint32_t*)m2s_buffer);
-    } else {
-        logging(SPLIT, LOG_ERROR, "%s size", __func__);
-    }
-}
-
 
 // *** Periodic tasks ***
 
