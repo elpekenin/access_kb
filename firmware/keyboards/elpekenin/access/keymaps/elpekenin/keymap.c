@@ -1,4 +1,4 @@
-// Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
+// Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
@@ -87,8 +87,8 @@ void keyboard_post_init_keymap(void) {
     load_display(ili9341);
 
     set_uptime_device(ili9341);
-    set_qp_logging_device(ili9341);
-
+    set_logging_device(ili9341);
+    set_heap_stats_device(ili9341);
 #        if defined(KEYLOG_ENABLE)
     set_keylog_device(ili9341);
 #        endif

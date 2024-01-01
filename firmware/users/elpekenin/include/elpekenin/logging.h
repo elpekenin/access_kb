@@ -1,4 +1,4 @@
-// Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
+// Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
@@ -25,12 +25,13 @@ typedef enum {
     UNKNOWN,
     LOGGER,
     QP,
-    SCROLL_TXT,
+    SCROLL,
     SIPO,
     SPLIT,
     SPI,
     TOUCH,
     HASH,
+    ALLOC,
     __N_FEATURES__
 } feature_t; // ALWAYS ADD AT THE END, FOR ASSERT TO WORK
 

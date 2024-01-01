@@ -1,9 +1,10 @@
-// Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
+// Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
 
 #include "elpekenin/logging.h"
+#include "elpekenin/utils/compiler.h"
 
 #if defined(QUANTUM_PAINTER_ENABLE)
 #    include "elpekenin/sipo.h"
@@ -61,7 +62,7 @@ touch_device_t ili9341_touch = &ili9341_touch_driver;
 uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     logging(UNKNOWN, LOG_TRACE, "-- kb init --");
 
-    __attribute__((unused)) bool ret = true;
+    UNUSED bool ret = true;
 
 #if defined (QUANTUM_PAINTER_ENABLE)
     // *** SIPO ***

@@ -1,4 +1,4 @@
-// Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
+// Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "quantum.h"
@@ -136,7 +136,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
             if (pressed) {
                 send_string(
-                    "// Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>\n"
+                    "// Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>\n"
                     "// SPDX-License-Identifier: GPL-2.0-or-later\n"
                 );
             }

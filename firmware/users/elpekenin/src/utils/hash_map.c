@@ -1,8 +1,9 @@
-// Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
+// Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/hash_map.h"
+#include "elpekenin/utils/memory.h"
 
 
 // slight edit of the implementation at <http://www.cse.yorku.ca/~oz/hash.html>
@@ -18,7 +19,7 @@ static inline hash_t _hash(const char *key) {
 }
 
 static bool _add(hash_map_t *self, const char *key, const void *value) {
-    if (UNLIKELY(addr_in_stack(value))) { // lets hope users do the intended thing
+    if (UNLIKELY(ptr_in_stack(value))) { // lets hope users do the intended thing
         logging(HASH, LOG_ERROR, "Value on stack");
         logging(HASH, LOG_TRACE, "Address: %p", value);
         return false;

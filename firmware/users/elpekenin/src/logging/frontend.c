@@ -1,4 +1,4 @@
-// Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
+// Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <stdarg.h>
@@ -25,29 +25,31 @@ ASSERT_LEVELS(level_str);
 
 // stringify features
 static const char *feature_str[] = { // sorted alphabetically
-    [UNKNOWN]    = "",
-    [HASH]       = "HASH",
-    [LOGGER]     = "LOG",
-    [QP]         = "QP",
-    [SCROLL_TXT] = "SCROLL",
-    [SIPO]       = "SIPO",
-    [SPLIT]      = "SPLIT",
-    [SPI]        = "SPI",
-    [TOUCH]      = "TOUCH",
+    [UNKNOWN] = "",
+    [ALLOC]   = "ALLOC",
+    [HASH]    = "HASH",
+    [LOGGER]  = "LOG",
+    [QP]      = "QP",
+    [SCROLL]  = "SCROLL",
+    [SIPO]    = "SIPO",
+    [SPLIT]   = "SPLIT",
+    [SPI]     = "SPI",
+    [TOUCH]   = "TOUCH",
 };
 ASSERT_FEATURES(feature_str);
 
 // logging level for each feature
 log_level_t feature_levels[] = { // sorted alphabetically
-    [UNKNOWN]    = LOG_INFO,
-    [HASH]       = LOG_ERROR,
-    [LOGGER]     = LOG_ERROR,
-    [QP]         = LOG_INFO,
-    [SCROLL_TXT] = LOG_ERROR,
-    [SIPO]       = LOG_NONE,
-    [SPLIT]      = LOG_ERROR,
-    [SPI]        = LOG_NONE,
-    [TOUCH]      = LOG_ERROR,
+    [UNKNOWN] = LOG_INFO,
+    [ALLOC]   = LOG_ERROR,
+    [HASH]    = LOG_ERROR,
+    [LOGGER]  = LOG_ERROR,
+    [QP]      = LOG_INFO,
+    [SCROLL]  = LOG_ERROR,
+    [SIPO]    = LOG_NONE,
+    [SPLIT]   = LOG_ERROR,
+    [SPI]     = LOG_NONE,
+    [TOUCH]   = LOG_ERROR,
 };
 ASSERT_FEATURES(feature_levels);
 

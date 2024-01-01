@@ -9,8 +9,8 @@ SRC += $(USER_SRC)/build_info.c \
        $(USER_SRC)/layers.c \
        $(USER_SRC)/power.c \
        $(USER_SRC)/process.c \
-       $(USER_SRC)/utils/compiler.c \
        $(USER_SRC)/utils/hash_map.c \
+       $(USER_SRC)/utils/memory.c \
        $(USER_SRC)/utils/string.c
 
 # Default configuration
@@ -32,6 +32,7 @@ include $(MK_PATH)/rgb_matrix.mk
 include $(MK_PATH)/rng.mk
 include $(MK_PATH)/split.mk
 include $(MK_PATH)/unicode.mk
+include $(MK_PATH)/wrappers.mk
 include $(MK_PATH)/xap.mk
 
 # downloaded (sometimes) using qmk_build

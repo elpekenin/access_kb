@@ -1,4 +1,4 @@
-// Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
+// Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 // Having this file on 'users/elpekenin/include' doesnt work, even though it is on path, there's probably something like:
@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "elpekenin/logging/config.h"
 #include "elpekenin/qp/config.h"
 #include "elpekenin/rgb/matrix/config.h"
 #include "elpekenin/split/config.h"

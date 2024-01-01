@@ -1,4 +1,4 @@
-// Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
+// Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
@@ -72,8 +72,9 @@ void extend_scrolling_text(deferred_token scrolling_token, const char *str);
 
 // *** Callbacks ***
 
-void set_qp_logging_device(painter_device_t device);
+void set_logging_device(painter_device_t device);
 void set_uptime_device(painter_device_t device);
+void set_heap_stats_device(painter_device_t device);
 
 #if defined(KEYLOG_ENABLE)
 void set_keylog_device(painter_device_t device);
