@@ -3,4 +3,4 @@
 EXTRALDFLAGS += -Wl,--wrap=calloc \
                 -Wl,--wrap=free \
                 -Wl,--wrap=malloc \
-                -Wl,--wrap=relloc
+                -Wl,--wrap=realloc

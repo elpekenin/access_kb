@@ -36,7 +36,7 @@ bool ptr_in_stack(const void *ptr) {
 
 // *** Track heap usage ***
 
-extern void *__real_calloc(size_t size);
+extern void *__real_calloc(size_t nmemb, size_t size);
 extern void __real_free(void *ptr);
 extern void *__real_malloc(size_t size);
 extern void *__real_realloc(void *ptr, size_t size);
@@ -89,38 +89,53 @@ static void pop_record(void *ptr) {
     logging(ALLOC, LOG_ERROR, "Entry not found");
 }
 
-void *__wrap_calloc(size_t size) {
-    void *ptr = __real_calloc(size);
+void *__wrap_calloc(size_t nmemb, size_t size) {
+    logging(ALLOC, LOG_TRACE, "%s called", __func__);
+
+    void *ptr = __real_calloc(nmemb, size);
     if (ptr == NULL) {
         logging(ALLOC, LOG_ERROR, "%s", __func__);
         return NULL;
     }
-    push_record(ptr, size);
+
+    push_record(ptr, nmemb * size);
+
     return ptr;
 }
 
 void __wrap_free(void *ptr) {
+    logging(ALLOC, LOG_TRACE, "%s called", __func__);
+
     __real_free(ptr);
+
     pop_record(ptr);
 }
 
 void *__wrap_malloc(size_t size) {
+    logging(ALLOC, LOG_TRACE, "%s called", __func__);
+
     void *ptr = __real_malloc(size);
     if (ptr == NULL) {
         logging(ALLOC, LOG_ERROR, "%s", __func__);
         return NULL;
     }
+
     push_record(ptr, size);
+
     return ptr;
 }
 
 void *__wrap_realloc(void *ptr, size_t size) {
-    pop_record(ptr);
+    logging(ALLOC, LOG_TRACE, "%s called", __func__);
+
     void *new_ptr = __real_realloc(ptr, size);
     if (new_ptr == NULL) {
         logging(ALLOC, LOG_ERROR, "%s", __func__);
         return NULL;
     }
+
+    pop_record(ptr);
     push_record(new_ptr, size);
+
     return ptr;
 }

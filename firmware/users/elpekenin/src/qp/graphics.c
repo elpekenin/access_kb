@@ -386,17 +386,35 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
         return interval;
     }
 
-    size_t used_heap  = get_used_heap();
-    // over-engineered, wont ever reach Mb, but ayway
-    char *   magnitudes[] = {"B", "kB", "MB", "GB"};
-    uint8_t  index = 0;
-    while (used_heap >= 1024) {
-        used_heap /= 1024;
-        index++;
+    size_t used_heap = get_used_heap();
+
+    // generate string from it
+    char heap[30];
+    if (used_heap < 1024) {
+        snprintf(
+            heap, sizeof(heap),
+            "Allocated:%5dB",
+            used_heap
+        );
+    } else {
+        uint8_t index        = 0;
+        char *  magnitudes[] = {"_", "kB", "MB", "GB"};
+
+        size_t used_heap_tmp = used_heap;
+        while (used_heap_tmp >= 1024) {
+            used_heap_tmp /= 1024;
+            index++;
+        }
+
+        snprintf(
+            heap, sizeof(heap),
+            "Allocated:%3.2f%s",
+            (float)used_heap / 1024,
+            magnitudes[index]
+        );
     }
 
-    char heap[30];
-    snprintf(heap, sizeof(heap), "Allocated: %3d%s", used_heap, magnitudes[index]);
+    // draw
     qp_drawtext(args->device, args->x, args->y, args->font, heap);
 
     return interval;
