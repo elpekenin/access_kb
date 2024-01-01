@@ -8,3 +8,5 @@ bool ptr_in_process_stack(const void *addr);
 bool ptr_in_stack(const void *addr);
 
 size_t get_used_heap(void);
+size_t get_total_heap(void);
+float used_heap_percentage(void);

@@ -377,6 +377,29 @@ static uint32_t uptime_task_callback(uint32_t trigger_time, void *cb_arg) {
     return interval;
 }
 
+// returns pretty representation of an amount in bytes, eg: 8B or 1.3kB
+static char *pretty_bytes(size_t n) {
+    const static char *magnitudes[] = {"_", "kB", "MB", "GB"};
+
+    static char buff[10];
+
+    // bytes
+    if (n < 1024) {
+        snprintf(buff, sizeof(buff), "%5dB", n);
+        return buff;
+    }
+
+    uint8_t index = 0;
+    size_t  copy  = n;
+    while (copy >= 1024) {
+        copy /= 1024;
+        index++;
+    }
+
+    snprintf(buff, sizeof(buff), "%3.2f%s", (float)n / 1024, magnitudes[index]);
+    return buff;
+}
+
 static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
     qp_callback_args_t *args = (qp_callback_args_t *)cb_arg;
 
@@ -386,36 +409,13 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
         return interval;
     }
 
-    size_t used_heap = get_used_heap();
+    // generate string, need to copy as we will re-use the function (thus, its internal buffer)
+    char str[30];
+    strcpy(str, pretty_bytes(get_used_heap()));
+    strcat(str, "/");
+    strcat(str, pretty_bytes(get_total_heap()));
 
-    // generate string from it
-    char heap[30];
-    if (used_heap < 1024) {
-        snprintf(
-            heap, sizeof(heap),
-            "Allocated:%5dB",
-            used_heap
-        );
-    } else {
-        uint8_t index        = 0;
-        char *  magnitudes[] = {"_", "kB", "MB", "GB"};
-
-        size_t used_heap_tmp = used_heap;
-        while (used_heap_tmp >= 1024) {
-            used_heap_tmp /= 1024;
-            index++;
-        }
-
-        snprintf(
-            heap, sizeof(heap),
-            "Allocated:%3.2f%s",
-            (float)used_heap / 1024,
-            magnitudes[index]
-        );
-    }
-
-    // draw
-    qp_drawtext(args->device, args->x, args->y, args->font, heap);
+    qp_drawtext(args->device, args->x, args->y, args->font, str);
 
     return interval;
 }

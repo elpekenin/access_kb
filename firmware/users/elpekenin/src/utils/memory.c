@@ -9,24 +9,21 @@
 
 // *** Analyze memory locations ***
 
+#define ADDR(__var) ((void *)&__var)
+
 // from ChibiOS' ld
-extern uint8_t __main_stack_base__[];
-extern uint8_t __main_stack_end__[];
-extern uint8_t __process_stack_base__[];
-extern uint8_t __process_stack_end__[];
+extern uint8_t __main_stack_base__,
+               __main_stack_end__,
+               __process_stack_base__,
+               __process_stack_end__,
+               __bss_end__;
 
 bool ptr_in_main_stack(const void *ptr) {
-    return (
-        (void *)__main_stack_base__ <= ptr
-        && ptr <= (void *)__main_stack_end__
-    );
+    return ADDR(__main_stack_base__) <= ptr && ptr <= ADDR(__main_stack_end__);
 }
 
 bool ptr_in_process_stack(const void *ptr) {
-    return (
-        (void *)__process_stack_base__ <= ptr
-        && ptr <= (void *)__process_stack_end__
-    );
+    return ADDR(__process_stack_base__) <= ptr && ptr <= ADDR(__process_stack_end__);
 }
 
 bool ptr_in_stack(const void *ptr) {
@@ -138,4 +135,13 @@ void *__wrap_realloc(void *ptr, size_t size) {
     push_record(new_ptr, size);
 
     return ptr;
+}
+
+// adapted from <https://forums.raspberrypi.com/viewtopic.php?t=347638>
+size_t get_total_heap(void) {
+   return &__process_stack_end__ - &__bss_end__;
+}
+
+float used_heap_percentage(void) {
+    return (float)get_used_heap() * 100 / get_total_heap();
 }
