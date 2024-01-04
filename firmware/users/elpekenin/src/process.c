@@ -36,22 +36,49 @@
 // *** Logic start ***
 
 #if defined(AUTOCORRECT_ENABLE)
+// dont mind me, just bodging my way in  :)
+static bool last_td_spc = false;
+
 bool apply_autocorrect(uint8_t backspaces, const char *str, char *typo, char *correct) {
     logging(UNKNOWN, LOG_WARN, "'%s' - '%s'", typo, correct);
-    return true;
+
+    // regular handle
+    if (!last_td_spc) {
+        return true;
+    }
+
+    // on space tap dance
+    // ... fix the typo
+    for (uint8_t i = 0; i < backspaces; ++i) {
+        tap_code(KC_BSPC);
+    }
+    send_string_P(str);
+
+    // ... and add the actual space
+    tap_code(KC_SPC);
+
+    return false;
 }
 
 bool process_autocorrect_user(uint16_t *keycode, keyrecord_t *record, uint8_t *typo_buffer_size, uint8_t *mods) {
+    last_td_spc = false;
+
     switch (*keycode) {
         // TODO: Revisit this. works like crap
-        // case TD_SPC:
-        //     *keycode              = KC_SPC; // make this look like a regular spacebar
-        //     record->event.pressed = false;  // trigger an extra backspace when corrected
-        //     return true;
+        case TD_SPC:
+            *keycode              = KC_SPC; // make this look like a regular spacebar
+            record->event.pressed = false;  // trigger an extra backspace when corrected
+            last_td_spc           = true;
+            break;
+
+        case TD_Z:
+            *keycode = KC_Z;
+            break;
 
         default:
-            return process_autocorrect_default_handler(keycode, record, typo_buffer_size, mods);
+            break;
     }
+    return process_autocorrect_default_handler(keycode, record, typo_buffer_size, mods);
 }
 #endif
 

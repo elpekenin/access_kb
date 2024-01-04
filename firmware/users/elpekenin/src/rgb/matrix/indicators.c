@@ -21,6 +21,7 @@ static const indicator_t indicators[] = {
     KC_LAYER(QK_RBT,  _RST, RGB_RED),
     KC_LAYER(EE_CLR,  _RST, RGB_RED),
     KC_LAYER(DB_TOGG, _RST, RGB_RED),
+    KC_LAYER(AC_DICT, _RST, RGB_RED),
 
     // custom keycodes
     KC_LAYER(PK_LOG,  _RST, RGB_BLUE),
