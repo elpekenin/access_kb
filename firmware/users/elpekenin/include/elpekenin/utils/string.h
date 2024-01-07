@@ -6,6 +6,7 @@
 // these operate inplace and return a pointer to the input for convenience
 const char *_itoa(uint32_t value, char *buffer);
 const char *_reverse(char *str, size_t len);
+const char *pretty_bytes(size_t n, char *buffer, uint16_t buffer_size);
 
 bool is_utf8(char c);
 bool is_utf8_continuation(char c);

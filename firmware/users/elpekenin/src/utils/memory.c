@@ -5,6 +5,7 @@
 
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/wrapper.h"
 
 
 // *** Analyze memory locations ***
@@ -33,10 +34,25 @@ bool ptr_in_stack(const void *ptr) {
 
 // *** Track heap usage ***
 
-extern void *__real_calloc(size_t nmemb, size_t size);
-extern void __real_free(void *ptr);
-extern void *__real_malloc(size_t size);
-extern void *__real_realloc(void *ptr, size_t size);
+extern
+    void *
+    REAL(calloc)
+    (size_t nmemb, size_t size);
+
+extern
+    void
+    REAL(free)
+    (void *ptr);
+
+extern
+    void *
+    REAL(malloc)
+    (size_t size);
+
+extern
+    void *
+    REAL(realloc)
+    (void *ptr, size_t size);
 
 static size_t used_heap = 0;
 
@@ -45,6 +61,7 @@ typedef struct PACKED {
     size_t size;
 } usage_entry_t;
 
+// size is fixed to prevent the tracker to be dynamic (use malloc) itself
 static usage_entry_t entries[100] = {0};
 
 
@@ -86,10 +103,12 @@ static void pop_record(void *ptr) {
     logging(ALLOC, LOG_ERROR, "Entry not found");
 }
 
-void *__wrap_calloc(size_t nmemb, size_t size) {
+void *
+WRAP(calloc)
+(size_t nmemb, size_t size) {
     logging(ALLOC, LOG_TRACE, "%s called", __func__);
 
-    void *ptr = __real_calloc(nmemb, size);
+    void *ptr = REAL(calloc)(nmemb, size);
     if (ptr == NULL) {
         logging(ALLOC, LOG_ERROR, "%s", __func__);
         return NULL;
@@ -100,18 +119,22 @@ void *__wrap_calloc(size_t nmemb, size_t size) {
     return ptr;
 }
 
-void __wrap_free(void *ptr) {
+void
+WRAP(free)
+(void *ptr) {
     logging(ALLOC, LOG_TRACE, "%s called", __func__);
 
-    __real_free(ptr);
+    REAL(free)(ptr);
 
     pop_record(ptr);
 }
 
-void *__wrap_malloc(size_t size) {
+void *
+WRAP(malloc)
+(size_t size) {
     logging(ALLOC, LOG_TRACE, "%s called", __func__);
 
-    void *ptr = __real_malloc(size);
+    void *ptr = REAL(malloc)(size);
     if (ptr == NULL) {
         logging(ALLOC, LOG_ERROR, "%s", __func__);
         return NULL;
@@ -122,10 +145,12 @@ void *__wrap_malloc(size_t size) {
     return ptr;
 }
 
-void *__wrap_realloc(void *ptr, size_t size) {
+void *
+WRAP(realloc)
+(void *ptr, size_t size) {
     logging(ALLOC, LOG_TRACE, "%s called", __func__);
 
-    void *new_ptr = __real_realloc(ptr, size);
+    void *new_ptr = REAL(realloc)(ptr, size);
     if (new_ptr == NULL) {
         logging(ALLOC, LOG_ERROR, "%s", __func__);
         return NULL;

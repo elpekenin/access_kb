@@ -30,7 +30,7 @@ typedef enum {
     SPLIT,
     SPI,
     TOUCH,
-    HASH,
+    MAP,
     ALLOC,
     __N_FEATURES__
 } feature_t; // ALWAYS ADD AT THE END, FOR ASSERT TO WORK

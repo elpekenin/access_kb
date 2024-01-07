@@ -11,7 +11,7 @@
 #include "elpekenin/keylog.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/compiler.h"
-#include "elpekenin/utils/hash_map.h"
+#include "elpekenin/utils/map.h"
 #include "elpekenin/utils/shortcuts.h"
 #include "elpekenin/utils/string.h"
 
@@ -43,7 +43,7 @@ typedef struct PACKED {
     const char *strings[__N_MODS__];
 } replacement_t;
 
-static hash_map_t replacements_map;
+static map_t replacements_map;
 static const replacement_t replacements[] = {
     {.find="0",       .strings={                 [SHIFT]="="              }},
     {.find="1",       .strings={                 [SHIFT]="!",  [AL_GR]="|"}},
@@ -90,9 +90,9 @@ static const replacement_t replacements[] = {
 };
 
 static void init_replacements(void) {
-    replacements_map = new_hash_map();
+    replacements_map = new_map(ARRAY_SIZE(replacements));
 
-    // add replacements to the hash map
+    // add replacements to the map
     for (uint8_t i = 0; i < ARRAY_SIZE(replacements); ++i) {
         replacements_map.add(&replacements_map, replacements[i].find, &replacements[i]);
     }
@@ -121,14 +121,10 @@ static void maybe_symbol(const char **str) {
     // disable hash logging momentarily, as a lot of strings wont be in the replacements map
     WITHOUT_LOGGING(
         HASH,
-        replacements_map.get(&replacements_map, *str, (void **)&p_replacements);
+        replacements_map.get(&replacements_map, *str, (const void **)&p_replacements);
     );
 
     if (LIKELY(p_replacements == NULL)) { // most keycodes dont have replacements
-        return;
-    }
-
-    if (UNLIKELY(strcmp(p_replacements->find, *str) != 0)) { // if hash matches, likely the strings do too
         return;
     }
 

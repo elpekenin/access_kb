@@ -11,7 +11,9 @@
 #include "elpekenin/logging/backends/qp.h"
 #include "elpekenin/qp/graphics.h"
 #include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/map.h"
 #include "elpekenin/utils/memory.h"
+#include "elpekenin/utils/string.h"
 #include "elpekenin/utils/time.h"
 
 #if defined(KEYLOG_ENABLE)
@@ -44,9 +46,9 @@ static uint8_t display_counter = 0;
 static uint8_t font_counter    = 0;
 static uint8_t img_counter     = 0;
 
-static hash_map_t display_map = {0};
-static hash_map_t font_map    = {0};
-static hash_map_t img_map     = {0};
+static map_t display_map = {0};
+static map_t font_map    = {0};
+static map_t img_map     = {0};
 
 static deferred_executor_t    scrolling_text_executors[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS] = {0};
 static scrolling_text_state_t scrolling_text_states[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS] = {0};
@@ -110,7 +112,7 @@ painter_device_t qp_get_device_by_index(uint8_t index) {
 
 painter_device_t qp_get_device_by_name(const char *name) {
     painter_device_t *p_dev;
-    return display_map.get(&display_map, name, (void **)&p_dev) ? *p_dev : NULL;
+    return display_map.get(&display_map, name, (const void **)&p_dev) ? *p_dev : NULL;
 }
 
 
@@ -124,7 +126,7 @@ painter_font_handle_t qp_get_font_by_index(uint8_t index) {
 
 painter_font_handle_t qp_get_font_by_name(const char *name) {
     painter_font_handle_t *p_font;
-    return font_map.get(&font_map, name, (void **)&p_font) ? *p_font : NULL;
+    return font_map.get(&font_map, name, (const void **)&p_font) ? *p_font : NULL;
 }
 
 
@@ -138,7 +140,7 @@ painter_image_handle_t qp_get_img_by_index(uint8_t index) {
 
 painter_image_handle_t qp_get_img_by_name(const char *name) {
     painter_image_handle_t *p_img;
-    return img_map.get(&img_map, name, (void **)&p_img) ? *p_img : NULL;
+    return img_map.get(&img_map, name, (const void **)&p_img) ? *p_img : NULL;
 }
 
 
@@ -242,7 +244,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     logging(SCROLL, LOG_TRACE, "%s: entry", __func__);
 
     scrolling_text_state_t *scrolling_state = NULL;
-    for (int i = 0; i < QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS; ++i) {
+    for (uint8_t i = 0; i < QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS; ++i) {
         if (scrolling_text_states[i].device == NULL) {
             scrolling_state = &scrolling_text_states[i];
             break;
@@ -296,7 +298,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
 }
 
 void extend_scrolling_text(deferred_token scrolling_token, const char *str) {
-    for (int i = 0; i < QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS; ++i) {
+    for (uint8_t i = 0; i < QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS; ++i) {
         if (scrolling_text_states[i].defer_token == scrolling_token) {
             uint8_t cur_len = strlen(scrolling_text_states[i].str);
             uint8_t new_len = strlen(str);
@@ -316,7 +318,7 @@ void extend_scrolling_text(deferred_token scrolling_token, const char *str) {
 }
 
 void stop_scrolling_text(deferred_token scrolling_token) {
-    for (int i = 0; i < QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS; ++i) {
+    for (uint8_t i = 0; i < QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS; ++i) {
         if (scrolling_text_states[i].defer_token == scrolling_token) {
             cancel_deferred_exec_advanced(scrolling_text_executors, QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS, scrolling_token);
             scrolling_text_state_t *state = &scrolling_text_states[i];
@@ -377,29 +379,6 @@ static uint32_t uptime_task_callback(uint32_t trigger_time, void *cb_arg) {
     return interval;
 }
 
-// returns pretty representation of an amount in bytes, eg: 8B or 1.3kB
-static char *pretty_bytes(size_t n) {
-    const static char *magnitudes[] = {"_", "kB", "MB", "GB"};
-
-    static char buff[10];
-
-    // bytes
-    if (n < 1024) {
-        snprintf(buff, sizeof(buff), "%5dB", n);
-        return buff;
-    }
-
-    uint8_t index = 0;
-    size_t  copy  = n;
-    while (copy >= 1024) {
-        copy /= 1024;
-        index++;
-    }
-
-    snprintf(buff, sizeof(buff), "%3.2f%s", (float)n / 1024, magnitudes[index]);
-    return buff;
-}
-
 static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
     qp_callback_args_t *args = (qp_callback_args_t *)cb_arg;
 
@@ -409,13 +388,23 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
         return interval;
     }
 
-    // generate string, need to copy as we will re-use the function (thus, its internal buffer)
     char str[30];
-    strcpy(str, pretty_bytes(get_used_heap()));
-    strcat(str, "/");
-    strcat(str, pretty_bytes(get_total_heap()));
 
+    size_t used  = get_used_heap();
+    size_t total = get_total_heap();
+    size_t maps  = get_total_map_items() * sizeof(item_t);
+
+    // generate "used/total" string
+    pretty_bytes(used - maps, str, ARRAY_SIZE(str));
+    strcat(str, "/");
+    size_t len = strlen(str);
+    pretty_bytes(total, str + len, ARRAY_SIZE(str) - len);
     qp_drawtext(args->device, args->x, args->y, args->font, str);
+
+    strcpy(str, "Maps:");
+    len = strlen(str);
+    pretty_bytes(maps, str + len, ARRAY_SIZE(str) - len);
+    qp_drawtext(args->device, args->x, args->y + args->font->line_height + 2, args->font, str);
 
     return interval;
 }
@@ -479,9 +468,9 @@ static uint32_t keylog_task_callback(uint32_t trigger_time, void *cb_arg) {
 // *** API ***
 
 void elpekenin_qp_init(void) {
-    display_map = new_hash_map();
-    font_map = new_hash_map();
-    img_map = new_hash_map();
+    display_map = new_map(2);
+    font_map    = new_map(2);
+    img_map     = new_map(10);
 
     // has to be after the maps, as it uses them
     load_qp_resources();

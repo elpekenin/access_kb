@@ -64,7 +64,6 @@ bool process_autocorrect_user(uint16_t *keycode, keyrecord_t *record, uint8_t *t
     last_td_spc = false;
 
     switch (*keycode) {
-        // TODO: Revisit this. works like crap
         case TD_SPC:
             *keycode              = KC_SPC; // make this look like a regular spacebar
             record->event.pressed = false;  // trigger an extra backspace when corrected

@@ -9,7 +9,7 @@ SRC += $(USER_SRC)/build_info.c \
        $(USER_SRC)/layers.c \
        $(USER_SRC)/power.c \
        $(USER_SRC)/process.c \
-       $(USER_SRC)/utils/hash_map.c \
+       $(USER_SRC)/utils/map.c \
        $(USER_SRC)/utils/memory.c \
        $(USER_SRC)/utils/string.c
 

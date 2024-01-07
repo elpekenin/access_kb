@@ -7,7 +7,7 @@
 #include "qp_internal.h"
 
 #include "elpekenin/logging.h"
-#include "elpekenin/utils/hash_map.h"
+#include "elpekenin/utils/map.h"
 
 #include "generated/qp_resources.h"
 

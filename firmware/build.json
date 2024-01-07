@@ -1,8 +1,6 @@
 {
     "repo": "https://github.com/qmk/qmk_firmware",
     "branch": "xap",
-    "keyboard": "elpekenin/access",
-    "keymap": "elpekenin",
     "path": "$QMK_BUILD",
     "default_compilation": false,
     "operations": [
@@ -92,6 +90,11 @@
                 "quantum/process_keycode/process_autocorrect.*",
                 "quantum/quantum.c"
             ]
+        },
+        {
+            "operation": "exec",
+            "at": "$QMK_BUILD",
+            "command": "echo '.global __aeabi_bits_init' >> lib/pico-sdk/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S"
         }
     ],
     "compile_command": "./keyboards/elpekenin/access/compile",

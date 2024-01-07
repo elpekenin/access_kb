@@ -27,7 +27,7 @@ ASSERT_LEVELS(level_str);
 static const char *feature_str[] = { // sorted alphabetically
     [UNKNOWN] = "",
     [ALLOC]   = "ALLOC",
-    [HASH]    = "HASH",
+    [MAP]     = "MAP",
     [LOGGER]  = "LOG",
     [QP]      = "QP",
     [SCROLL]  = "SCROLL",
@@ -42,7 +42,7 @@ ASSERT_FEATURES(feature_str);
 log_level_t feature_levels[] = { // sorted alphabetically
     [UNKNOWN] = LOG_INFO,
     [ALLOC]   = LOG_ERROR,
-    [HASH]    = LOG_ERROR,
+    [MAP]     = LOG_ERROR,
     [LOGGER]  = LOG_ERROR,
     [QP]      = LOG_INFO,
     [SCROLL]  = LOG_ERROR,
