@@ -17,6 +17,7 @@ from typing import Callable
 from scripts import *
 
 OUTPUT_NAME = "qp_resources"
+MSYS_PREFIX = "D:/msys2"
 
 H_FILE = lines(
     H_HEADER,
@@ -48,8 +49,18 @@ def _find_assets_impl(assets: AssetsDictT, path: str):
     if not dir_exists(folder):
         return
 
-    assets["fonts"].extend(list(folder.glob("fonts/*qff.h")))
-    assets["images"].extend(list(folder.glob("images/*qgf.h")))
+    def _clean(path: Path) -> Path:
+        """Remove MSYS folder from absolute path, causes issues with make
+        Due to containing ':'
+        """
+        new_path = str(path).replace(MSYS_PREFIX, "")
+        return Path(new_path)
+
+    fonts = list(folder.glob("fonts/*qff.h"))
+    images = list(folder.glob("images/*qgf.h"))
+
+    assets["fonts"].extend(map(_clean, fonts))
+    assets["images"].extend(map(_clean, images))
 
 
 def _find_assets(paths: list[str]) -> AssetsDictT:
