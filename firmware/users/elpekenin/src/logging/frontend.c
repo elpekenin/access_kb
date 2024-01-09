@@ -267,3 +267,14 @@ void print_u8_array(const uint8_t *list, const size_t len, const sendchar_func_t
     print_u8(list[len - 1], func);
     func(']');
 }
+
+void dump_stack(void) {
+    backtrace_t call_stack[50];
+    uint8_t depth = backtrace_unwind(call_stack, ARRAY_SIZE(call_stack));
+
+    logging(UNKNOWN, LOG_ERROR, "Crash traceback");
+    for (uint8_t i = 1; i < depth; ++i) { // 1 to ignore `dump_stack` itself
+        backtrace_t stack_frame = call_stack[i];
+        logging(UNKNOWN, LOG_ERROR, "%s@%p", stack_frame.name, stack_frame.function);
+    }
+}

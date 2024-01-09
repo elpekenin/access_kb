@@ -7,6 +7,7 @@
 
 #include "print.h"
 
+#include "elpekenin/3rd_party/backtrace.h"
 #include "elpekenin/utils/compiler.h"
 
 // to change printf's "backend", dont use.
@@ -100,3 +101,6 @@ bool set_logging_fmt(const char *fmt);
 
 #define ASSERT_FEATURES(__array) _Static_assert(ARRAY_SIZE(__array) == __N_FEATURES__, "Wrong size")
 #define ASSERT_LEVELS(__array) _Static_assert(ARRAY_SIZE(__array) == __N_LEVELS__, "Wrong size")
+
+
+void dump_stack(void);

@@ -60,6 +60,8 @@ touch_device_t ili9341_touch = &ili9341_touch_driver;
 #endif
 
 uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
+    debug_enable = true;
+
     logging(UNKNOWN, LOG_TRACE, "-- kb init --");
 
     UNUSED bool ret = true;
