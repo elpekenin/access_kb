@@ -7,6 +7,7 @@
 #define MAX_PAYLOAD_SIZE (XAP_EPSIZE - sizeof(xap_broadcast_header_t))
 
 #include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/shortcuts.h"
 
 
 static uint8_t i = 0;
@@ -27,7 +28,7 @@ int8_t sendchar_xap_hook(uint8_t c) {
         xap_broadcast(0x00, buffer, i);
 
         i = 0;
-        memset(buffer, 0,ARRAY_SIZE(buffer));
+        WIPE_ARRAY(buffer);
     }
 
     return 0;

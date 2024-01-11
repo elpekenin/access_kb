@@ -9,6 +9,7 @@
 #include "elpekenin/logging.h"
 #include "elpekenin/split/transactions.h"
 #include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/shortcuts.h"
 #include "elpekenin/utils/string.h"
 
 // *** Split data ***
@@ -46,7 +47,7 @@ int8_t sendchar_split_hook(uint8_t c) {
     // in this unlikely scenario, reset the buffer and log an eror message
     if (slave_i == (ARRAY_SIZE(slave_buffer) - 1)) {
         slave_i = 0;
-        memset(slave_buffer, 0, ARRAY_SIZE(slave_buffer));
+        WIPE_ARRAY(slave_buffer);
         logging(LOGGER, LOG_ERROR, "Slave buffer filled");
     }
 
@@ -98,7 +99,7 @@ static char   master_buffer[200] = {0};
 
 static inline void clear_master_buffer(void) {
     master_i = 0;
-    memset(master_buffer, 0, ARRAY_SIZE(master_buffer));
+    WIPE_ARRAY(master_buffer);
 }
 
 void user_logging_master_poll(void) {

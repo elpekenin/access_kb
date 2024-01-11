@@ -699,6 +699,7 @@ ceromony            -> ceremony
 certainity          -> certainty
 certaintly          -> certainly
 certian             -> certain
+clfags              -> cflags
 chalenging          -> challenging
 challange           -> challenge
 challege            -> challenge

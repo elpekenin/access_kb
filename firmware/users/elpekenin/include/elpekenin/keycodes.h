@@ -29,6 +29,8 @@ enum userspace_keycodes {
     // Games
     PK_GAME, // start a new game
 
+    PK_CRSH, // crash the firmware (testing)
+
     // First value that can be used on a keymap, keep last
     QK_KEYMAP
 };

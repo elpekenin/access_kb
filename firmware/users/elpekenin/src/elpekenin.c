@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "elpekenin.h"
+#include "elpekenin/crash.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/placeholders.h"
 
@@ -61,4 +62,9 @@ void keyboard_post_init_user(void) {
 #endif
 
     keyboard_post_init_keymap();
+
+    if (program_crashed()) {
+        print_crash();
+        clear_crash_info();
+    }
 }

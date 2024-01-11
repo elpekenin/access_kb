@@ -12,7 +12,6 @@
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/compiler.h"
 #include "elpekenin/utils/map.h"
-#include "elpekenin/utils/shortcuts.h"
 #include "elpekenin/utils/string.h"
 
 #include "generated/keycode_str.h"

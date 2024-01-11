@@ -6,6 +6,7 @@
 #include "elpekenin/logging.h"
 #include "elpekenin/logging/backends/qp.h"
 #include "elpekenin/qp/graphics.h"
+#include "elpekenin/utils/shortcuts.h"
 
 static char           qp_log[LOG_N_LINES][LOG_N_CHARS + 1];
 static uint8_t        qp_log_current_col;
@@ -18,7 +19,7 @@ int8_t sendchar_qp_hook(uint8_t c) {
     // Setup the arrays on the 1st go
     static bool initialized = false;
     if (!initialized) {
-        memset(qp_log, 0, sizeof(qp_log));
+        WIPE_ARRAY(qp_log);
         for (uint8_t i = 0; i < LOG_N_LINES; ++i) {
             qp_log_pointers[i] = qp_log[i];
             qp_log_tokens[i]   = INVALID_DEFERRED_TOKEN;

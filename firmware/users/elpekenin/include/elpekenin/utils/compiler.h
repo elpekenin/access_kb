@@ -6,12 +6,21 @@
 // re-export QMK utils
 #include "quantum/util.h"
 
+
+#if !defined(ALIAS)
+#    define ALIAS(x) __attribute__((alias(x)))
+#endif
+
 #if !defined(LIKELY)
 #    define LIKELY(x) __builtin_expect(!!(x), 1)
 #endif
 
 #if !defined(PACKED)
 #    define PACKED __attribute__((packed))
+#endif
+
+#if !defined(SECTION)
+#    define SECTION(x) __attribute__((section(x)))
 #endif
 
 #if !defined(UNLIKELY)
