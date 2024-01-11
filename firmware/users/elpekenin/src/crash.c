@@ -28,6 +28,7 @@ bool program_crashed(void) {
     static bool crashed;
 
     if (!read) {
+        read = true;
         crashed = crash_info.magic == MAGIC_VALUE;
     }
 
