@@ -100,30 +100,6 @@ SECTIONS
       KEEP (*(.boot2))
       __boot2_end__ = .;
    } > flash1
-
-   /* from pico SDK */
-   .init_code_section : {
-      . = ALIGN(4);
-      /* preinit data */
-      __preinit_array_start = .;
-      KEEP(*(SORT(.preinit_array.*)))
-      KEEP(*(.preinit_array))
-      __preinit_array_end = .;
-
-      . = ALIGN(4);
-      /* init data */
-      __init_array_start = .;
-      KEEP(*(SORT(.init_array.*)))
-      KEEP(*(.init_array))
-      __init_array_end = .;
-
-      . = ALIGN(4);
-      /* finit data */
-      __fini_array_start = .;
-      *(SORT(.fini_array.*))
-      *(.fini_array)
-      __fini_array_end = .;
-   } > DATA_RAM AT > DATA_RAM_LMA
 }
 
 /* Generic rules inclusion.*/
@@ -131,6 +107,19 @@ INCLUDE rules_stacks.ld
 INCLUDE rules_stacks_c1.ld
 INCLUDE RP2040_rules_code_with_boot2.ld
 INCLUDE RP2040_rules_data_with_timecrit.ld
+
+SECTIONS {
+   /* from pico SDK */
+   .preinit : ALIGN(4){
+      . = ALIGN(4);
+      /* preinit data */
+      __preinit_array_base__ = .;
+      KEEP(*(SORT(.preinit_array.*)))
+      KEEP(*(.preinit_array))
+      __preinit_array_end__ = .;
+   } > XTORS_FLASH AT > XTORS_FLASH_LMA
+}
+
 INCLUDE rules_memory.ld
 
 

@@ -1,17 +1,22 @@
 3RD_PARTY = $(USER_PATH)/3rd_party
 
-# backtrace
-BACKTRACE_BASE = $(3RD_PARTY)/backtrace
-VPATH += $(BACKTRACE_BASE)/include
+BACKTRACE_ENABLE ?= yes
+ifeq ($(strip $(BACKTRACE_ENABLE)), yes)
+    BACKTRACE_BASE = $(3RD_PARTY)/backtrace
 
-CFLAGS += -funwind-tables \
-          -Wframe-address \
-          -mpoke-function-name \
-          -fno-omit-frame-pointer
+    CFLAGS += -funwind-tables \
+              -Wframe-address \
+              -mpoke-function-name \
+              -fno-omit-frame-pointer
 
-SRC += $(BACKTRACE_BASE)/backtrace/backtrace.c
+    VPATH += $(BACKTRACE_BASE)/include
+    SRC += $(BACKTRACE_BASE)/backtrace/backtrace.c
+endif
 
-# math M0
-MATH_BASE = $(3RD_PARTY)/ArmMathM0/src
-SRC += $(wildcard $(MATH_BASE)/**/*.S)
-VPATH += $(MATH_BASE)/include
+MATH_M0_ENABLE ?= no
+ifeq ($(strip $(MATH_M0_ENABLE)), yes)
+    MATH_BASE = $(3RD_PARTY)/ArmMathM0/src
+
+    VPATH += $(MATH_BASE)/include
+    SRC += $(wildcard $(MATH_BASE)/**/*.S)
+endif

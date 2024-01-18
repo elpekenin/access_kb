@@ -64,6 +64,4 @@ void keyboard_post_init_user(void) {
         print_crash_call_stack();
         clear_crash_info();
     }
-
-    // logging(UNKNOWN, LOG_INFO, "RP2040 version: %d", *(uint8_t*)0x13);
 }
