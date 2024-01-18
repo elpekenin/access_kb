@@ -7,7 +7,8 @@
 
 #include "print.h"
 
-#include "elpekenin/3rd_party/backtrace.h"
+#include "backtrace.h"
+
 #include "elpekenin/utils/compiler.h"
 
 // to change printf's "backend", dont use.
@@ -16,9 +17,9 @@ int8_t user_sendchar(uint8_t c);
 
 // *** Debugging helpers ***  print on a single backend
 
-void print_str(const char *str, const sendchar_func_t func);
-void print_u8(const uint8_t val, const sendchar_func_t func);
-void print_u8_array(const uint8_t *list, const size_t len, const sendchar_func_t func);
+NON_NULL(1) NON_NULL(2) READ_ONLY(1) void print_str(const char *str, const sendchar_func_t func);
+NON_NULL(2) void print_u8(const uint8_t val, const sendchar_func_t func);
+NON_NULL(1) NON_NULL(3) READ_ONLY(1) void print_u8_array(const uint8_t *list, const size_t len, const sendchar_func_t func);
 
 
 // *** Custom logger *** (inspired by python's logging module)
@@ -46,14 +47,14 @@ typedef enum {
     __N_LEVELS__
 } log_level_t; // ALWAYS ADD AT THE END, FOR ASSERT TO WORK
 
-log_level_t get_level_for(feature_t feature);
-void        set_level_for(feature_t feature, log_level_t level);
-void        step_level_for(feature_t feature, bool increase);
+PURE log_level_t get_level_for(feature_t feature);
+void set_level_for(feature_t feature, log_level_t level);
+void step_level_for(feature_t feature, bool increase);
 
-void logging(feature_t feature, log_level_t level, const char *msg, ...);
+NON_NULL(3) PRINTF(3) READ_ONLY(3) void logging(feature_t feature, log_level_t level, const char *msg, ...);
 
 // for sendchar backends to see the current message's level
-log_level_t get_message_level(void);
+PURE log_level_t get_message_level(void);
 
 // Change format used to print messages, can contain any text BUT \n
 typedef enum {
@@ -80,7 +81,7 @@ typedef enum {
 
     // %T - Current time, you can override `char *log_time(void);` func to hook it with a RTC or whatever. Defaults to seconds since boot 
     //    >>> itoa(timer_read32() / 1000)
-const char *log_time(void);
+RETURN_NO_NULL const char *log_time(void);
 
     // %% - Write a "%"
 
@@ -89,7 +90,7 @@ uint8_t get_logging_fmt_len(void);
 
 // copy the current format
 // NOTE: make sure the destinations is big enough
-void get_logging_fmt(char *dest); 
+NON_NULL(1) WRITE_ONLY(1) void get_logging_fmt(char *dest);
 
 // returns whether the format was valid (thus, got applied)
 // NOTE: make sure the pointer is still valid (ie: not an automatic variable)
@@ -97,7 +98,8 @@ void get_logging_fmt(char *dest);
 #ifndef MAX_LOG_FMT_LEN
 #    define MAX_LOG_FMT_LEN (255)
 #endif
-bool set_logging_fmt(const char *fmt);
+
+NON_NULL(1) READ_ONLY(1) bool set_logging_fmt(const char *fmt);
 
 #define ASSERT_FEATURES(__array) _Static_assert(ARRAY_SIZE(__array) == __N_FEATURES__, "Wrong size")
 #define ASSERT_LEVELS(__array) _Static_assert(ARRAY_SIZE(__array) == __N_LEVELS__, "Wrong size")

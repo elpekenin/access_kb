@@ -50,6 +50,12 @@
 #define SPI_MOSI_PINS { SCREENS_MOSI_PIN, REGISTERS_MOSI_PIN }
 #define SPI_MISO_PINS { SCREENS_MISO_PIN, REGISTERS_MISO_PIN }
 
+// Copied from GENERIC_PROMICRO_RP2040, shouldn't get used and any value would do, but dont wanna risk adding changes
+#define SPI_DRIVER SPID0
+#define SPI_SCK_PIN GP18
+#define SPI_MISO_PIN GP20
+#define SPI_MOSI_PIN GP19
+
 
 // *** Displays ***
 

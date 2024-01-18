@@ -47,41 +47,41 @@ static const uint8_t ledmap[][MATRIX_ROWS][MATRIX_COLS] = {
 // *** Checks ***
 
 // helper tiny checks
-UNUSED static inline bool keycode(indicator_t *indicator, indicator_fn_args_t *args) {
+RGB_INDICATOR_FN_ATTRS static inline bool keycode(indicator_t *indicator, indicator_fn_args_t *args) {
     return indicator->keycode == args->keycode;
 }
 
-UNUSED static inline bool layer(indicator_t *indicator, indicator_fn_args_t *args) {
+RGB_INDICATOR_FN_ATTRS static inline bool layer(indicator_t *indicator, indicator_fn_args_t *args) {
     return indicator->layer == args->layer;
 }
 
-UNUSED static inline bool mods(indicator_t *indicator, indicator_fn_args_t *args) {
+RGB_INDICATOR_FN_ATTRS static inline bool mods(indicator_t *indicator, indicator_fn_args_t *args) {
     return indicator->mods == args->mods;
 }
 
 
 // draw the given keycode
-UNUSED bool keycode_callback(indicator_t *indicator, indicator_fn_args_t *args) {
+RGB_INDICATOR_FN_ATTRS bool keycode_callback(indicator_t *indicator, indicator_fn_args_t *args) {
     return keycode(indicator, args);
 }
 
 // draw every key while on the given layer
-UNUSED bool layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
+RGB_INDICATOR_FN_ATTRS bool layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
     return layer(indicator, args);
 }
 
 // draw the given keycode while on the given layer
-UNUSED bool keycode_and_layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
+RGB_INDICATOR_FN_ATTRS bool keycode_and_layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
     return keycode(indicator, args) && layer(indicator, args);
 }
 
 // draw every keycode configured (i.e. not KC_NO nor KC_TRNS) on the given layer
-UNUSED bool layer_and_configured_callback(indicator_t *indicator, indicator_fn_args_t *args) {
+RGB_INDICATOR_FN_ATTRS bool layer_and_configured_callback(indicator_t *indicator, indicator_fn_args_t *args) {
     return layer(indicator, args) && indicator->keycode > KC_TRNS;
 }
 
 // draw the given keycode if given mods are set (i.e. display shortcuts)
-UNUSED bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_t *args) {
+RGB_INDICATOR_FN_ATTRS bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_t *args) {
     return keycode(indicator, args) && mods(indicator, args);
 }
 
@@ -89,11 +89,11 @@ UNUSED bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_
 
 #define LEDMAP_LAYERS (sizeof(ledmap) / (MATRIX_ROWS * MATRIX_COLS))
 
-static inline bool is_special_color(uint8_t hue) {
+CONST static inline bool is_special_color(uint8_t hue) {
     return hue >= _MARKER_;
 };
 
-static inline bool get_ledmap_color(uint8_t layer, uint8_t row, uint8_t col, rgb_led_t *rgb) {
+NON_NULL(4) WRITE_ONLY(4) static inline bool get_ledmap_color(uint8_t layer, uint8_t row, uint8_t col, rgb_led_t *rgb) {
     if (layer >= LEDMAP_LAYERS) {
         return false;
     }
@@ -157,12 +157,14 @@ bool draw_indicators(uint8_t led_min, uint8_t led_max) {
             args.keycode = keymap_key_to_keycode(layer, (keypos_t){col,row});
 
             // iterate all indicators
-            for (uint8_t i = 0; i < ARRAY_SIZE(indicators); ++i) {
-                indicator_t indicator = indicators[i];
-
+            for (
+                const indicator_t *indicator = indicators;
+                indicator < &indicators[ARRAY_SIZE(indicators)];
+                ++indicator
+            ) {
                 // if check passed, draw
-                if (indicator.check(&indicator, &args)) {
-                    rgb_matrix_set_color(index, indicator.color.r, indicator.color.g, indicator.color.b);
+                if (indicator->check((indicator_t *)indicator, &args)) { // cast to discard const
+                    rgb_matrix_set_color(index, indicator->color.r, indicator->color.g, indicator->color.b);
                 }
             }
 

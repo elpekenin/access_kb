@@ -88,7 +88,7 @@ typedef struct PACKED {
 } keyevent_msg_t;
 _Static_assert(sizeof(keyevent_msg_t) == MAX_PAYLOAD, "wrong size for keyevent_msg_t");
 
-void xap_keyevent(uint16_t keycode, keyrecord_t *record);
+NON_NULL(2) READ_ONLY(2) void xap_keyevent(uint16_t keycode, keyrecord_t *record);
 
 
 typedef struct PACKED {

@@ -10,7 +10,3 @@ enum layers {
     _FN3,
     _RST
 };
-
-#if defined(TRI_LAYER_ENABLE)
-void configure_tri_layer(void);
-#endif

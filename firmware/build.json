@@ -90,6 +90,11 @@
                 "quantum/process_keycode/process_autocorrect.*",
                 "quantum/quantum.c"
             ]
+        },
+        {
+            "operation": "cp",
+            "orig": "$USERSPACE/ld/custom_rp2040.ld",
+            "destination": "platforms/chibios/boards/common/ld"
         }
     ],
     "compile_command": "./keyboards/elpekenin/access/compile",

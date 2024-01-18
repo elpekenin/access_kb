@@ -29,6 +29,7 @@
 #    include "elpekenin/split/transactions.h"
 #endif
 
+char g_scratch[100];
 
 void housekeeping_task_user(void) {
     housekeeping_task_keymap();
@@ -57,14 +58,12 @@ void keyboard_post_init_user(void) {
     split_init();
 #endif
 
-#if defined(TRI_LAYER_ENABLE)
-    configure_tri_layer();
-#endif
-
     keyboard_post_init_keymap();
 
     if (program_crashed()) {
-        print_crash();
+        print_crash_call_stack();
         clear_crash_info();
     }
+
+    // logging(UNKNOWN, LOG_INFO, "RP2040 version: %d", *(uint8_t*)0x13);
 }

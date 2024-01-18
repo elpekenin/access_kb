@@ -5,10 +5,13 @@
 #include "sendstring_spanish.h"
 #define DELAY 10 // ms between sendstring actions
 
+#include "elpekenin/crash.h"
 #include "elpekenin/keycodes.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/placeholders.h"
+#include "elpekenin/utils/memory.h"
 #include "elpekenin/utils/shortcuts.h"
+#include "elpekenin/utils/string.h"
 
 #include "generated/keycode_str.h"
 
@@ -225,7 +228,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
 
     case PK_CRSH:
-        printf("%c", *(const char *)NULL);
+        if (pressed) {
+            printf("%c", *(const char *)NULL);
+        }
+        return false;
+
+    case PK_PCSH:
+        if (pressed) {
+            print_crash_call_stack();
+        }
+        return false;
+
+    case PK_SIZE:
+        if (pressed) {
+            logging(UNKNOWN, LOG_INFO, "Binary takes %s", pretty_bytes(get_binary_size(), g_scratch, ARRAY_SIZE(g_scratch)));
+        }
+        return false;
 
         default:
             break;

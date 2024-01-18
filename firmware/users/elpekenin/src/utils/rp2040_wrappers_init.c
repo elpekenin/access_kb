@@ -5,16 +5,30 @@
 // doing it requires special handling (symbols) on the linker script
 // so... just hardcode the functions on this file :)
 
-// sorted alphabetically
-extern void __aeabi_bits_init(void);
-extern void __aeabi_double_init(void);
-extern void __aeabi_float_init(void);
-extern void __aeabi_mem_init(void);
+// Start and end points of the constructor list,
+// defined by the linker script.
+extern void (*__preinit_array_start)(void);
+extern void (*__preinit_array_end)(void); 
 
-void early_hardware_init_post(void) {
-    // sorted by priority on the SDK
-    __aeabi_mem_init();
-    __aeabi_bits_init();
-    __aeabi_double_init();
-    __aeabi_float_init();
+// Start and end points of the constructor list,
+// defined by the linker script.
+extern void (*__init_array_start)(void);
+extern void (*__init_array_end)(void);
+
+// sorted by priority on the SDK
+// constructor -> called before `main`
+void __late_init(void) {
+    // Call each function in the list.
+    // We have to take the address of the symbols, as __preinit_array_start *is*
+    // the first function pointer, not the address of it.
+    for (void (**p)(void) = &__preinit_array_start; p < &__preinit_array_end; ++p) {
+        (*p)();
+    }
+
+    // Call each function in the list.
+    // We have to take the address of the symbols, as __init_array_start *is*
+    // the first function pointer, not the address of it.
+    for (void (**p)(void) = &__init_array_start; p < &__init_array_end; ++p) {
+        (*p)();
+    }
 }

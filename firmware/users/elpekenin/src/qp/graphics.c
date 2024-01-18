@@ -70,7 +70,7 @@ void _load_display(painter_device_t display, const char *name) {
     }
 
     qp_devices_pekenin[display_counter] = display;
-    display_map.add(&display_map, name, &qp_devices_pekenin[display_counter]);
+    set(&display_map, name, &qp_devices_pekenin[display_counter]);
 
     logging(QP, LOG_DEBUG, "Loaded '%s' at [%d]", name, display_counter++);
 }
@@ -83,7 +83,7 @@ void _load_font(const uint8_t *font, const char *name) {
 
     painter_font_handle_t dummy = qp_load_font_mem(font);
     qp_fonts[font_counter] = dummy;
-    font_map.add(&font_map, name, &qp_fonts[font_counter]);
+    set(&font_map, name, &qp_fonts[font_counter]);
 
     logging(QP, LOG_DEBUG, "Loaded '%s' at [%d]", name, font_counter++);
 }
@@ -96,7 +96,7 @@ void _load_image(const uint8_t *img, const char *name) {
 
     painter_image_handle_t dummy = qp_load_image_mem(img);
     qp_images[img_counter] = dummy;
-    img_map.add(&img_map, name, &qp_images[img_counter]);
+    set(&img_map, name, &qp_images[img_counter]);
 
     logging(QP, LOG_DEBUG, "Loaded '%s' at [%d]", name, img_counter++);
 }
@@ -112,7 +112,7 @@ painter_device_t qp_get_device_by_index(uint8_t index) {
 
 painter_device_t qp_get_device_by_name(const char *name) {
     painter_device_t *p_dev;
-    return display_map.get(&display_map, name, (const void **)&p_dev) ? *p_dev : NULL;
+    return get(&display_map, name, (const void **)&p_dev) ? *p_dev : NULL;
 }
 
 
@@ -126,7 +126,7 @@ painter_font_handle_t qp_get_font_by_index(uint8_t index) {
 
 painter_font_handle_t qp_get_font_by_name(const char *name) {
     painter_font_handle_t *p_font;
-    return font_map.get(&font_map, name, (const void **)&p_font) ? *p_font : NULL;
+    return get(&font_map, name, (const void **)&p_font) ? *p_font : NULL;
 }
 
 
@@ -140,7 +140,7 @@ painter_image_handle_t qp_get_img_by_index(uint8_t index) {
 
 painter_image_handle_t qp_get_img_by_name(const char *name) {
     painter_image_handle_t *p_img;
-    return img_map.get(&img_map, name, (const void **)&p_img) ? *p_img : NULL;
+    return get(&img_map, name, (const void **)&p_img) ? *p_img : NULL;
 }
 
 
@@ -244,9 +244,13 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     logging(SCROLL, LOG_TRACE, "%s: entry", __func__);
 
     scrolling_text_state_t *scrolling_state = NULL;
-    for (uint8_t i = 0; i < QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS; ++i) {
-        if (scrolling_text_states[i].device == NULL) {
-            scrolling_state = &scrolling_text_states[i];
+    for (
+        scrolling_text_state_t *state = scrolling_text_states;
+        state < &scrolling_text_states[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS];
+        ++state
+    ) {
+        if (state->device == NULL) {
+            scrolling_state = state;
             break;
         }
     }
@@ -298,19 +302,23 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
 }
 
 void extend_scrolling_text(deferred_token scrolling_token, const char *str) {
-    for (uint8_t i = 0; i < QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS; ++i) {
-        if (scrolling_text_states[i].defer_token == scrolling_token) {
-            uint8_t cur_len = strlen(scrolling_text_states[i].str);
+    for (
+        scrolling_text_state_t *state = scrolling_text_states;
+        state < &scrolling_text_states[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS];
+        ++state
+    ) {
+        if (state->defer_token == scrolling_token) {
+            uint8_t cur_len = strlen(state->str);
             uint8_t new_len = strlen(str);
-            char *  new_pos = realloc(scrolling_text_states[i].str, cur_len + new_len);
+            char *  new_pos = realloc(state->str, cur_len + new_len);
 
             if (new_pos == NULL) {
                 logging(SCROLL, LOG_ERROR, "%s: fail (realloc)", __func__);
                 return;
             }
-            scrolling_text_states[i].str = new_pos;
+            state->str = new_pos;
 
-            strcat(scrolling_text_states[i].str, str);
+            strcat(state->str, str);
 
             return;
         }
@@ -318,18 +326,21 @@ void extend_scrolling_text(deferred_token scrolling_token, const char *str) {
 }
 
 void stop_scrolling_text(deferred_token scrolling_token) {
-    for (uint8_t i = 0; i < QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS; ++i) {
-        if (scrolling_text_states[i].defer_token == scrolling_token) {
+    for (
+        scrolling_text_state_t *state = scrolling_text_states;
+        state < &scrolling_text_states[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS];
+        ++state
+    ) {
+        if (state->defer_token == scrolling_token) {
             cancel_deferred_exec_advanced(scrolling_text_executors, QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS, scrolling_token);
-            scrolling_text_state_t *state = &scrolling_text_states[i];
 
             // Clear screen and de-allocate
             qp_rect(state->device, state->x, state->y, state->x + state->width, state->y + state->font->line_height, HSV_BLACK, true);
-            free(scrolling_text_states[i].str);
+            free(state->str);
 
             // Cleanup the state
-            scrolling_text_states[i].device      = NULL;
-            scrolling_text_states[i].defer_token = INVALID_DEFERRED_TOKEN;
+            state->device      = NULL;
+            state->defer_token = INVALID_DEFERRED_TOKEN;
 
             return;
         }
@@ -391,7 +402,7 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
     char str[30];
 
     size_t used  = get_used_heap();
-    size_t total = get_total_heap();
+    size_t total = get_heap_size();
     size_t maps  = get_total_map_items() * sizeof(item_t);
 
     // generate "used/total" string

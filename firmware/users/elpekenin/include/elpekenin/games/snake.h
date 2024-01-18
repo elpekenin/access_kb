@@ -28,4 +28,5 @@ typedef struct PACKED {
 } game_state_t;
 
 game_state_t new_snake_game(void);
-void advance_snake_game(game_state_t *state);
+
+NON_NULL(1) void advance_snake_game(game_state_t *state);

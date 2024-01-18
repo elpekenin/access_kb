@@ -14,7 +14,7 @@ static inline position_t random_position(void) {
     };
 }
 
-static inline bool check_collision(position_t pos1, position_t pos2) {
+CONST static inline bool check_collision(position_t pos1, position_t pos2) {
     return pos1.x == pos2.x && pos1.y == pos2.y;
 }
 
@@ -23,8 +23,12 @@ static inline void generate_food(game_state_t *state) {
         bool valid = true;
         position_t new_food = random_position();
 
-        for (uint8_t i = 0; i < state->snake_len; ++i) {
-            if (check_collision(new_food, state->snake[i])) {
+        for (
+            position_t *body_part = state->snake;
+            body_part < &state->snake[state->snake_len];
+            ++body_part
+        ) {
+            if (check_collision(new_food, *body_part)) {
                 valid = false;
             }
         }
@@ -38,14 +42,14 @@ static inline void generate_food(game_state_t *state) {
 
 static const position_t board_start = {.x = 10, .y = 100};
 
-static inline position_t to_pixels(position_t tile_pos) {
+CONST static inline position_t to_pixels(position_t tile_pos) {
     return (position_t) {
         .x = board_start.x + tile_pos.x * TILE_SIZE,
         .y = board_start.y + tile_pos.y * TILE_SIZE,
     };
 }
 
-static inline void draw_game(game_state_t *state) {
+NON_NULL(1) static inline void draw_game(game_state_t *state) {
     if (!is_keyboard_master()) {
         return;
     }
@@ -96,8 +100,12 @@ static inline void draw_game(game_state_t *state) {
     }
 
     // draw snake
-    for (uint8_t i = 0; i < state->snake_len; ++i) {
-        position_t snake_coords = to_pixels(state->snake[i]);
+    for (
+        position_t *body_part = state->snake;
+        body_part < &state->snake[state->snake_len];
+        ++body_part
+    ) {
+        position_t snake_coords = to_pixels(*body_part);
         qp_rect(
             state->device,
             snake_coords.x,
@@ -175,8 +183,12 @@ void advance_snake_game(game_state_t *state) {
 
     // check for running into itself
     // -1 as we "collision" with tail is ok, it would move on next frame
-    for (uint8_t i = 0; i < state->snake_len - 1; ++i) {
-        if (check_collision(new_head, state->snake[i])) {
+    for (
+        position_t *body_part = state->snake;
+        body_part < &state->snake[state->snake_len - 1];
+        ++body_part
+    ) {
+        if (check_collision(new_head, *body_part)) {
             state->playing = false;
             draw_game(state);
             return;

@@ -1,33 +1,40 @@
 ifeq ($(MCU_SERIES), RP2040)
     # NOTE: QMK adds divider and int64_ops
-    PICO_SDK_WRAPPERS ?= no
+    #       mem_ops would be harder to adapt to, due to crt1.c in chibios
+    PICO_SDK_WRAPPERS ?= yes
     ifeq ($(strip $(PICO_SDK_WRAPPERS)), yes)
-        OPT_DEFS += -DPICO_BITS_IN_RAM=1 \
+        MCU_LDSCRIPT = custom_rp2040
+
+        # my chips are B1
+        OPT_DEFS += -DPICO_SDK_WRAPPERS_ENABLED \
+                    -DPICO_BITS_IN_RAM=1 \
                     -DPICO_DOUBLE_IN_RAM=1 \
-                    -DPICO_DOUBLE_SUPPORT_ROM_V1=1 \
                     -DPICO_FLOAT_IN_RAM=1 \
-                    -DPICO_FLOAT_SUPPORT_ROM_V1=1 \
-                    -DPICO_MEM_IN_RAM=1
+                    -DPICO_FLOAT_SUPPORT_ROM_V1=0 \
+                    -DPICO_DOUBLE_SUPPORT_ROM_V1=0 \
+                    -DPICO_RP2040_B0_SUPPORTED=0 \
+                    -DPICO_RP2040_B1_SUPPORTED=1 \
+                    -DPICO_RP2040_B2_SUPPORTED=0
 
         EXTRAINCDIRS += $(PICOSDKROOT)/src/rp2_common/pico_double/include \
                         $(PICOSDKROOT)/src/rp2_common/pico_float/include
 
         SRC += $(PICOSDKROOT)/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S \
+                \
                $(PICOSDKROOT)/src/rp2_common/pico_double/double_aeabi.S \
-               $(PICOSDKROOT)/src/rp2_common/pico_double/double_v1_rom_shim.S \
-               $(PICOSDKROOT)/src/rp2_common/pico_double/double_math.c \
                $(PICOSDKROOT)/src/rp2_common/pico_double/double_init_rom.c \
+               $(PICOSDKROOT)/src/rp2_common/pico_double/double_math.c \
+               $(PICOSDKROOT)/src/rp2_common/pico_double/double_v1_rom_shim.S \
+               \
                $(PICOSDKROOT)/src/rp2_common/pico_float/float_aeabi.S \
-               $(PICOSDKROOT)/src/rp2_common/pico_float/float_v1_rom_shim.S \
-               $(PICOSDKROOT)/src/rp2_common/pico_float/float_math.c \
                $(PICOSDKROOT)/src/rp2_common/pico_float/float_init_rom.c \
-               $(PICOSDKROOT)/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S
+               $(PICOSDKROOT)/src/rp2_common/pico_float/float_math.c \
+               $(PICOSDKROOT)/src/rp2_common/pico_float/float_v1_rom_shim.S \
 
         # some wrappers' initialization, on __early_init (maybe too late)
         SRC += $(USER_SRC)/utils/rp2040_wrappers_init.c
-        # this init func is not public, lol
-        $(shell echo '.global __aeabi_bits_init' >> $(TOP_DIR)/lib/pico-sdk/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S)
 
+        # this init func is not public, lol
         BIT_FUNCTIONS := __clzsi2 __clzdi2 __ctzsi2 __ctzdi2 __popcountsi2 __popcountdi2
         $(call WRAP, $(BIT_FUNCTIONS))
 
@@ -50,8 +57,5 @@ ifeq ($(MCU_SERIES), RP2040)
                            log10f powf powintf hypotf cbrtf fmodf dremf remainderf remquof expm1f log1pf fmaf
         $(call WRAP, $(FLOAT_BUILTINS))
         $(call WRAP, $(FLOAT_FUNCTIONS))
-
-        MEM_FUNCTIONS := memcpy __aeabi_memcpy __aeabi_memcpy4 __aeabi_memcpy8 memset __aeabi_memset __aeabi_memset4 __aeabi_memset8
-        $(call WRAP, $(MEM_FUNCTIONS))
     endif
 endif

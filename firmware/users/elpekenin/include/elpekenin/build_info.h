@@ -3,16 +3,18 @@
 
 #pragma once
 
+#include "elpekenin/utils/compiler.h"
+
 #include "generated/features.h"
 
 
 #define COMMIT_TEXT_LEN 12
-typedef struct build_info_t {
+typedef struct PACKED {
     char               commit[COMMIT_TEXT_LEN];
     enabled_features_t features;
 } build_info_t;
 
-build_info_t get_build_info(void);
+PURE build_info_t get_build_info(void);
 
-void set_build_commit(const char *commit);
+NON_NULL(1) READ_ONLY(1) void set_build_commit(const char *commit);
 void set_build_features(enabled_features_t features);

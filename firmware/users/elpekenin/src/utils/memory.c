@@ -17,7 +17,9 @@ extern uint8_t __main_stack_base__,
                __main_stack_end__,
                __process_stack_base__,
                __process_stack_end__,
-               __bss_end__;
+               __bss_end__,
+               __flash_binary_start,
+               __flash_binary_end;
 
 bool ptr_in_main_stack(const void *ptr) {
     return ADDR(__main_stack_base__) <= ptr && ptr <= ADDR(__main_stack_end__);
@@ -31,28 +33,21 @@ bool ptr_in_stack(const void *ptr) {
     return ptr_in_main_stack(ptr) || ptr_in_process_stack(ptr);
 }
 
+// adapted from <https://forums.raspberrypi.com/viewtopic.php?t=347638>
+size_t get_heap_size(void) {
+   return &__process_stack_end__ - &__bss_end__;
+}
+
+size_t get_binary_size(void) {
+    return &__flash_binary_end - &__flash_binary_start;
+}
 
 // *** Track heap usage ***
 
-extern
-    void *
-    REAL(calloc)
-    (size_t nmemb, size_t size);
-
-extern
-    void
-    REAL(free)
-    (void *ptr);
-
-extern
-    void *
-    REAL(malloc)
-    (size_t size);
-
-extern
-    void *
-    REAL(realloc)
-    (void *ptr, size_t size);
+extern void *REAL(calloc)(size_t nmemb, size_t size);
+extern void  REAL(free)(void *ptr);
+extern void *REAL(malloc)(size_t size);
+extern void *REAL(realloc)(void *ptr, size_t size);
 
 static size_t used_heap = 0;
 
@@ -70,8 +65,11 @@ size_t get_used_heap(void) {
 }
 
 static void push_record(void *ptr, size_t size) {
-    for (uint8_t i = 0; i < ARRAY_SIZE(entries); ++i) {
-        usage_entry_t *entry = &entries[i];
+    for (
+        usage_entry_t *entry = entries;
+        entry < &entries[ARRAY_SIZE(entries)];
+        ++entry
+    ) {
         if (entry->ptr == NULL) {
             used_heap += size;
 
@@ -87,8 +85,11 @@ static void push_record(void *ptr, size_t size) {
 }
 
 static void pop_record(void *ptr) {
-    for (uint8_t i = 0; i < ARRAY_SIZE(entries); ++i) {
-        usage_entry_t *entry = &entries[i];
+    for (
+        usage_entry_t *entry = entries;
+        entry < &entries[ARRAY_SIZE(entries)];
+        ++entry
+    ) {
         if (entry->ptr == ptr && ptr != NULL) {
             used_heap -= entry->size;
 
@@ -162,11 +163,6 @@ WRAP(realloc)
     return ptr;
 }
 
-// adapted from <https://forums.raspberrypi.com/viewtopic.php?t=347638>
-size_t get_total_heap(void) {
-   return &__process_stack_end__ - &__bss_end__;
-}
-
 float used_heap_percentage(void) {
-    return (float)get_used_heap() * 100 / get_total_heap();
+    return (float)get_used_heap() * 100 / get_heap_size();
 }

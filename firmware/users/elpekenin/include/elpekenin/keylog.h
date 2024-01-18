@@ -5,8 +5,9 @@
 
 #include "action.h" // keyrecord_t
 
-void keycode_repr(const char **str);
-void keylog_process(uint16_t keycode, keyrecord_t *record);
+#include "elpekenin/utils/compiler.h"
 
-bool is_keylog_dirty(void);
-const char *get_keylog(void);
+NON_NULL(1) void keycode_repr(const char **str);
+NON_NULL(2) READ_ONLY(2) void keylog_process(uint16_t keycode, keyrecord_t *record);
+PURE bool is_keylog_dirty(void);
+RETURN_NO_NULL const char *get_keylog(void);

@@ -88,12 +88,16 @@ static const replacement_t replacements[] = {
     {.find="XXXXXXX", .strings={[NO_MODS]="XX"                            }},
 };
 
-static void init_replacements(void) {
+CONSTRUCTOR(105) static void init_replacements(void) {
     replacements_map = new_map(ARRAY_SIZE(replacements));
 
     // add replacements to the map
-    for (uint8_t i = 0; i < ARRAY_SIZE(replacements); ++i) {
-        replacements_map.add(&replacements_map, replacements[i].find, &replacements[i]);
+    for (
+        const replacement_t *replacement = replacements;
+        replacement < &replacements[ARRAY_SIZE(replacements)];
+        ++replacement
+    ) {
+        set(&replacements_map, replacement->find, replacement);
     }
 }
 
@@ -119,8 +123,8 @@ static void maybe_symbol(const char **str) {
 
     // disable hash logging momentarily, as a lot of strings wont be in the replacements map
     WITHOUT_LOGGING(
-        HASH,
-        replacements_map.get(&replacements_map, *str, (const void **)&p_replacements);
+        MAP,
+        get(&replacements_map, *str, (const void **)&p_replacements);
     );
 
     if (LIKELY(p_replacements == NULL)) { // most keycodes dont have replacements
@@ -255,7 +259,6 @@ void keylog_process(uint16_t keycode, keyrecord_t *record) {
         keylog_init = true;
 
         keylog_clear();
-        init_replacements();
     }
 
     // nothing on release (for now)

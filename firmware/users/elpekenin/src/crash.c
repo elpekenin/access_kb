@@ -1,10 +1,11 @@
 // Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include <ch.h>
+#include <osal.h>
+
+#include "backtrace.h"
 
 #include "elpekenin/logging.h"
-#include "elpekenin/3rd_party/backtrace.h"
 #include "elpekenin/utils/compiler.h"
 #include "elpekenin/utils/shortcuts.h"
 
@@ -20,51 +21,67 @@ typedef struct {
 } crash_info_t;
 
 static crash_info_t crash_info SECTION(".no_init");
+static crash_info_t copied_crash_info = {0};
+
 
 // *** API ***
 
-bool program_crashed(void) {
-    static bool read = false;
-    static bool crashed;
-
-    if (!read) {
-        read = true;
-        crashed = crash_info.magic == MAGIC_VALUE;
+void _copy(void) {
+    static bool copied = false;
+    if (!copied) {
+        copied = true;
+        memcpy(&copied_crash_info, &crash_info, sizeof(crash_info_t));
     }
-
-    return crashed;
 }
 
-void print_crash(void) {
-    logging(UNKNOWN, LOG_WARN, "Crash (%s)", crash_info.cause);
+bool program_crashed(void) {
+    _copy();
+    return copied_crash_info.magic == MAGIC_VALUE;
+}
+
+backtrace_t *get_crash_call_stack(uint8_t *depth) {
+    if (!program_crashed()) { // calls _copy
+        *depth = 0;
+        return NULL;
+    }
+
+    *depth = copied_crash_info.stack_depth;
+    return copied_crash_info.call_stack;
+}
+
+void print_crash_call_stack(void) {
+    uint8_t      depth;
+    backtrace_t *call_stack = get_crash_call_stack(&depth); // calls _copy
 
     // first entry is the error handler, skip it
-    for (uint8_t i = 1; i < crash_info.stack_depth; ++i) {
-        backtrace_t frame = crash_info.call_stack[i];
-        logging(UNKNOWN, LOG_ERROR, "%s", frame.name);
+    logging(UNKNOWN, LOG_WARN, "Crash (%s)", copied_crash_info.cause);
+    for (uint8_t i = 1; i < depth; ++i) {
+        logging(UNKNOWN, LOG_ERROR, "%s", call_stack[i].name);
     }
 }
 
 void clear_crash_info(void) {
     // make sure we store it before wiping
-    program_crashed();
+    _copy();
     WIPE_VAR(crash_info);
 }
 
 
-/// *** IRQ Handlers ***
+// *** IRQ Handlers ***
 
-#define HANDLER(__name) \
-    void __name(void) { \
+#define HANDLER(__func, __name) \
+    INTERRUPT NORETURN void __func(void) { \
         crash_info.magic = MAGIC_VALUE; \
         crash_info.stack_depth = backtrace_unwind(crash_info.call_stack, DEPTH); \
-        crash_info.cause = #__name; \
+        crash_info.cause = __name; \
         NVIC_SystemReset(); \
     }
 
-HANDLER(_unhandled_exception)
-HANDLER(HardFault_Handler)
-HANDLER(BusFault_Handler)
-// HANDLER(NMI_Handler); // !! defined at lib/chibios/os/common/ports/ARMv6-M-RP2/chcore.c
-HANDLER(UsageFault_Handler)
-HANDLER(MemManage_Handler)
+HANDLER(_unhandled_exception, "Unknown")
+HANDLER(HardFault_Handler,    "Hard")
+HANDLER(BusFault_Handler,     "Bus")
+HANDLER(UsageFault_Handler,   "Usage")
+HANDLER(MemManage_Handler,    "MemMan")
+
+// defined by ChibiOS, for context swap (?)
+// HANDLER(NMI_Handler);

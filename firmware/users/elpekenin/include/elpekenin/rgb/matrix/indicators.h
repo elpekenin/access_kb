@@ -5,22 +5,24 @@
 
 #include "color.h"
 
+#include "elpekenin/utils/compiler.h"
 
 // *** Types ***
 
 typedef struct indicator_t indicator_t;
 
 // arguments passed from rgb_matrix_indicators to indicators_fn_t
-typedef struct {
+typedef struct PACKED {
     uint8_t  layer;
     uint8_t  mods;
     uint16_t keycode;
 } indicator_fn_args_t;
 
-typedef bool(* indicator_fn_t)(indicator_t *self, indicator_fn_args_t *args);
+#define RGB_INDICATOR_FN_ATTRS CONST NON_NULL(1) NON_NULL(2) READ_ONLY(1) READ_ONLY(2) UNUSED
+typedef bool(* indicator_fn_t)(indicator_t *self, indicator_fn_args_t *args) RGB_INDICATOR_FN_ATTRS;
 
 // indicator specification: condition when it has to be drawn + color
-struct indicator_t {
+struct PACKED indicator_t {
     // common config
     rgb_led_t      color;
     indicator_fn_t check;
@@ -34,11 +36,11 @@ struct indicator_t {
 
 // *** Internal functions ***
 
-bool keycode_callback(indicator_t *indicator, indicator_fn_args_t *args);
-bool layer_callback(indicator_t *indicator, indicator_fn_args_t *args);
-bool keycode_and_layer_callback(indicator_t *indicator, indicator_fn_args_t *args);
-bool layer_and_configured_callback(indicator_t *indicator, indicator_fn_args_t *args);
-bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_t *args);
+RGB_INDICATOR_FN_ATTRS bool keycode_callback(indicator_t *indicator, indicator_fn_args_t *args);
+RGB_INDICATOR_FN_ATTRS bool layer_callback(indicator_t *indicator, indicator_fn_args_t *args);
+RGB_INDICATOR_FN_ATTRS bool keycode_and_layer_callback(indicator_t *indicator, indicator_fn_args_t *args);
+RGB_INDICATOR_FN_ATTRS bool layer_and_configured_callback(indicator_t *indicator, indicator_fn_args_t *args);
+RGB_INDICATOR_FN_ATTRS bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_t *args);
 
 
 // *** Macros ***

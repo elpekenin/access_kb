@@ -92,7 +92,7 @@ void step_level_for(feature_t feature, bool increase) {
 }
 
 // internals
-static token_t get_token(const char **str) {
+NON_NULL(1) READ_ONLY(1) static token_t get_token(const char **str) {
     if (**str == '\0') { // null terminator
         return STR_END;
     }
@@ -273,8 +273,11 @@ void dump_stack(void) {
     uint8_t depth = backtrace_unwind(call_stack, ARRAY_SIZE(call_stack));
 
     logging(UNKNOWN, LOG_ERROR, "Crash traceback");
-    for (uint8_t i = 1; i < depth; ++i) { // 1 to ignore `dump_stack` itself
-        backtrace_t stack_frame = call_stack[i];
-        logging(UNKNOWN, LOG_ERROR, "%s@%p", stack_frame.name, stack_frame.function);
+    for (
+        backtrace_t *stack_frame = call_stack;
+        stack_frame < &call_stack[depth];
+        ++stack_frame
+    ) { // 1 to ignore `dump_stack` itself
+        logging(UNKNOWN, LOG_ERROR, "%s@%p", stack_frame->name, stack_frame->function);
     }
 }
