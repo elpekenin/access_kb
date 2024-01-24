@@ -16,6 +16,9 @@
 
 .macro	ENTRY_POINT	local, system
 	.global	\local
+#if MATH_M0_IN_RAM
+	.section .time_critical.\local, "ax"
+#endif
 	.thumb_func
 \local :
 .ifndef	\system

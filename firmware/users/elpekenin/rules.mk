@@ -10,10 +10,7 @@ SRC += $(USER_SRC)/build_info.c \
        $(USER_SRC)/placeholders.c \
        $(USER_SRC)/layers.c \
        $(USER_SRC)/power.c \
-       $(USER_SRC)/process.c \
-       $(USER_SRC)/utils/map.c \
-       $(USER_SRC)/utils/memory.c \
-       $(USER_SRC)/utils/string.c
+       $(USER_SRC)/process.c
 
 # Default configuration
 AUTOCORRECT_ENABLE ?= yes
@@ -32,6 +29,7 @@ include $(MK_PATH)/rgb_matrix.mk
 include $(MK_PATH)/rng.mk
 include $(MK_PATH)/split.mk
 include $(MK_PATH)/unicode.mk
+include $(MK_PATH)/utils.mk
 include $(MK_PATH)/wrappers.mk
 include $(MK_PATH)/xap.mk
 include $(MK_PATH)/3rd_party.mk

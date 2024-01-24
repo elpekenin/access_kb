@@ -1,15 +1,20 @@
 ifeq ($(MCU_SERIES), RP2040)
     # NOTE: QMK adds divider and int64_ops
-    #       mem_ops would be harder to adapt to ChibiOS' crt1.c
-    #       and the bootstrap/initialization process
 
-    # keep preinit functions from SDK, needed for wrappers to work
+    # custom script to keep preinit symbol from SDK, needed to init wrappers
     MCU_LDSCRIPT = custom_rp2040
 
     PICO_SDK_WRAPPERS ?= yes
     ifeq ($(strip $(PICO_SDK_WRAPPERS)), yes)
-        # my chips are B1
-        OPT_DEFS += -DPICO_SDK_WRAPPERS_ENABLED
+        # notes for future self
+        # *********************
+        #  - my chips are B1
+        #  - *_IN_RAM=1 is pretty much useless, since the functions relocated by it are
+        #    for the most part copying a few registers + jumping to the code thru vtable
+        OPT_DEFS += -DPICO_SDK_WRAPPERS_ENABLED \
+                    -DPICO_BITS_IN_RAM=1 \
+                    -DPICO_DOUBLE_IN_RAM=1 \
+                    -DPICO_FLOAT_IN_RAM=1
 
         SRC += $(USER_SRC)/utils/rp2040_wrappers_init.c
 
@@ -47,5 +52,10 @@ ifeq ($(MCU_SERIES), RP2040)
                            sincosf asinf acosf atanf sinhf coshf tanhf asinhf acoshf atanhf exp2f log2f exp10f \
                            log10f powf powintf hypotf cbrtf fmodf dremf remainderf remquof expm1f log1pf fmaf
         $(call WRAP, $(FLOAT_FUNCTIONS))
+
+        # mem, harder to adapt to ChibiOS' bootstrap/init (at crt1.c)
+        # SRC += $(PICOSDKROOT)/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S
+        # MEM_FUNCTIONS := memcpy __aeabi_memcpy __aeabi_memcpy4 __aeabi_memcpy8 memset __aeabi_memset __aeabi_memset4 __aeabi_memset8
+        # $(call WRAP, $(MEM_FUNCTIONS))
     endif
 endif

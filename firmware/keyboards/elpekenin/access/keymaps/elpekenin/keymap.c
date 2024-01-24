@@ -59,7 +59,7 @@ void keyboard_pre_init_keymap(void) {
     set_logging_fmt(fmt);
 }
 
-#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && IS_RIGHT_HAND
 static uint32_t read_touch_callback(uint32_t trigger_time, void *cb_arg) {
     uint32_t interval = TOUCH_MS;
 
@@ -80,9 +80,11 @@ static uint32_t read_touch_callback(uint32_t trigger_time, void *cb_arg) {
 
 void keyboard_post_init_keymap(void) {
 #if defined(QUANTUM_PAINTER_ENABLE)
-#    if defined(INIT_EE_HANDS_LEFT)
+#    if IS_LEFT_HAND
     load_display(il91874);
-#    else
+#    endif
+
+#    if IS_RIGHT_HAND
     load_display(ili9163);
     load_display(ili9341);
 
@@ -104,7 +106,7 @@ void keyboard_post_init_keymap(void) {
 }
 
 void build_info_sync_keymap_callback(void) {
-#if defined(INIT_EE_HANDS_LEFT) && defined(QUANTUM_PAINTER_ENABLE)
+#if IS_LEFT_HAND && defined(QUANTUM_PAINTER_ENABLE)
     draw_commit(il91874);
     draw_features(il91874);
 #endif

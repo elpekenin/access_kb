@@ -9,7 +9,7 @@
 #if defined(QUANTUM_PAINTER_ENABLE)
 #    include "elpekenin/sipo.h"
 // eInk is on left side, dont allocate framebuffer on right
-#    if defined(INIT_EE_HANDS_LEFT)
+#    if IS_LEFT_HAND
 #        include "qp_eink_panel.h"
 configure_sipo_pins(
     __PADDING__,
@@ -34,7 +34,7 @@ painter_device_t ili9341;
 #    endif
 #endif
 
-#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && IS_RIGHT_HAND
 
 // Calibration isn't very precise
 static const touch_driver_t ili9341_touch_driver = {
@@ -77,11 +77,13 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
 
     wait_ms(150); //Let screens draw some power
 
-#    if defined(INIT_EE_HANDS_LEFT)
+#    if IS_LEFT_HAND
     il91874 = qp_il91874_make_spi_device(_IL91874_WIDTH, _IL91874_HEIGHT, IL91874_CS_PIN, SCREENS_DC_PIN, IL91874_RST_PIN, SCREENS_SPI_DIV, SCREENS_SPI_MODE, (void *)il91874_buffer);
     ret &= qp_init(il91874, IL91874_ROTATION);
     ret &= qp_power(il91874, true);
-#    else
+#    endif
+
+#    if IS_RIGHT_HAND
     ili9163 = qp_ili9163_make_spi_device(_ILI9163_WIDTH, _ILI9163_HEIGHT, ILI9163_CS_PIN, SCREENS_DC_PIN, ILI9163_RST_PIN, SCREENS_SPI_DIV, SCREENS_SPI_MODE);
     ret &= qp_init(ili9163, ILI9163_ROTATION);
     ret &= qp_power(ili9163, true);
@@ -93,6 +95,7 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     qp_rect(ili9163, 0, 0, ILI9163_WIDTH, ILI9163_HEIGHT, HSV_BLACK, true);
     qp_rect(ili9341, 0, 0, ILI9341_WIDTH, ILI9341_HEIGHT, HSV_BLACK, true);
 #    endif
+
     if (ret) {
         logging(QP, LOG_TRACE, "QP Setup: OK");
     } else {
@@ -101,7 +104,7 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
 #endif
 
 
-#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && IS_RIGHT_HAND
     ret = touch_spi_init(ili9341_touch);
 
     if (ret) {

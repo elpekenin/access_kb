@@ -3,43 +3,39 @@
 
 #pragma once
 
+#include "elpekenin/utils/allocator.h"
 #include "elpekenin/utils/compiler.h"
 
 /*
  * Usage:
- *    SET
+ *    CREATE
+ *    >>> map_t map = new_map(uint32_t, &allocator); // NULL will use stdlib allocating mechanism
+ *
+ *    SET (add or overwrite)
  *    >>> uint32_t value = 42;
- *    >>> set(&map, "key", &value)
+ *    >>> map_set(&map, "key", &value);
  *
- *    GET - Option 1
- *    >>> uint32_t *p_value;
- *    >>> get(&map, "key", (const void **)&p_value);
- *    >>> if (p_value != NULL) {
- *    >>>     uint32_t value = *p_value;
+ *    GET
+ *    >>> uint32_t value;
+ *    >>> bool found = map_get(map, "key", &value);
+ *    >>> if (!found) {
+ *    >>>     // error handling
  *    >>> }
  *
- *    GET - Option 2
- *    >>> uint32_t *p_value;
- *    >>> if (get(&map, "key", (const void **)&p_value)) {
- *    >>>     uint32_t value = *p_value;
- *    >>> }
+ * Notes:
+ *    - `key` can be a str on the stack, it gets copied ("safer" but uses more memory)
+ *    - Since C has no runtime type information, everything is computed in terms of sizeof(type)
+ *      Thus, there can't be any check like "created as u32 but reading as u64", beware the types you use.
  */
 
-typedef struct map_t map_t;
+// a map is just a convenience wrapper for two dynamic arrays
+typedef struct {
+    const char **keys;
+    void *       values;
+} map_t;
 
-NON_NULL(1) NON_NULL(2) NON_NULL(3) READ_ONLY(2) READ_ONLY(3) bool set(map_t *self, const char *key, const void *value);
-NON_NULL(1) NON_NULL(2) NON_NULL(3) READ_ONLY(1) READ_ONLY(2) WRITE_ONLY(3) bool get(map_t *self, const char *key, const void **value);
+#define new_map(__type, __allocator) _new_map(sizeof(__type), __allocator)
+READ_ONLY(2) map_t _new_map(size_t item_size, allocator_t *allocator);
 
-typedef struct PACKED {
-    const char *key;
-    const void *value;
-} item_t;
-
-struct PACKED map_t {
-    size_t  n_items;
-    item_t *items; // dynamically allocated array
-};
-
-map_t new_map(size_t n_items);
-
-PURE size_t get_total_map_items(void);
+READ_ONLY(2) READ_ONLY(3) bool map_set(map_t map, const char *key, const void *value);
+READ_ONLY(2) WRITE_ONLY(3) bool map_get(map_t map, const char *key, void *value);

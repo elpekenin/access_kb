@@ -5,15 +5,19 @@
 
 #if defined(QUANTUM_PAINTER_ENABLE)
 #    include "qp.h"
-#    if defined(INIT_EE_HANDS_LEFT)
+
+#    if IS_LEFT_HAND
 extern painter_device_t il91874;
-#    else
+#    endif
+
+#    if IS_RIGHT_HAND
 extern painter_device_t ili9163;
 extern painter_device_t ili9341;
 #    endif
+
 #endif
 
-#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && IS_RIGHT_HAND
 #    include "elpekenin/touch.h"
 extern touch_device_t ili9341_touch;
 bool is_ili9341_pressed(void);

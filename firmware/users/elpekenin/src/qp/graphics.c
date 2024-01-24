@@ -11,6 +11,7 @@
 #include "elpekenin/logging/backends/qp.h"
 #include "elpekenin/qp/graphics.h"
 #include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/dyn_array.h"
 #include "elpekenin/utils/map.h"
 #include "elpekenin/utils/memory.h"
 #include "elpekenin/utils/string.h"
@@ -38,14 +39,6 @@
 
 // *** Internal variables ***
 
-static painter_device_t       qp_devices_pekenin[QUANTUM_PAINTER_NUM_DISPLAYS] = {0}; // Has to be filled by the user
-static painter_font_handle_t  qp_fonts[QUANTUM_PAINTER_NUM_FONTS]   = {0};
-static painter_image_handle_t qp_images[QUANTUM_PAINTER_NUM_IMAGES] = {0};
-
-static uint8_t display_counter = 0;
-static uint8_t font_counter    = 0;
-static uint8_t img_counter     = 0;
-
 static map_t display_map = {0};
 static map_t font_map    = {0};
 static map_t img_map     = {0};
@@ -64,83 +57,77 @@ TASK(keylog)
 // *** Asset handling ***
 
 void _load_display(painter_device_t display, const char *name) {
-    if (display_counter >= QUANTUM_PAINTER_NUM_DISPLAYS) {
-        logging(QP, LOG_ERROR, "Loading '%s' failed. OOB", name);
-        return;
-    }
-
-    qp_devices_pekenin[display_counter] = display;
-    set(&display_map, name, &qp_devices_pekenin[display_counter]);
-
-    logging(QP, LOG_DEBUG, "Loaded '%s' at [%d]", name, display_counter++);
+    logging(QP, LOG_DEBUG, "'%s' at [%d]", name, array_len(display_map.values));
+    map_set(display_map, name, &display);
 }
 
 void _load_font(const uint8_t *font, const char *name) {
-    if (font_counter >= QUANTUM_PAINTER_NUM_FONTS) {
-        logging(QP, LOG_ERROR, "Loading '%s' failed. OOB", name);
-        return;
-    }
-
     painter_font_handle_t dummy = qp_load_font_mem(font);
-    qp_fonts[font_counter] = dummy;
-    set(&font_map, name, &qp_fonts[font_counter]);
-
-    logging(QP, LOG_DEBUG, "Loaded '%s' at [%d]", name, font_counter++);
+    logging(QP, LOG_DEBUG, "'%s' at [%d]", name, array_len(font_map.values));
+    map_set(font_map, name, &dummy);
 }
 
 void _load_image(const uint8_t *img, const char *name) {
-    if (img_counter >= QUANTUM_PAINTER_NUM_IMAGES) {
-        logging(QP, LOG_ERROR, "Loading '%s' failed. OOB", name);
-        return;
-    }
-
     painter_image_handle_t dummy = qp_load_image_mem(img);
-    qp_images[img_counter] = dummy;
-    set(&img_map, name, &qp_images[img_counter]);
-
-    logging(QP, LOG_DEBUG, "Loaded '%s' at [%d]", name, img_counter++);
+    logging(QP, LOG_DEBUG, "'%s' at [%d]", name, array_len(img_map.values));
+    map_set(img_map, name, &dummy);
 }
 
 // getters
 uint8_t qp_get_num_displays(void) {
-    return display_counter;
+    return array_len(display_map.values);
 }
 
 painter_device_t qp_get_device_by_index(uint8_t index) {
-    return qp_devices_pekenin[index];
+    if (index > qp_get_num_displays()) {
+        return NULL;
+    }
+
+    return *((painter_device_t *)display_map.values + index);
 }
 
 painter_device_t qp_get_device_by_name(const char *name) {
-    painter_device_t *p_dev;
-    return get(&display_map, name, (const void **)&p_dev) ? *p_dev : NULL;
+    painter_device_t device = NULL;
+    map_get(display_map, name, &device);
+    return device;
 }
 
 
 uint8_t qp_get_num_fonts(void) {
-    return font_counter;
+    return array_len(font_map.values);
 }
 
 painter_font_handle_t qp_get_font_by_index(uint8_t index) {
-    return qp_fonts[index];
+    if (index > qp_get_num_fonts()) {
+        return NULL;
+    }
+
+    return *((painter_font_handle_t *)font_map.values + index);
 }
 
 painter_font_handle_t qp_get_font_by_name(const char *name) {
-    painter_font_handle_t *p_font;
-    return get(&font_map, name, (const void **)&p_font) ? *p_font : NULL;
+    painter_font_handle_t font = NULL;
+    map_get(font_map, name, &font);
+    return font;
 }
 
 
 uint8_t qp_get_num_imgs(void) {
-    return img_counter;
+    return array_len(img_map.values);
 }
 
 painter_image_handle_t qp_get_img_by_index(uint8_t index) {
-    return qp_images[index];
+    if (index > qp_get_num_imgs()) {
+        return NULL;
+    }
+
+    return *((painter_image_handle_t *)img_map.values + index);
 }
 
 painter_image_handle_t qp_get_img_by_name(const char *name) {
-    painter_image_handle_t *p_img;
-    return get(&img_map, name, (const void **)&p_img) ? *p_img : NULL;
+    painter_image_handle_t image;
+    map_get(img_map, name, &image);
+    return image;
 }
 
 
@@ -403,19 +390,13 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
 
     size_t used  = get_used_heap();
     size_t total = get_heap_size();
-    size_t maps  = get_total_map_items() * sizeof(item_t);
 
     // generate "used/total" string
-    pretty_bytes(used - maps, str, ARRAY_SIZE(str));
+    pretty_bytes(used, str, ARRAY_SIZE(str));
     strcat(str, "/");
     size_t len = strlen(str);
     pretty_bytes(total, str + len, ARRAY_SIZE(str) - len);
     qp_drawtext(args->device, args->x, args->y, args->font, str);
-
-    strcpy(str, "Maps:");
-    len = strlen(str);
-    pretty_bytes(maps, str + len, ARRAY_SIZE(str) - len);
-    qp_drawtext(args->device, args->x, args->y + args->font->line_height + 2, args->font, str);
 
     return interval;
 }
@@ -479,9 +460,9 @@ static uint32_t keylog_task_callback(uint32_t trigger_time, void *cb_arg) {
 // *** API ***
 
 void elpekenin_qp_init(void) {
-    display_map = new_map(2);
-    font_map    = new_map(2);
-    img_map     = new_map(10);
+    display_map = new_map(painter_device_t, NULL);
+    font_map    = new_map(painter_font_handle_t, NULL);
+    img_map     = new_map(painter_image_handle_t, NULL);
 
     // has to be after the maps, as it uses them
     load_qp_resources();

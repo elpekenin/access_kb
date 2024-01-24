@@ -11,7 +11,7 @@
 
 #include "elpekenin/spi_custom.h"
 
-#if defined(TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+#if defined(TOUCH_SCREEN_ENABLE) && IS_RIGHT_HAND
 #    include "elpekenin/touch.h"
 #endif // TOUCH_SCREEN_ENABLE && INIT_EE_HANDS_RIGHT
 
@@ -44,7 +44,7 @@ bool matrix_scan_custom(matrix_row_t *current_matrix) {
     return changed;
 }
 
-#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && defined(INIT_EE_HANDS_RIGHT)
+#if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && IS_RIGHT_HAND
 bool is_ili9341_pressed(void) {
     return matrix_is_on(9, 0);
 }
