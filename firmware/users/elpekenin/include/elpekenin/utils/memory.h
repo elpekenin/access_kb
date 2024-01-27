@@ -12,5 +12,5 @@ CONST READ_ONLY(1) bool ptr_in_stack(const void *addr);
 CONST size_t get_binary_size(void);
 CONST size_t get_heap_size(void);
 
-PURE size_t get_used_heap(void);
-PURE float  used_heap_percentage(void);
+size_t get_used_heap(void);
+float  used_heap_percentage(void);

@@ -12,6 +12,7 @@
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/compiler.h"
 #include "elpekenin/utils/map.h"
+#include "elpekenin/utils/shortcuts.h"
 #include "elpekenin/utils/string.h"
 
 #include "generated/keycode_str.h"
@@ -42,7 +43,8 @@ typedef struct PACKED {
     const char *strings[__N_MODS__];
 } replacement_t;
 
-static map_t replacements_map;
+static new_map(replacement_t *, replacements_map);
+
 static const replacement_t replacements[] = {
     {.find="0",       .strings={                 [SHIFT]="="              }},
     {.find="1",       .strings={                 [SHIFT]="!",  [AL_GR]="|"}},
@@ -88,16 +90,17 @@ static const replacement_t replacements[] = {
     {.find="XXXXXXX", .strings={[NO_MODS]="XX"                            }},
 };
 
-CONSTRUCTOR(105) static void init_replacements(void) {
-    replacements_map = new_map(ARRAY_SIZE(replacements));
+static void init_replacements(void) {
+    // store pointers to the replacements, as they are statically allocated and wontget a freeafteruse
+    map_init(replacements_map, ARRAY_SIZE(replacements), NULL);
 
     // add replacements to the map
     for (
-        const replacement_t *replacement = replacements;
+        replacement_t *replacement = (replacement_t *)replacements;
         replacement < &replacements[ARRAY_SIZE(replacements)];
         ++replacement
     ) {
-        set(&replacements_map, replacement->find, replacement);
+        map_set(replacements_map, replacement->find, replacement);
     }
 }
 
@@ -119,31 +122,29 @@ static void skip_prefix(const char **str) {
 }
 
 static void maybe_symbol(const char **str) {
-    replacement_t *p_replacements;
+    bool found;
+    replacement_t *replacements;
 
     // disable hash logging momentarily, as a lot of strings wont be in the replacements map
-    WITHOUT_LOGGING(
-        MAP,
-        get(&replacements_map, *str, (const void **)&p_replacements);
-    );
+    WITHOUT_LOGGING(MAP, replacements = map_get(replacements_map, *str, found););
 
-    if (LIKELY(p_replacements == NULL)) { // most keycodes dont have replacements
+    if (LIKELY(found == false)) {
         return;
     }
 
     const char *target;
     switch (get_mods()) {
         case 0:
-            target = p_replacements->strings[NO_MODS];
+            target = replacements->strings[NO_MODS];
             break;
 
         case MOD_BIT(KC_LSFT):
         case MOD_BIT(KC_RSFT):
-            target = p_replacements->strings[SHIFT];
+            target = replacements->strings[SHIFT];
             break;
 
         case MOD_BIT(KC_ALGR):
-            target = p_replacements->strings[AL_GR];
+            target = replacements->strings[AL_GR];
             break;
 
         default:
@@ -257,7 +258,7 @@ void keylog_process(uint16_t keycode, keyrecord_t *record) {
     static bool keylog_init = false;
     if (!keylog_init) {
         keylog_init = true;
-
+        init_replacements();
         keylog_clear();
     }
 

@@ -8,6 +8,7 @@
 #endif
 
 #include "elpekenin/build_info.h"
+#include "elpekenin/rng.h"
 #include "elpekenin/logging/backends/qp.h"
 #include "elpekenin/qp/graphics.h"
 #include "elpekenin/utils/compiler.h"
@@ -27,9 +28,7 @@
 #define TASK(__name) \
     static deferred_token     __name##_token = INVALID_DEFERRED_TOKEN; \
     static qp_callback_args_t __name##_args  = {0}; \
-    \
     static uint32_t __name##_task_callback(uint32_t trigger_time, void *cb_arg); \
-    \
     void set_##__name##_device(painter_device_t device) { \
         __name##_args.device = device; \
         cancel_deferred_exec(__name##_token); \
@@ -39,9 +38,9 @@
 
 // *** Internal variables ***
 
-static map_t display_map = {0};
-static map_t font_map    = {0};
-static map_t img_map     = {0};
+static new_map(painter_device_t,       device_map);
+static new_map(painter_font_handle_t,  font_map);
+static new_map(painter_image_handle_t, image_map);
 
 static deferred_executor_t    scrolling_text_executors[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS] = {0};
 static scrolling_text_state_t scrolling_text_states[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS] = {0};
@@ -53,43 +52,62 @@ TASK(heap_stats)
 TASK(keylog)
 #endif
 
+typedef enum {
+    FILLING,
+    COPYING,
+    DONE,
+} anim_t;
+
+typedef struct {
+    size_t   used;
+    bool     running;
+    uint64_t mask;
+    anim_t   state;
+    char *   curr;
+    char *   dest;
+} heap_stats_extra_t;
+static heap_stats_extra_t heap_stats_extra = {0};
+
 
 // *** Asset handling ***
 
 void _load_display(painter_device_t display, const char *name) {
-    logging(QP, LOG_DEBUG, "'%s' at [%d]", name, array_len(display_map.values));
-    map_set(display_map, name, &display);
+    logging(QP, LOG_DEBUG, "'%s' at [%d]", name, array_len(device_map.values));
+    map_set(device_map, name, display);
 }
 
 void _load_font(const uint8_t *font, const char *name) {
-    painter_font_handle_t dummy = qp_load_font_mem(font);
     logging(QP, LOG_DEBUG, "'%s' at [%d]", name, array_len(font_map.values));
-    map_set(font_map, name, &dummy);
+    map_set(font_map, name, qp_load_font_mem(font));
 }
 
 void _load_image(const uint8_t *img, const char *name) {
-    painter_image_handle_t dummy = qp_load_image_mem(img);
-    logging(QP, LOG_DEBUG, "'%s' at [%d]", name, array_len(img_map.values));
-    map_set(img_map, name, &dummy);
+    logging(QP, LOG_DEBUG, "'%s' at [%d]", name, array_len(image_map.values));
+    map_set(image_map, name, qp_load_image_mem(img));
 }
 
 // getters
 uint8_t qp_get_num_displays(void) {
-    return array_len(display_map.values);
+    return array_len(device_map.values);
 }
 
 painter_device_t qp_get_device_by_index(uint8_t index) {
-    if (index > qp_get_num_displays()) {
+    if (index >= qp_get_num_displays()) {
         return NULL;
     }
 
-    return *((painter_device_t *)display_map.values + index);
+    return device_map.values[index];
 }
 
 painter_device_t qp_get_device_by_name(const char *name) {
-    painter_device_t device = NULL;
-    map_get(display_map, name, &device);
-    return device;
+    bool found;
+
+    painter_device_t ret = map_get(device_map, name, found);
+    if (!found) {
+        return NULL;
+    }
+
+    return ret;
 }
 
 
@@ -98,36 +116,46 @@ uint8_t qp_get_num_fonts(void) {
 }
 
 painter_font_handle_t qp_get_font_by_index(uint8_t index) {
-    if (index > qp_get_num_fonts()) {
+    if (index >= qp_get_num_fonts()) {
         return NULL;
     }
 
-    return *((painter_font_handle_t *)font_map.values + index);
+    return font_map.values[index];
 }
 
 painter_font_handle_t qp_get_font_by_name(const char *name) {
-    painter_font_handle_t font = NULL;
-    map_get(font_map, name, &font);
-    return font;
+    bool found;
+
+    painter_font_handle_t ret = map_get(font_map, name, found);
+    if (!found) {
+        return NULL;
+    }
+
+    return ret;
 }
 
 
 uint8_t qp_get_num_imgs(void) {
-    return array_len(img_map.values);
+    return array_len(image_map.values);
 }
 
 painter_image_handle_t qp_get_img_by_index(uint8_t index) {
-    if (index > qp_get_num_imgs()) {
+    if (index >= qp_get_num_imgs()) {
         return NULL;
     }
 
-    return *((painter_image_handle_t *)img_map.values + index);
+    return image_map.values[index];
 }
 
 painter_image_handle_t qp_get_img_by_name(const char *name) {
-    painter_image_handle_t image;
-    map_get(img_map, name, &image);
-    return image;
+    bool found;
+
+    painter_image_handle_t ret = map_get(image_map, name, found);
+    if (!found) {
+        return NULL;
+    }
+
+    return ret;
 }
 
 
@@ -351,11 +379,9 @@ static uint32_t logging_task_callback(uint32_t trigger_time, void *cb_arg) {
 
 static uint32_t uptime_task_callback(uint32_t trigger_time, void *cb_arg) {
     qp_callback_args_t *args = (qp_callback_args_t *)cb_arg;
-
-    const uint32_t interval = 1000;  // once per second
  
     if (args->device == NULL) {
-        return interval;
+        return 1000;
     }
 
     div_t result = div(trigger_time, MS_IN_A_DAY);
@@ -374,31 +400,125 @@ static uint32_t uptime_task_callback(uint32_t trigger_time, void *cb_arg) {
 
     qp_drawtext(args->device, args->x, args->y, args->font, uptime_str);
 
-    return interval;
+    return 1000;
+}
+
+static uint16_t heap_random(uint16_t max, uint64_t *mask) {
+    uint16_t random;
+
+    do { // dont mess already-done char
+        random = rng_min_max(0, max);
+    } while ((*mask & (1 << random)));
+
+    *mask |= (1 << random);
+    return random;
+}
+
+static void draw_heap(qp_callback_args_t *args) {
+    heap_stats_extra_t *extra = (heap_stats_extra_t *)args->extra;
+    qp_drawtext(args->device, args->x, args->y, args->font, extra->curr);
+}
+
+static uint32_t heap_animation_callback(uint32_t trigger_time, void *cb_arg) {
+    qp_callback_args_t *args  = (qp_callback_args_t *)cb_arg;
+    heap_stats_extra_t *extra = (heap_stats_extra_t *)args->extra;
+
+    if (
+        extra->curr == NULL // first time, just draw it and remember the string
+        || extra->state == DONE // strings converged, we are done
+    ) {
+        extra->running = false;
+
+        WITHOUT_LOGGING(ALLOC, free(extra->curr););
+        extra->curr = extra->dest;
+        extra->dest = NULL;
+
+        draw_heap(args);
+        return 0;
+    }
+
+    // actual logic
+    size_t len = strlen(extra->dest);
+
+    char chr = '\0';
+    do { // dont want a terminator mid-string
+        chr = rng_min_max('!', '~');
+    } while (chr == '\0');
+
+    // all bits that should be set are set, change state
+    uint64_t mask = (1 << (len - 1)) - 1;
+    if ((extra->mask & mask) == mask) {
+        extra->mask = 0;
+        switch (extra->state) {
+            case FILLING:
+                extra->state = COPYING;
+                break;
+
+            case COPYING:
+                extra->state = DONE;
+                break;
+
+            case DONE:
+                break;
+        }
+    }
+
+    // this is an index, -1 prevents out of bouds str[len]
+    uint16_t pos = heap_random(len - 1, &extra->mask);
+
+    switch (extra->state) {
+        case FILLING:
+            extra->curr[pos] = chr;
+            break;
+
+        case COPYING:
+            extra->curr[pos] = extra->dest[pos];
+            break;
+
+        case DONE:
+            break;
+    }
+
+    draw_heap(args);
+    return 50;
 }
 
 static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
-    qp_callback_args_t *args = (qp_callback_args_t *)cb_arg;
-
-    const uint32_t interval = 1000;
- 
-    if (args->device == NULL) {
-        return interval;
-    }
-
-    char str[30];
+    qp_callback_args_t *args  = (qp_callback_args_t *)cb_arg;
+    heap_stats_extra_t *extra = (heap_stats_extra_t *)args->extra;
 
     size_t used  = get_used_heap();
     size_t total = get_heap_size();
 
-    // generate "used/total" string
-    pretty_bytes(used, str, ARRAY_SIZE(str));
-    strcat(str, "/");
-    size_t len = strlen(str);
-    pretty_bytes(total, str + len, ARRAY_SIZE(str) - len);
-    qp_drawtext(args->device, args->x, args->y, args->font, str);
+    // args->extra contains the heap used on last iteration to avoid extra redraws
+    // args->extra->running avoids redrawing caused by the dynamic memorry allocations on the animation code
+    if (args->device == NULL || extra->used == used || extra->running) {
+        return 1000;
+    }
 
-    return interval;
+    extra->used    = used;
+    extra->running = true;
+
+    // generate "used/total" string
+    pretty_bytes(used, g_scratch, ARRAY_SIZE(g_scratch));
+    strcat(g_scratch, "/");
+    size_t len = strlen(g_scratch);
+    pretty_bytes(total, g_scratch + len, ARRAY_SIZE(g_scratch) - len);
+
+    // start the animation
+    size_t dest_size = strlen(g_scratch);
+    if (extra->curr != NULL) {
+        extra->curr = realloc(extra->curr, dest_size);
+        memset(extra->curr, ' ', dest_size);
+    }
+    extra->dest  = malloc(dest_size);
+    extra->mask  = 0;
+    extra->state = FILLING;
+    strcpy(extra->dest, g_scratch);
+
+    defer_exec(10, heap_animation_callback, args);
+
+    return 1000;
 }
 
 #if defined(KEYLOG_ENABLE)
@@ -460,9 +580,9 @@ static uint32_t keylog_task_callback(uint32_t trigger_time, void *cb_arg) {
 // *** API ***
 
 void elpekenin_qp_init(void) {
-    display_map = new_map(painter_device_t, NULL);
-    font_map    = new_map(painter_font_handle_t, NULL);
-    img_map     = new_map(painter_image_handle_t, NULL);
+    map_init(device_map,  2, NULL);
+    map_init(  font_map,  2, NULL);
+    map_init( image_map, 10, NULL);
 
     // has to be after the maps, as it uses them
     load_qp_resources();
@@ -484,6 +604,7 @@ void elpekenin_qp_init(void) {
     heap_stats_args.font = fira_code;
     heap_stats_args.x = 50;
     heap_stats_args.y = uptime_args.y + fira_code->line_height + 2;
+    heap_stats_args.extra = &heap_stats_extra;
 
 #if defined(KEYLOG_ENABLE)
     keylog_args.font = fira_code;

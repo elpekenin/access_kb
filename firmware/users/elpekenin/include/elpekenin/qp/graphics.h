@@ -93,4 +93,5 @@ typedef struct PACKED {
     scrolling_args_t scrolling_args;
     uint16_t x;
     uint16_t y;
+    void *extra;
 } qp_callback_args_t;

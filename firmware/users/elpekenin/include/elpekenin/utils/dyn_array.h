@@ -13,11 +13,27 @@ typedef struct PACKED {
     size_t       item_size;
 } header_t;
 
-#define get_header(array) (((header_t *)(array)) - 1)
-#define array_len(array) ((get_header(array))->length)
+#define new_array(__type, __size, __allocator) (__type *)_new_array(sizeof(__type), __size, __allocator)
+READ_ONLY(3) void *_new_array(size_t item_size, size_t initial_size, allocator_t *allocator);
 
-#define new_array(__type, __allocator) (__type *)_new_array(sizeof(__type), __allocator)
-READ_ONLY(2) void *_new_array(size_t item_size, allocator_t *allocator);
+PURE READ_ONLY(1) header_t *get_header(void *array);
+PURE READ_ONLY(1) size_t array_len(void *array);
 
-READ_ONLY(2) WARN_UNUSED bool array_append(void **array, const void *value);
-WARN_UNUSED bool array_pop(void *array, size_t n_items);
+WARN_UNUSED bool expand_if_needed(void **array);
+
+#define array_append(__array, __value) ({ \
+    /* unless we needed extra space and failed to allocate, append the item */ \
+    bool ret = expand_if_needed((void **)&__array); \
+    if (ret) { \
+        ret = false; \
+        header_t *header = get_header(__array); \
+        if (header != NULL) { \
+            ret = true; \
+            __array[header->length++] = __value; \
+        } \
+    } \
+    \
+    ret; \
+})
+
+#define array_pop(__array, n_items) (get_header(__array)->length -= n_items)
