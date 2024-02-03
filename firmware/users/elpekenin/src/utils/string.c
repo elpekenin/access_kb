@@ -46,21 +46,23 @@ const char *_itoa(uint32_t value, char *buffer) {
 
 // returns pretty representation of an amount in bytes, eg: 8B or 1.3kB
 char *pretty_bytes(size_t n, char *buffer, uint16_t buffer_size) {
-    const static char *magnitudes[] = {"_", "kB", "MB", "GB"};
-
     // bytes
     if (n < 1024) {
-        snprintf(buffer, buffer_size, "%5dB", n);
+        // space for b to align with kb/mb/gb
+        snprintf(buffer, buffer_size, "%3d b", n);
         return buffer;
     }
 
+    const static char *magnitudes[] = {"kb", "mb", "gb"};
+
     uint8_t index = 0;
-    size_t  copy  = n;
+    size_t  copy  = n / 1024;
     while (copy >= 1024) {
         copy /= 1024;
         index++;
     }
 
-    snprintf(buffer, buffer_size, "%3.2f%s", (float)n / 1024, magnitudes[index]);
+    snprintf(buffer, buffer_size, "%3d%s", copy, magnitudes[index]);
+
     return buffer;
 }

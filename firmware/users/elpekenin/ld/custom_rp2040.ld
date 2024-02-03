@@ -122,7 +122,6 @@ SECTIONS {
 
 INCLUDE rules_memory.ld
 
-
 SECTIONS {
    .flash_end : {
       __flash_binary_end = .;

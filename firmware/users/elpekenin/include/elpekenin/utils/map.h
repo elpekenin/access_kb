@@ -26,7 +26,10 @@
     do { \
         /* if key already used, do nothing */ \
         bool found; \
-        WITHOUT_LOGGING(MAP, map_get(__map, __key, found);); \
+        WITHOUT_LOGGING( \
+            MAP, \
+            map_get(__map, __key, found); \
+        ); \
         if (!found) { \
             array_append(__map.keys, __key); \
             array_append(__map.values, __value); \

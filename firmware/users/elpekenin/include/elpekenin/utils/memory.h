@@ -5,12 +5,16 @@
 
 #include "elpekenin/utils/compiler.h"
 
+CONST READ_ONLY(1) bool ptr_in_heap(const void *addr);
+
 CONST READ_ONLY(1) bool ptr_in_main_stack(const void *addr);
 CONST READ_ONLY(1) bool ptr_in_process_stack(const void *addr);
 CONST READ_ONLY(1) bool ptr_in_stack(const void *addr);
 
-CONST size_t get_binary_size(void);
+size_t get_used_heap(void);
 CONST size_t get_heap_size(void);
 
-size_t get_used_heap(void);
-float  used_heap_percentage(void);
+#if defined(MCU_RP)
+CONST size_t get_used_flash(void);
+CONST size_t get_flash_size(void);
+#endif

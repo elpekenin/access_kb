@@ -91,6 +91,7 @@ void keyboard_post_init_keymap(void) {
     set_uptime_device(ili9341);
     set_logging_device(ili9341);
     set_heap_stats_device(ili9341);
+    set_layer_device(ili9341);
 #        if defined(KEYLOG_ENABLE)
     set_keylog_device(ili9341);
 #        endif

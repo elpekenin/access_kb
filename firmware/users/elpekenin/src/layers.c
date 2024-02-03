@@ -13,12 +13,24 @@
 #endif
 
 #if defined(TRI_LAYER_ENABLE)
+// TODO: Confirm if this is actuall being called
 CONSTRUCTOR(105) static void tri_layer_init(void) {
     set_tri_layer_lower_layer(_FN1);
     set_tri_layer_upper_layer(_FN2);
     set_tri_layer_adjust_layer(_RST);
 }
 #endif
+
+const char *get_layer_name(layer_names_t layer) {
+    switch (layer) {
+        case _QWERTY: return " QWERTY ";
+        case    _FN1: return " F-KEYS ";
+        case    _FN2: return " NUMPAD ";
+        case    _FN3: return "SYMBOLS ";
+        case    _RST: return "  UTILS ";
+             default: return "????????";
+    }
+}
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     state = layer_state_set_keymap(state);

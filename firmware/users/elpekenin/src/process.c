@@ -229,7 +229,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case PK_CRSH:
         if (pressed) {
-            printf("%c", *(const char *)NULL);
+            printf("%c", *(volatile const char *)NULL);
         }
         return false;
 
@@ -241,7 +241,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case PK_SIZE:
         if (pressed) {
-            logging(UNKNOWN, LOG_INFO, "Binary takes %s", pretty_bytes(get_binary_size(), g_scratch, ARRAY_SIZE(g_scratch)));
+            logging(UNKNOWN, LOG_INFO, "Binary takes %s", pretty_bytes(get_flash_size(), g_scratch, ARRAY_SIZE(g_scratch)));
         }
         return false;
 

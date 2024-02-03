@@ -76,6 +76,7 @@ NON_NULL(2) READ_ONLY(2) void extend_scrolling_text(deferred_token scrolling_tok
 void set_logging_device(painter_device_t device);
 void set_uptime_device(painter_device_t device);
 void set_heap_stats_device(painter_device_t device);
+void set_layer_device(painter_device_t device);
 
 #if defined(KEYLOG_ENABLE)
 void set_keylog_device(painter_device_t device);

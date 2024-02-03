@@ -19,7 +19,13 @@ extern uint8_t __main_stack_base__,
                __process_stack_end__,
                __bss_end__,
                __flash_binary_start,
-               __flash_binary_end;
+               __flash_binary_end,
+               __flash1_base__,
+               __flash1_end__;
+
+bool ptr_in_heap(const void *ptr) {
+   return ADDR(__bss_end__) <= ptr && ptr <= ADDR(__process_stack_end__);
+}
 
 bool ptr_in_main_stack(const void *ptr) {
     return ADDR(__main_stack_base__) <= ptr && ptr <= ADDR(__main_stack_end__);
@@ -35,11 +41,7 @@ bool ptr_in_stack(const void *ptr) {
 
 // adapted from <https://forums.raspberrypi.com/viewtopic.php?t=347638>
 size_t get_heap_size(void) {
-   return &__process_stack_end__ - &__bss_end__;
-}
-
-size_t get_binary_size(void) {
-    return &__flash_binary_end - &__flash_binary_start;
+   return ADDR(__process_stack_end__) - ADDR(__bss_end__);
 }
 
 // *** Track heap usage ***
@@ -65,6 +67,10 @@ size_t get_used_heap(void) {
 }
 
 static void push_record(void *ptr, size_t size) {
+    if (UNLIKELY(ptr == NULL)) {
+        return;
+    }
+
     for (
         usage_entry_t *entry = entries;
         entry < &entries[ARRAY_SIZE(entries)];
@@ -85,6 +91,10 @@ static void push_record(void *ptr, size_t size) {
 }
 
 static void pop_record(void *ptr) {
+    if (UNLIKELY(ptr == NULL)) {
+        return;
+    }
+
     for (
         usage_entry_t *entry = entries;
         entry < &entries[ARRAY_SIZE(entries)];
@@ -163,6 +173,13 @@ WRAP(realloc)
     return ptr;
 }
 
-float used_heap_percentage(void) {
-    return (float)get_used_heap() * 100 / get_heap_size();
+
+#if defined(MCU_RP)
+size_t get_flash_size(void) {
+    return ADDR(__flash1_end__) - ADDR(__flash1_base__);
 }
+
+size_t get_used_flash(void) {
+    return ADDR(__flash_binary_end) - ADDR(__flash_binary_start);
+}
+#endif

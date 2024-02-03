@@ -8,6 +8,7 @@
 #endif
 
 #include "elpekenin/build_info.h"
+#include "elpekenin/layers.h"
 #include "elpekenin/rng.h"
 #include "elpekenin/logging/backends/qp.h"
 #include "elpekenin/qp/graphics.h"
@@ -48,6 +49,7 @@ static scrolling_text_state_t scrolling_text_states[QUANTUM_PAINTER_CONCURRENT_S
 TASK(logging)
 TASK(uptime)
 TASK(heap_stats)
+TASK(layer)
 #if defined(KEYLOG_ENABLE)
 TASK(keylog)
 #endif
@@ -56,18 +58,20 @@ typedef enum {
     FILLING,
     COPYING,
     DONE,
-} anim_t;
+} anim_phase_t;
 
 typedef struct {
-    size_t   used;
-    bool     running;
-    uint64_t mask;
-    anim_t   state;
-    char *   curr;
-    char *   dest;
-} heap_stats_extra_t;
-static heap_stats_extra_t heap_stats_extra = {0};
+    size_t       used;
+    bool         running;
+    uint64_t     mask;
+    anim_phase_t state;
+    char         curr[65]; // u64 mask + '\0'
+    char         dest[65]; // u64 mask + '\0'
+    void       (*callback)(void *);
+} glitch_text_state_t;
 
+static glitch_text_state_t heap_stats_extra = {0};
+static glitch_text_state_t layer_extra = {0};
 
 // *** Asset handling ***
 
@@ -351,6 +355,7 @@ void stop_scrolling_text(deferred_token scrolling_token) {
 
             // Clear screen and de-allocate
             qp_rect(state->device, state->x, state->y, state->x + state->width, state->y + state->font->line_height, HSV_BLACK, true);
+
             free(state->str);
 
             // Cleanup the state
@@ -396,14 +401,14 @@ static uint32_t uptime_task_callback(uint32_t trigger_time, void *cb_arg) {
     uint8_t seconds = result.rem / MS_IN_A_SEC;
 
     char uptime_str[16];
-    snprintf(uptime_str, sizeof(uptime_str), "Up|%2dh%2dm%2ds", hours, minutes, seconds);
+    snprintf(uptime_str, sizeof(uptime_str), "Up|%02dh%02dm%02ds", hours, minutes, seconds);
 
     qp_drawtext(args->device, args->x, args->y, args->font, uptime_str);
 
     return 1000;
 }
 
-static uint16_t heap_random(uint16_t max, uint64_t *mask) {
+static uint16_t gen_random_pos(uint16_t max, uint64_t *mask) {
     uint16_t random;
 
     do { // dont mess already-done char
@@ -414,31 +419,47 @@ static uint16_t heap_random(uint16_t max, uint64_t *mask) {
     return random;
 }
 
-static void draw_heap(qp_callback_args_t *args) {
-    heap_stats_extra_t *extra = (heap_stats_extra_t *)args->extra;
-    qp_drawtext(args->device, args->x, args->y, args->font, extra->curr);
+static void draw_heap(void *cb_arg) {
+    qp_callback_args_t  *args  = (qp_callback_args_t *)cb_arg;
+    glitch_text_state_t *state = (glitch_text_state_t *)args->extra;
+
+    int16_t width = qp_drawtext(
+        args->device,
+        args->x,
+        args->y,
+        args->font,
+        // space to align the ":" with flash
+        " Heap: "
+    );
+
+    qp_drawtext(
+        args->device,
+        args->x + width,
+        args->y,
+        args->font,
+        state->curr
+    );
 }
 
-static uint32_t heap_animation_callback(uint32_t trigger_time, void *cb_arg) {
-    qp_callback_args_t *args  = (qp_callback_args_t *)cb_arg;
-    heap_stats_extra_t *extra = (heap_stats_extra_t *)args->extra;
 
-    if (
-        extra->curr == NULL // first time, just draw it and remember the string
-        || extra->state == DONE // strings converged, we are done
-    ) {
-        extra->running = false;
+static uint32_t glitch_text_callback(uint32_t trigger_time, void *cb_arg) {
+    qp_callback_args_t  *args  = (qp_callback_args_t *)cb_arg;
+    glitch_text_state_t *state = (glitch_text_state_t *)args->extra;
 
-        WITHOUT_LOGGING(ALLOC, free(extra->curr););
-        extra->curr = extra->dest;
-        extra->dest = NULL;
+    // strings converged, draw and quit
+    if (state->state == DONE) {
+        state->running = false;
 
-        draw_heap(args);
+        strcpy(state->curr, state->dest);
+        // keep terminator untouched
+        memset(state->dest, ' ', ARRAY_SIZE(state->dest) - 1);
+
+        state->callback(args);
         return 0;
     }
 
     // actual logic
-    size_t len = strlen(extra->dest);
+    size_t len = strlen(state->dest);
 
     char chr = '\0';
     do { // dont want a terminator mid-string
@@ -447,15 +468,15 @@ static uint32_t heap_animation_callback(uint32_t trigger_time, void *cb_arg) {
 
     // all bits that should be set are set, change state
     uint64_t mask = (1 << (len - 1)) - 1;
-    if ((extra->mask & mask) == mask) {
-        extra->mask = 0;
-        switch (extra->state) {
+    if ((state->mask & mask) == mask) {
+        state->mask = 0;
+        switch (state->state) {
             case FILLING:
-                extra->state = COPYING;
+                state->state = COPYING;
                 break;
 
             case COPYING:
-                extra->state = DONE;
+                state->state = DONE;
                 break;
 
             case DONE:
@@ -464,59 +485,93 @@ static uint32_t heap_animation_callback(uint32_t trigger_time, void *cb_arg) {
     }
 
     // this is an index, -1 prevents out of bouds str[len]
-    uint16_t pos = heap_random(len - 1, &extra->mask);
+    uint16_t pos = gen_random_pos(len - 1, &state->mask);
 
-    switch (extra->state) {
+    switch (state->state) {
         case FILLING:
-            extra->curr[pos] = chr;
+            state->curr[pos] = chr;
             break;
 
         case COPYING:
-            extra->curr[pos] = extra->dest[pos];
+            state->curr[pos] = state->dest[pos];
             break;
 
         case DONE:
             break;
     }
 
-    draw_heap(args);
-    return 50;
+    state->callback(args);
+    return 30;
 }
 
 static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
-    qp_callback_args_t *args  = (qp_callback_args_t *)cb_arg;
-    heap_stats_extra_t *extra = (heap_stats_extra_t *)args->extra;
+    qp_callback_args_t  *args  = (qp_callback_args_t *)cb_arg;
+    glitch_text_state_t *state = (glitch_text_state_t *)args->extra;
 
     size_t used  = get_used_heap();
-    size_t total = get_heap_size();
 
-    // args->extra contains the heap used on last iteration to avoid extra redraws
-    // args->extra->running avoids redrawing caused by the dynamic memorry allocations on the animation code
-    if (args->device == NULL || extra->used == used || extra->running) {
+    static size_t last_used = 0;
+
+    if (
+        args->device == NULL
+        || last_used == used
+        || state->running
+    ) {
         return 1000;
     }
 
-    extra->used    = used;
-    extra->running = true;
+    // on first run, draw flash size
+    static bool flash = false;
+    if (!flash) {
+        flash = true;
 
-    // generate "used/total" string
-    pretty_bytes(used, g_scratch, ARRAY_SIZE(g_scratch));
+        strcpy(g_scratch, "Flash: ");
+
+        size_t offset = strlen(g_scratch);
+        pretty_bytes(
+            get_used_flash(),
+            g_scratch + offset,
+            ARRAY_SIZE(g_scratch) - offset
+        );
+
+        strcat(g_scratch, "/");
+
+        offset = strlen(g_scratch);
+        pretty_bytes(
+            get_flash_size(),
+            g_scratch + offset,
+            ARRAY_SIZE(g_scratch) - offset
+        );
+
+        qp_drawtext(
+            args->device,
+            args->x,
+            args->y - args->font->line_height,
+            args->font,
+            g_scratch
+        );
+    }
+
+    last_used      = used;
+    state->running = true;
+
+    size_t offset = 0;
+    pretty_bytes(used, g_scratch + offset, ARRAY_SIZE(g_scratch) - offset);
+
     strcat(g_scratch, "/");
-    size_t len = strlen(g_scratch);
-    pretty_bytes(total, g_scratch + len, ARRAY_SIZE(g_scratch) - len);
+
+    offset = strlen(g_scratch);
+    pretty_bytes(
+        get_heap_size(),
+        g_scratch + offset,
+        ARRAY_SIZE(g_scratch) - offset
+    );
 
     // start the animation
-    size_t dest_size = strlen(g_scratch);
-    if (extra->curr != NULL) {
-        extra->curr = realloc(extra->curr, dest_size);
-        memset(extra->curr, ' ', dest_size);
-    }
-    extra->dest  = malloc(dest_size);
-    extra->mask  = 0;
-    extra->state = FILLING;
-    strcpy(extra->dest, g_scratch);
-
-    defer_exec(10, heap_animation_callback, args);
+    strcpy(state->dest, g_scratch);
+    state->mask  = 0;
+    state->state = FILLING;
+    defer_exec(10, glitch_text_callback, args);
 
     return 1000;
 }
@@ -525,9 +580,8 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
 static uint32_t keylog_task_callback(uint32_t trigger_time, void *cb_arg) {
     qp_callback_args_t *args = (qp_callback_args_t *)cb_arg;
 
-    uint32_t interval = 100;
     if (args->device == NULL || !is_keylog_dirty()) {
-        return interval;
+        return 1000;
     }
 
     const char *keylog = get_keylog();
@@ -572,14 +626,58 @@ static uint32_t keylog_task_callback(uint32_t trigger_time, void *cb_arg) {
         HSV_BLACK
     );
 
-    return interval;
+    return 100;
 }
 #endif
+
+static void draw_layer(void *cb_arg) {
+    qp_callback_args_t  *args  = (qp_callback_args_t *)cb_arg;
+    glitch_text_state_t *state = (glitch_text_state_t *)args->extra;
+
+    // random color
+    // sat = 0 => white regardless of hue
+    uint8_t hue = rng_min_max(0, 255);
+    uint8_t sat = state->running ? 255 : 0;
+
+    qp_drawtext_recolor(
+        args->device,
+        args->x, args->y,
+        args->font,
+        state->curr,
+        hue, sat, 255,
+        HSV_BLACK
+    );
+}
+
+static uint32_t layer_task_callback(uint32_t trigger_time, void *cb_arg) {
+    qp_callback_args_t  *args  = (qp_callback_args_t *)cb_arg;
+    glitch_text_state_t *state = (glitch_text_state_t *)args->extra;
+
+    static uint8_t last_layer = UINT8_MAX;
+
+    const uint8_t layer = HIGHEST_LAYER;
+
+    if (args->device == NULL || last_layer == layer || state->running) {
+        return 100;
+    }
+
+    last_layer     = layer;
+    state->running = true;
+
+    // start the animation
+    strcpy(state->dest, get_layer_name(layer));
+    state->mask  = 0;
+    state->state = FILLING;
+    defer_exec(10, glitch_text_callback, args);
+
+    return 100;
+}
 
 
 // *** API ***
 
 void elpekenin_qp_init(void) {
+    // TODO: Fragile code, setting image map to 8 works (scales to 16), but eg 3/4 crashes
     map_init(device_map,  2, NULL);
     map_init(  font_map,  2, NULL);
     map_init( image_map, 10, NULL);
@@ -590,6 +688,8 @@ void elpekenin_qp_init(void) {
     painter_font_handle_t fira_code = qp_get_font_by_name("font_fira_code");
 
     // positions are hard-coded for ILI9341 on access
+
+    size_t spacing = fira_code->line_height + 2;
 
     logging_args.font = fira_code;
     logging_args.x = 160;
@@ -603,8 +703,15 @@ void elpekenin_qp_init(void) {
 
     heap_stats_args.font = fira_code;
     heap_stats_args.x = 50;
-    heap_stats_args.y = uptime_args.y + fira_code->line_height + 2;
+    heap_stats_args.y = uptime_args.y + 2 * spacing;
+    heap_stats_extra.callback = draw_heap;
     heap_stats_args.extra = &heap_stats_extra;
+
+    layer_args.font = fira_code;
+    layer_args.x = 70;
+    layer_args.y = heap_stats_args.y + spacing;
+    layer_extra.callback = draw_layer;
+    layer_args.extra = &layer_extra;
 
 #if defined(KEYLOG_ENABLE)
     keylog_args.font = fira_code;
