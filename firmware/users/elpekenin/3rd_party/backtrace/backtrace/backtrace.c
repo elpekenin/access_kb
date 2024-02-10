@@ -124,7 +124,7 @@ static int unwind_execute_instruction(unwind_control_block_t *ucb)
 
 		} else if ((instruction & 0xc0) == 0x40) {
 			/* vsp = vsp - (xxxxxx << 2) - 4 */
-			ucb->vrs[13] -= ((instruction & 0x3f) << 2) - 4;
+			ucb->vrs[13] -= ((instruction & 0x3f) << 2) + 4;
 
 		} else if ((instruction & 0xf0) == 0x80) {
 			/* pop under mask {r15-r12},{r11-r4} or refuse to unwind */

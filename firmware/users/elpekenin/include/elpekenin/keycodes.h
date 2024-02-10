@@ -12,7 +12,7 @@
 
 // note: these are always defined, but may not do anything based on features enabled
 enum userspace_keycodes {
-    __PLACEHOLDER = QK_USER,
+    __CUSTOM_KEYCODES_START = QK_USER,
 
     PK_CPYR, // copyright header
 

@@ -57,6 +57,7 @@ void print_crash_call_stack(void) {
     logging(UNKNOWN, LOG_WARN, "Crash (%s)", copied_crash_info.cause);
     for (uint8_t i = 1; i < depth; ++i) {
         logging(UNKNOWN, LOG_ERROR, "%s", call_stack[i].name);
+        logging(UNKNOWN, LOG_ERROR, "%p", call_stack[i].address);
     }
 }
 

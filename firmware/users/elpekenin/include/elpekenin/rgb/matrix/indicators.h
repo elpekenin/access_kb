@@ -39,6 +39,7 @@ struct PACKED indicator_t {
 RGB_INDICATOR_FN_ATTRS bool keycode_callback(indicator_t *indicator, indicator_fn_args_t *args);
 RGB_INDICATOR_FN_ATTRS bool layer_callback(indicator_t *indicator, indicator_fn_args_t *args);
 RGB_INDICATOR_FN_ATTRS bool keycode_and_layer_callback(indicator_t *indicator, indicator_fn_args_t *args);
+RGB_INDICATOR_FN_ATTRS bool custom_keycode_layer_callback(indicator_t *indicator, indicator_fn_args_t *args);
 RGB_INDICATOR_FN_ATTRS bool layer_and_configured_callback(indicator_t *indicator, indicator_fn_args_t *args);
 RGB_INDICATOR_FN_ATTRS bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_t *args);
 
@@ -85,6 +86,11 @@ RGB_INDICATOR_FN_ATTRS bool keycode_and_mods_callback(indicator_t *indicator, in
     .mods = _mods, \
 }
 
+#define KC_CUSTOM_LAYER(_layer, _col) { \
+    .color = _RGB(_col), \
+    .check = &custom_keycode_layer_callback, \
+    .layer = _layer, \
+}
 
 // *** Colors ***
 

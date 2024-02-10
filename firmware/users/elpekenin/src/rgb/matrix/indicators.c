@@ -24,8 +24,7 @@ static const indicator_t indicators[] = {
     KC_LAYER(AC_DICT, _RST, RGB_RED),
 
     // custom keycodes
-    KC_LAYER(PK_LOG,  _RST, RGB_BLUE),
-    KC_LAYER(PK_KLOG, _RST, RGB_BLUE),
+    KC_CUSTOM_LAYER(_RST, RGB_BLUE)
 };
 
 // NOTES:
@@ -46,43 +45,46 @@ static const uint8_t ledmap[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // *** Checks ***
 
-// helper tiny checks
-RGB_INDICATOR_FN_ATTRS static inline bool keycode(indicator_t *indicator, indicator_fn_args_t *args) {
-    return indicator->keycode == args->keycode;
-}
-
-RGB_INDICATOR_FN_ATTRS static inline bool layer(indicator_t *indicator, indicator_fn_args_t *args) {
-    return indicator->layer == args->layer;
-}
-
-RGB_INDICATOR_FN_ATTRS static inline bool mods(indicator_t *indicator, indicator_fn_args_t *args) {
-    return indicator->mods == args->mods;
-}
-
-
 // draw the given keycode
 RGB_INDICATOR_FN_ATTRS bool keycode_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return keycode(indicator, args);
+    return indicator->keycode == args->keycode;
 }
 
 // draw every key while on the given layer
 RGB_INDICATOR_FN_ATTRS bool layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return layer(indicator, args);
+    return indicator->layer == args->layer;
+}
+
+// draw every custom keycode on the given layer
+RGB_INDICATOR_FN_ATTRS bool custom_keycode_layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
+    return (
+        indicator->layer == args->layer
+        && args->keycode >= __CUSTOM_KEYCODES_START
+    );
 }
 
 // draw the given keycode while on the given layer
 RGB_INDICATOR_FN_ATTRS bool keycode_and_layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return keycode(indicator, args) && layer(indicator, args);
+    return (
+        indicator->keycode == args->keycode
+        && indicator->layer == args->layer
+    );
 }
 
 // draw every keycode configured (i.e. not KC_NO nor KC_TRNS) on the given layer
 RGB_INDICATOR_FN_ATTRS bool layer_and_configured_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return layer(indicator, args) && indicator->keycode > KC_TRNS;
+    return (
+        indicator->layer == args->layer
+        && indicator->keycode > KC_TRNS
+    );
 }
 
 // draw the given keycode if given mods are set (i.e. display shortcuts)
 RGB_INDICATOR_FN_ATTRS bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return keycode(indicator, args) && mods(indicator, args);
+    return (
+        indicator->keycode == args->keycode
+        && indicator->mods == args->mods
+    );
 }
 
 // *** Ledmap ***
