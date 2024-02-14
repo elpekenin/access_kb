@@ -581,7 +581,7 @@ static uint32_t keylog_task_callback(uint32_t trigger_time, void *cb_arg) {
     qp_callback_args_t *args = (qp_callback_args_t *)cb_arg;
 
     if (args->device == NULL || !is_keylog_dirty()) {
-        return 1000;
+        return 10;
     }
 
     const char *keylog = get_keylog();
@@ -626,7 +626,7 @@ static uint32_t keylog_task_callback(uint32_t trigger_time, void *cb_arg) {
         HSV_BLACK
     );
 
-    return 100;
+    return 10;
 }
 #endif
 

@@ -131,9 +131,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         is_handling_rgb = false;
 
         if (record->event.pressed) {
-            uint8_t  layer = get_highest_layer(layer_state | default_layer_state);
-            keypos_t pos   = record->event.key;
-            logging(UNKNOWN, LOG_INFO, "Used %s", get_keycode_str_at(layer, pos.row, pos.col));
+            logging(UNKNOWN, LOG_INFO, "Used %s", get_keycode_name(keycode));
         }
 
         return false;

@@ -166,7 +166,7 @@ def _draw_generator(feature: str) -> str:
 if __name__ == "__main__":
     # -- Handle args
     if len(sys.argv) != 2:
-        print(f"{CLI_ERROR} {current_filename(__file__)} <output_path>")
+        print(f"{CLI_ERROR} {current_filename(__file__)} <output_folder>")
         exit(1)
 
     output_dir = Path(sys.argv[1])

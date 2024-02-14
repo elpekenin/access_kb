@@ -23,7 +23,7 @@ def lines(*args) -> str:
     return "\n".join([*args])
 
 
-CLI_ERROR = "[LOG_ERROR] Usage:"
+CLI_ERROR = "[ERROR] Usage:"
 
 __HEADER = lines(
     "{comment} THIS FILE WAS GENERATED",

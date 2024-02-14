@@ -53,11 +53,9 @@ void xap_keyevent(uint16_t keycode, keyrecord_t *record) {
         },
     };
 
-    strncpy(
-        msg.str,
-        get_keycode_str_at(msg.base.layer, msg.base.row, msg.base.col),
-        sizeof(msg.str)
-    );
+    const char *name = get_keycode_name(keycode);
+    name = (name == NULL) ? "XXX" : name;
+    strncpy(msg.str, name, sizeof(msg.str));
 
     // variable size                          '\0' ~~~v
     size_t len = sizeof(msg.base) + strlen(msg.str) + 1;

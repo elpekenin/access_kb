@@ -5,58 +5,73 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 """
-Extract keycodes as strings from a keymap.c file
+Create a u16 -> char * mapping
+
+Step 1) Get keycode information from qmk.keycodes
+
+Step 2) Specialize it with the keycodes and/or alises within keymap.c file
 
 Assumes layers written as: [<layer>] = LAYOUT(.*)(
 i.e. Layers with explicit numbering/naming
      Numbering and LAYOUT on the same line
 """
 
+# NOTE: Has to be run from QMK's base folder
+
 import re
 import sys
 from pathlib import Path
 
+# make `scripts` and `qmk` visible and import them
+QMK = Path(__file__).parent
+
+sys.path.append(str(QMK / "users" / "elpekenin" / "scripts"))
 from scripts import *
+sys.path.append(str(QMK / "lib" / "python"))
+from qmk import keycodes
 
 
-LAYER = []
-KEYMAP = []
-
-COMMENT = re.compile("//(.*)")
+COMMENT = re.compile(r"//(.*)")
 MULTI_COMMENT = re.compile(r"/\*(.*?)\*/")
 LAYOUT = re.compile(r"\[(.*)\]( *)=( *)LAYOUT(.*)\(")
 
 OUTPUT_NAME = "keycode_str"
 
-COORD_TO_INDEX_ARRAY = "__col_row_to_index_mapping"
-KEYCODE_ARRAY = "__keycodes"
-GETTER_SIGNATURE = "const char *get_keycode_str_at(uint8_t layer, uint8_t row, uint8_t col)"
-INDEX_TO_COORDS_SIGNATURE = "bool index_to_row_col(uint8_t index, uint8_t *row, uint8_t *col)"
-COORDS_TO_INDEX_SIGNATURE =  "bool row_col_to_index(uint8_t row, uint8_t col, uint8_t *index)"
-
 H_FILE = lines(
     H_HEADER,
     "",
-    GETTER_SIGNATURE + ";",
-    INDEX_TO_COORDS_SIGNATURE + ";",
-    COORDS_TO_INDEX_SIGNATURE + ";",
+    "const char *get_keycode_name(uint16_t keycode);",
+    ""
 )
 
 C_FILE = lines(
     C_HEADER,
     "",
-    '#include "default_keyboard.h" // for LAYOUT',
-    '#include "elpekenin/layers.h" // for layer names',
+    '#include "quantum.h"',
     "",
-    "{coord2index_array}",
+    '#include "elpekenin.h" // keycodes and layers',
     "",
-    "{keycode_array}",
+    "static const char *keycode_names[] = {{",
+        "{qmk_data}"  # intentional lack of comma
+        "{keymap_data}"
+    "}};",
     "",
-    "{getter_func}",
+    "const char *get_keycode_name(uint16_t keycode) {{",
+    # no keycode whatsoever, without this, tap/hold keys seems to cause noise on keylogger
+    # maybe they inject a "dummy" event with keycode = KC_NO instead of actual value (?)
+    "    if (keycode == KC_NO) {{",
+    "        return NULL;",
+    "    }}",
     "",
-    "{index2coord}",
+    # in bounds -> index array
+    "    if (keycode < ARRAY_SIZE(keycode_names)) {{",
+    "        return keycode_names[keycode];",
+    "    }}",
     "",
-    "{coord2index}"
+    # out of bounds -> nothing
+    "    return NULL;",
+    "}}",
+    ""
 )
 
 
@@ -80,15 +95,6 @@ def _remove_comments(raw_file: str) -> str:
         clean = clean[:start] + clean[end:]
 
     return clean
-
-
-def _extract_layout_name(clean_file: str) -> str:
-    suffix = LAYOUT.search(clean_file).groups()[-1]
-    return f"LAYOUT{suffix}"
-
-
-def _extract_layer_names(clean_file: str) -> list[str]:
-    return [match[0] for match in LAYOUT.findall(clean_file)]
 
 
 def _extract_keycodes(clean_file: str) -> list[str]:
@@ -121,70 +127,17 @@ def _extract_keycodes(clean_file: str) -> list[str]:
     return layers
 
 
-def _coord2index_array_generator(layers: list[str], layout_name: str) -> str:
-    return (
-        f"static const uint8_t {COORD_TO_INDEX_ARRAY}[MATRIX_ROWS][MATRIX_COLS] = {layout_name}("
-        f'{", ".join(str(i+1) for i in range(len(layers[0].split(","))))}'
-        ");"
-    )
+def _keymap_data(layers: list[str]) -> str:
+    keycodes = set()
+    for layer in layers:
+        for keycode in layer.split(","):
+            keycodes.add(keycode.strip())
 
-
-def _keycode_generator(layers: list[str], layer_names: list[str], layout_name: str) -> str:
-    def _string(kc: str) -> str:
-        """Helper to pretty format the keycodes."""
-        return f'"{kc.strip()}"'.rjust(10)
-
-    strings = f"static const char* {KEYCODE_ARRAY}[][MATRIX_ROWS][MATRIX_COLS] = {{\n"
-    for name, layer in zip(layer_names, layers):
-        name = f"[{name}]".rjust(15)
-        names = ", ".join(_string(keycode) for keycode in layer.split(","))
-        strings += f"{name} = {layout_name}({names}),\n"
-    strings += "};"
+    strings = ""
+    for keycode in keycodes:
+        strings += f'    [{keycode}] = "{keycode}",\n'
 
     return strings
-
-
-def _getter_generator() -> str:
-    return lines(
-        f"{GETTER_SIGNATURE} {{",
-        f"    return {KEYCODE_ARRAY}[layer][row][col];",
-        "}"
-    )
-
-def _index2coord_generator() -> str:
-    return lines(
-        f"{INDEX_TO_COORDS_SIGNATURE} {{",
-        "    // we need this correction as the counting on map is not 0-based",
-        "    // it is 1-based and 0 represents no key on the position",
-        "    uint8_t corrected_index = index + 1;",
-        "",
-        "    for (uint8_t i = 0; i < MATRIX_ROWS; ++i) {",
-        "        for (uint8_t j = 0; j < MATRIX_COLS; ++j) {",
-        f"            if ({COORD_TO_INDEX_ARRAY}[i][j] == corrected_index) {{",
-        "                *row = i;",
-        "                *col = j;",
-        "                return true;",
-        "            }",
-        "        }",
-        "    }",
-        "",
-        "    return false;",
-        "}",
-    )
-
-
-def _coord2index_generator() -> str:
-    return lines(
-        f"{COORDS_TO_INDEX_SIGNATURE} {{",
-        f"    uint8_t i = {COORD_TO_INDEX_ARRAY}[row][col];",
-        "",
-        "    if (i != KC_NO) {",
-        "        *index = i - 1;",
-        "    }",
-        "",
-        "    return i != KC_NO;",
-        "}",
-    )
 
 
 if __name__ == "__main__":
@@ -206,30 +159,27 @@ if __name__ == "__main__":
     # parse file
     raw = _read_file(keymap_file)
     clean = _remove_comments(raw)
-    layout_name = _extract_layout_name(clean)
-    layer_names = _extract_layer_names(clean)
     layers = _extract_keycodes(clean)
 
     # generate file
-    coord2index_array = _coord2index_array_generator(layers, layout_name)
-    keycode_array = _keycode_generator(layers, layer_names, layout_name)
-    getter_func = _getter_generator()
-    index2coord = _index2coord_generator()
-    coord2index = _coord2index_generator()
+    spec = keycodes.load_spec("latest")
+    qmk_data = ""
+    for _, entry in spec["keycodes"].items():
+        keycode = entry["key"]
+        qmk_data += f'    [{keycode}] = "{keycode}",\n'
 
-    with open(output_dir / f"{OUTPUT_NAME}.h", "w") as f:
-        f.write(H_FILE)
+    keymap_data = _keymap_data(layers)
 
     with open(output_dir / f"{OUTPUT_NAME}.c", "w") as f:
         f.write(
             C_FILE.format(
-                coord2index_array=coord2index_array,
-                keycode_array=keycode_array,
-                getter_func=getter_func,
-                index2coord=index2coord,
-                coord2index=coord2index,
+                qmk_data=qmk_data,
+                keymap_data=keymap_data,
             )
         )
+
+    with open(output_dir / f"{OUTPUT_NAME}.h", "w") as f:
+        f.write(H_FILE)
 
 else:
     print("Dont try to import this")

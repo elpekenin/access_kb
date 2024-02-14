@@ -5,6 +5,7 @@
 #include "action_util.h"
 #include "default_keyboard.h" // for LAYOUT
 #include "keymap_common.h"
+#include "progmem.h"
 
 #include "elpekenin.h" // layers names and custom keycodes
 #include "elpekenin/rgb/matrix/indicators.h"
@@ -32,13 +33,20 @@ static const indicator_t indicators[] = {
 //   - Available colors defined on the `.h` file
 //   - TRNS on layer 0 => nothing drawn (respects animation)
 //   - Undefined layers => same as above
-static const uint8_t ledmap[][MATRIX_ROWS][MATRIX_COLS] = {
+static const uint8_t PROGMEM ledmap[][MATRIX_ROWS][MATRIX_COLS] = {
     // [_QWERTY] = LAYOUT(
-    //     RED, RED, RED, RED, RED, RED,     RED, RED, RED, RED, RED, RED,
-    //     RED, RED, RED, RED, RED, RED,     RED, RED, RED, RED, RED, RED,
-    //     RED, RED, RED, RED, RED, RED,     RED, RED, RED, RED, RED, RED,
-    //     RED, RED, RED, RED, RED, RED,     RED, RED, RED, RED, RED, RED,
-    //     RED, RED, RED, RED,   BLACK,         WHITE, RED, TRNS,RED, RED
+    //     RED,  RED,  RED,  RED,  RED,  RED,     RED,  RED,  RED,  RED,  RED,  RED,
+    //     RED,  RED,  RED,  RED,  RED,  RED,     RED,  RED,  RED,  RED,  RED,  RED,
+    //     RED,  RED,  RED,  RED,  RED,  RED,     RED,  RED,  RED,  RED,  RED,  RED,
+    //     RED,  RED,  RED,  RED,  RED,  RED,     RED,  RED,  RED,  RED,  RED,  RED,
+    //     RED,  RED,  RED,  RED,    BLACK,         WHITE,    RED,  TRNS, RED,  RED
+    // ),
+    // [_FN1] = LAYOUT(
+    //     TRNS, TRNS, TRNS, TRNS, TRNS, TRNS,    TRNS, TRNS, TRNS, TRNS, TRNS, TRNS,
+    //     CYAN, CYAN, CYAN, CYAN, CYAN, CYAN,    CYAN, CYAN, CYAN, CYAN, CYAN, CYAN,
+    //     BLUE, BLUE, BLUE, BLUE, BLUE, BLUE,    BLUE, BLUE, BLUE, BLUE, BLUE, BLUE,
+    //     ROSE, ROSE, ROSE, ROSE, ROSE, ROSE,    ROSE, ROSE, ROSE, ROSE, ROSE, ROSE,
+    //     WHITE,WHITE,BLACK,TRNS,    BLACK,         BLACK,   RED,  TRNS, WHITE,WHITE
     // )
 };
 
@@ -100,7 +108,7 @@ NON_NULL(4) WRITE_ONLY(4) static inline bool get_ledmap_color(uint8_t layer, uin
         return false;
     }
 
-    uint8_t hue = ledmap[layer][row][col];
+    uint8_t hue = pgm_read_byte(&(ledmap[layer][row][col]));
     uint8_t sat = rgb_matrix_get_sat();
     uint8_t val = rgb_matrix_get_val();
     HSV hsv = {hue, sat, val};

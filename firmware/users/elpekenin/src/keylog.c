@@ -87,7 +87,6 @@ static const replacement_t replacements[] = {
     {.find="UP",      .strings={[NO_MODS]="↑"                             }},
     {.find="UPPR",    .strings={[NO_MODS]="▲"                             }},
     {.find="VOLU",    .strings={[NO_MODS]="♪",   [SHIFT]="♪"              }},
-    {.find="XXXXXXX", .strings={[NO_MODS]="XX"                            }},
 };
 
 static void init_replacements(void) {
@@ -285,11 +284,7 @@ void keylog_process(uint16_t keycode, keyrecord_t *record) {
 
     keylog_dirty = true;
 
-    // get the string representation of the pressed key
-    uint8_t     layer_num = get_highest_layer(layer_state);
-    uint8_t     row       = record->event.key.row;
-    uint8_t     column    = record->event.key.col;
-    const char *str       = get_keycode_str_at(layer_num, row, column);
+    const char *str = get_keycode_name(keycode);
 
     uint8_t mods = get_mods();
     bool    ctrl = mods & MOD_MASK_CTRL;
@@ -304,6 +299,11 @@ void keylog_process(uint16_t keycode, keyrecord_t *record) {
         else {
             keylog_shift_right();
         }
+        return;
+    }
+
+    // unknown keycode, quit
+    if (UNLIKELY(str == NULL)) {
         return;
     }
 
