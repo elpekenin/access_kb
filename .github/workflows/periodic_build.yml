@@ -1,0 +1,57 @@
+name: Periodic build against latest QMK
+
+on:
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+env:
+  RUST_LOG: trace
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up git
+        run: |
+          git config --global user.email github-ci@elpekenin.dev
+          git config --global user.name elpekenin-ci
+
+      - name: Set up QMK
+        run: |
+          pip install qmk Jinja2 fnvhash
+          qmk setup -H ~/workspace/qmk --yes
+          qmk config compile.parallel=20
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Set up qmk_build
+        run: |
+          git clone https://github.com/elpekenin/qmk_build
+          cargo install --path qmk_build
+
+      - name: Copy repo files
+        uses: actions/checkout@v2.3.4
+
+      - name: Show environment info
+        run: |
+          echo -n "distro:" && uname -a || true
+          echo -n "pip:" && pip -V || true
+          echo -n "qmk:" && qmk -V || true
+          echo -n "qmk config:" && qmk config || true
+          echo -n "qmk_build:" && qmk_build -V || true
+
+      - name: Run qmk_build
+        run: |
+          cd firmware
+          qmk_build
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: binaries
+          path: firmware/binaries/*

@@ -1,7 +1,7 @@
 {
     "repo": "https://github.com/qmk/qmk_firmware",
     "branch": "xap",
-    "path": "$QMK_BUILD",
+    "path": "~/workspace/qmk",
     "default_compilation": false,
     "operations": [
         {
@@ -11,7 +11,7 @@
         },
         {
             "operation": "cp",
-            "orig": "$USERSPACE/*",
+            "orig": "users/elpekenin/*",
             "destination": "users/elpekenin"
         },
         {
@@ -60,11 +60,6 @@
             "file": "generic_rotation.diff"
         },
         {
-            // #20645(ish)
-            "operation": "diff",
-            "file": "native_color_font.diff"
-        },
-        {
             "operation": "diff",
             "file": "print_no_console.diff"
         },
@@ -93,7 +88,7 @@
         },
         {
             "operation": "cp",
-            "orig": "$USERSPACE/ld/custom_rp2040.ld",
+            "orig": "users/elpekenin/ld/custom_rp2040.ld",
             "destination": "platforms/chibios/boards/common/ld"
         }
     ],
