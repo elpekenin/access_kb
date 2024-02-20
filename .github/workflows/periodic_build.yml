@@ -39,11 +39,11 @@ jobs:
 
       - name: Show environment info
         run: |
-          echo -n "distro:" && uname -a || true
-          echo -n "pip:" && pip -V || true
-          echo -n "qmk:" && qmk -V || true
-          echo -n "qmk config:" && qmk config || true
-          echo -n "qmk_build:" && qmk_build -V || true
+          echo -n "    distro: " && uname -a     || true
+          echo -n "       pip: " && pip -V       || true
+          echo -n "       qmk: " && qmk -V       || true
+          echo -n "qmk config: " && qmk config   || true
+          echo -n " qmk_build: " && qmk_build -V || true
 
       - name: Run qmk_build
         run: |
