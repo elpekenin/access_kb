@@ -1,0 +1,157 @@
+ellipse-pr:
+  type: misc
+  title: Nuevo algoritmo para dibujar elipses
+  note: \\url\{https://github.com/qmk/qmk_firmware/pull/19005\}
+ghoul:
+  type: misc
+  title: Teclado ghoul
+  author: tzarc
+  note: \\url\{https://github.com/tzarc/ghoul\}
+hid:
+  type: misc
+  title: Protocolo HID
+  note: \\url\{https://es.wikipedia.org/wiki/HID\}
+hidapi:
+  type: misc
+  title: Librería hidapi (C)
+  note: \\url\{https://github.com/libusb/hidapi\}
+hidapi-rs:
+  type: misc
+  title: Librería para usar hidapi en Rust
+  note: \\url\{https://docs.rs/hidapi/latest/hidapi/\}
+home-assistant:
+  type: misc
+  title: Home Assistant, gestor de domótica
+  note: \\url\{https://www.home-assistant.io/\}
+i2c:
+  type: misc
+  title: Protocolo I2C
+  note: \\url\{https://es.wikipedia.org/wiki/I%C2%B2C\}
+ili9486-pr:
+  type: misc
+  title: Mi código para ili9486
+  note: \\url\{https://github.com/qmk/qmk_firmware/pull/18521\}
+ili9488:
+  type: misc
+  title: Driver para ili9488
+  note: \\url\{https://github.com/qmk/qmk_firmware/blob/master/drivers/painter/ili9xxx/qp_ili9488.c\}
+latex-rust:
+  type: misc
+  title: Formatear Rust en LaTeX
+  note: \\url\{https://github.com/denki/listings-rust\}
+lvgl:
+  type: misc
+  title: LVGL, librería para gráficos en sistemas embedidos
+  note: \\url\{https://lvgl.io/\}
+lvgl-jpe:
+  type: misc
+  title: Añadir LVGL en QMK
+  author: jpe230
+  note: \\url\{https://github.com/Jpe230/qmk_firmware/commits/develop_lvgl\}
+mdi-qgf:
+  type: misc
+  title: Repositorio con iconos en QGF
+  note: \\url\{https://github.com/elpekenin/mdi-icons-qgf\}
+micropython:
+  type: misc
+  title: MicroPython, implementacion de Python para MCU
+  note: \\url\{https://micropython.org/\}
+mod-usb-hid:
+  type: misc
+  title: Módulo para usar HID en MicroPython
+  note: \\url\{https://github.com/elpekenin/micropython/blob/peke-devel/ports/rp2/modusb_hid.c\}
+one-hand-anim:
+  type: misc
+  title: Animación selección de tecla
+  note: \\url\{https://github.com/elpekenin/qmk_firmware/blob/pekelop/keyboards/elpekenin/access/rgb_matrix_kb.inc\}
+paper:
+  type: misc
+  title: Estudios médicos sobre diseño de teclados
+  note: \\url\{https://pubmed.ncbi.nlm.nih.gov/19308823/\}
+pdf:
+  type: misc
+  title: Función en ZSH para compilar LaTeX
+  note: \\url\{https://github.com/elpekenin/access_kb/blob/main/utils/pdf.sh\}
+pointing:
+  type: misc
+  title: Pointing Device, sensores de movimiento
+  note: \\url\{https://docs.qmk.fm/#/feature_pointing_device\}
+qgf:
+  type: misc
+  title: Formato de imágenes para QMK
+  note: \\url\{https://docs.qmk.fm/#/quantum_painter_qgf\}
+qmk:
+  type: misc
+  title: QMK, librería para desarrollar firmware de teclados
+  note: \\url\{https://github.com/Jpe230/qmk_firmware\}
+qmk_xap:
+  type: misc
+  title: qmk_xap
+  author: KarlK90
+  note: \\url\{https://github.com/qmk/qmk_xap\}
+qp:
+  type: misc
+  title: Quantum Painter, API para GUI
+  note: \\url\{https://docs.qmk.fm/#/quantum_painter\}
+qp-xap-handlers:
+  type: misc
+  title: Handlers de los mensajes XAP personalizados
+  note: \\url\{https://github.com/elpekenin/qmk_firmware/blob/pekelop/users/elpekenin/painter/qp_over_xap.c\}
+rules-mk:
+  type: misc
+  title: Añadir nuestro código a la compilación de QMK
+  note: \\url\{https://github.com/elpekenin/qmk_firmware/blob/pekelop/users/elpekenin/rules.mk\}
+rust:
+  type: misc
+  title: Rust. Lenguaje de programación
+  note: \\url\{https://www.rust-lang.org/es\}
+spi:
+  type: misc
+  title: Protocolo SPI
+  note: \\url\{https://es.wikipedia.org/wiki/Serial_Peripheral_Interface\}
+tauri:
+  type: misc
+  title: Tauri, librería para hacer aplicaciones multi-plataforma
+  note: \\url\{https://tauri.app/\}
+templarian-mdi:
+  type: misc
+  title: Material Design Icons
+  note: \\url\{https://github.com/Templarian/MaterialDesign\}
+touch-driver:
+  type: misc
+  title: Driver para el sensor táctil XPT2046
+  note: \\url\{https://github.com/elpekenin/qmk_firmware/blob/pekelop/users/elpekenin/touch\}
+tusb-rp2:
+  type: misc
+  title: Añadir HID a RP2040 en MicroPython
+  author: noobee
+  note: \\url\{https://github.com/noobee/micropython/tree/usb-hid\}
+typst:
+  type: misc
+  title: typst
+  note: \\url\{https://typst.app/\}
+user-rs:
+  type: misc
+  title: Código de usuario
+  note: \\url\{https://github.com/elpekenin/qmk_xap/blob/peke-devel/src-tauri/src/user.rs\}
+vcxsrv:
+  type: misc
+  title: VcXsrv, servidor X de gráficos para Windows
+  note: \\url\{https://sourceforge.net/projects/vcxsrv/\}
+wsl:
+  type: misc
+  title: Windows Subsytem for Linux (WSL)
+  note: \\url\{https://learn.microsoft.com/es-es/windows/wsl/about \}
+xap:
+  type: misc
+  title: XAP, protocolo extensible de QMK
+  note: \\url\{https://github.com/qmk/qmk_firmware/projects/4\}
+xap-custom-msg:
+  type: misc
+  title: Mensajes personalizados en XAP
+  note: \\url\{https://github.com/elpekenin/qmk_firmware/blob/pekelop/users/elpekenin/xap.hjson\}
+xap-specs:
+  type: misc
+  title: Especificación del protocolo XAP
+  note: \\url\{https://github.com/qmk/qmk_firmware/blob/xap/docs/xap_protocol.md\}
+
