@@ -5,6 +5,7 @@
 #include "elpekenin/crash.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/placeholders.h"
+#include "elpekenin/utils/init.h"
 
 
 #include "generated/features.h"
@@ -42,22 +43,24 @@ void keyboard_pre_init_user(void) {
     keyboard_pre_init_keymap();
 }
 
+// positions of the first and last entries
+// each entry is a pointer to an init func
+extern init_fn __elpekenin_init_base__;
+extern init_fn __elpekenin_init_end__;
+
 void keyboard_post_init_user(void) {
 #if defined(AUTOCORRECT_ENABLE)
     autocorrect_enable();
 #endif
 
-#if defined(GAME_ENABLE)
-    game_init();
-#endif
-
-#if defined(QUANTUM_PAINTER_ENABLE)
-    elpekenin_qp_init();
-#endif
-
-#if defined(SPLIT_KEYBOARD)
-    split_init();
-#endif
+    // functions registered with PEKE_INIT
+    for (
+        init_fn *func = &__elpekenin_init_base__;
+        func < &__elpekenin_init_end__;
+        ++func
+    ) {
+        (*func)();
+    }
 
     keyboard_post_init_keymap();
 

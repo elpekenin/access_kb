@@ -10,23 +10,31 @@
 #include "elpekenin.h" // layers names and custom keycodes
 #include "elpekenin/rgb/matrix/indicators.h"
 #include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/dyn_array.h"
+#include "elpekenin/utils/init.h"
 
 
 // *** Definitions ***
 
-static const indicator_t indicators[] = {
-    LAYER(_RST, RGB_OFF),
+static indicator_t *indicators;
+
+USED void indicators_init(void) {
+    indicators = new_array(indicator_t, 10, NULL);
+
+    array_append(indicators, layer_indicator(_RST, RGB_OFF));
 
     // QMK keycodes
-    KC_LAYER(QK_BOOT, _RST, RGB_RED),
-    KC_LAYER(QK_RBT,  _RST, RGB_RED),
-    KC_LAYER(EE_CLR,  _RST, RGB_RED),
-    KC_LAYER(DB_TOGG, _RST, RGB_RED),
-    KC_LAYER(AC_DICT, _RST, RGB_RED),
+    array_append(indicators, keycode_in_layer_indicator(QK_BOOT, _RST, RGB_RED));
+    array_append(indicators, keycode_in_layer_indicator(QK_RBT,  _RST, RGB_RED));
+    array_append(indicators, keycode_in_layer_indicator(EE_CLR,  _RST, RGB_RED));
+    array_append(indicators, keycode_in_layer_indicator(DB_TOGG, _RST, RGB_RED));
+    // array_append(indicators, keycode_in_layer_indicator(AC_DICT, _RST, RGB_RED));
 
     // custom keycodes
-    KC_CUSTOM_LAYER(_RST, RGB_BLUE)
-};
+    array_append(indicators, custom_keycode_in_layer_indicator(_RST, RGB_BLUE));
+
+}
+PEKE_INIT(indicators_init, 100);
 
 // NOTES:
 //   - Assumes (for now?) that all LEDs are mapped to a key (no underglow or w/e)
@@ -50,49 +58,24 @@ static const uint8_t PROGMEM ledmap[][MATRIX_ROWS][MATRIX_COLS] = {
     // )
 };
 
+static void handle_indicator(const indicator_t *indicator, const indicator_fn_args_t *args) {
+    if (indicator->flags & LAYER && indicator->conditions.layer != args->layer) {
+        return;
+    }
 
-// *** Checks ***
+    if (indicator->flags & KEYCODE && indicator->conditions.keycode != args->keycode) {
+        return;
+    }
 
-// draw the given keycode
-RGB_INDICATOR_FN_ATTRS bool keycode_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return indicator->keycode == args->keycode;
-}
+    if (indicator->flags & MODS && !(indicator->conditions.mods & args->mods)) {
+        return;
+    }
 
-// draw every key while on the given layer
-RGB_INDICATOR_FN_ATTRS bool layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return indicator->layer == args->layer;
-}
+    if (indicator->flags & KC_GT_THAN && indicator->conditions.keycode >= args->keycode) {
+        return;
+    }
 
-// draw every custom keycode on the given layer
-RGB_INDICATOR_FN_ATTRS bool custom_keycode_layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return (
-        indicator->layer == args->layer
-        && args->keycode >= __CUSTOM_KEYCODES_START
-    );
-}
-
-// draw the given keycode while on the given layer
-RGB_INDICATOR_FN_ATTRS bool keycode_and_layer_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return (
-        indicator->keycode == args->keycode
-        && indicator->layer == args->layer
-    );
-}
-
-// draw every keycode configured (i.e. not KC_NO nor KC_TRNS) on the given layer
-RGB_INDICATOR_FN_ATTRS bool layer_and_configured_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return (
-        indicator->layer == args->layer
-        && indicator->keycode > KC_TRNS
-    );
-}
-
-// draw the given keycode if given mods are set (i.e. display shortcuts)
-RGB_INDICATOR_FN_ATTRS bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_t *args) {
-    return (
-        indicator->keycode == args->keycode
-        && indicator->mods == args->mods
-    );
+    rgb_matrix_set_color(args->led_index, indicator->color.r, indicator->color.g, indicator->color.b);
 }
 
 // *** Ledmap ***
@@ -120,7 +103,15 @@ NON_NULL(4) WRITE_ONLY(4) static inline bool get_ledmap_color(uint8_t layer, uin
                 if (layer == 0) {
                     return false;
                 }
-                return get_ledmap_color(layer - 1, row, col, rgb);
+
+                // look up further down (only on active layers)
+                for (uint8_t __layer = layer - 1; __layer >= 0; --__layer) {
+                    if (layer_state & (1 << __layer)) {
+                        return get_ledmap_color(layer - 1, row, col, rgb);
+                    }
+                }
+
+                return false;
 
             case WHITE:
                 hsv = (HSV){0, 0, val};
@@ -164,18 +155,17 @@ bool draw_indicators(uint8_t led_min, uint8_t led_max) {
                 rgb_matrix_set_color(index, rgb.r, rgb.g, rgb.b);
             }
 
+            args.led_index = index;
             args.keycode = keymap_key_to_keycode(layer, (keypos_t){col,row});
 
             // iterate all indicators
             for (
                 const indicator_t *indicator = indicators;
-                indicator < &indicators[ARRAY_SIZE(indicators)];
+                indicator < &indicators[array_len(indicators)];
                 ++indicator
             ) {
-                // if check passed, draw
-                if (indicator->check((indicator_t *)indicator, &args)) { // cast to discard const
-                    rgb_matrix_set_color(index, indicator->color.r, indicator->color.g, indicator->color.b);
-                }
+                // conditionally draws
+                handle_indicator(indicator, &args);
             }
 
         }

@@ -75,17 +75,17 @@
             "operation": "diff",
             "file": "xap_dynamic.diff"
         },
-        {
-            "operation": "checkout",
-            "repo": "https://github.com/elpekenin/qmk_firmware",
-            "branch": "multibank",
-            "files": [
-                "quantum/keycode_config.h",
-                "quantum/keycodes.h",
-                "quantum/process_keycode/process_autocorrect.*",
-                "quantum/quantum.c"
-            ]
-        },
+        // {
+        //     "operation": "checkout",
+        //     "repo": "https://github.com/elpekenin/qmk_firmware",
+        //     "branch": "multibank",
+        //     "files": [
+        //         "quantum/keycode_config.h",
+        //         "quantum/keycodes.h",
+        //         "quantum/process_keycode/process_autocorrect.*",
+        //         "quantum/quantum.c"
+        //     ]
+        // },
         {
             "operation": "cp",
             "orig": "users/elpekenin/ld/custom_rp2040.ld",

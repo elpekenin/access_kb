@@ -16,9 +16,6 @@
 #    define QUANTUM_PAINTER_NUM_DISPLAYS 1
 #endif // QUANTUM_PAINTER_NUM_DISPLAYS
 
-void elpekenin_qp_init(void); // qp_init used by QMK (:
-
-
 // *** Asset handling ***
 #define load_display(x) _load_display(x, #x)
 #define load_font(x) _load_font(x, #x)

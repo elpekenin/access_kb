@@ -13,83 +13,96 @@ typedef struct indicator_t indicator_t;
 
 // arguments passed from rgb_matrix_indicators to indicators_fn_t
 typedef struct PACKED {
-    uint8_t  layer;
-    uint8_t  mods;
+    uint8_t led_index;
+    uint8_t layer;
+    uint8_t mods;
     uint16_t keycode;
 } indicator_fn_args_t;
 
-#define RGB_INDICATOR_FN_ATTRS CONST NON_NULL(1) NON_NULL(2) READ_ONLY(1) READ_ONLY(2) UNUSED
-typedef bool(* indicator_fn_t)(indicator_t *self, indicator_fn_args_t *args) RGB_INDICATOR_FN_ATTRS;
+// flags
+#define LAYER      (1 << 0)
+#define KEYCODE    (1 << 1)
+#define MODS       (1 << 2) // mod(s) active, **not** exact match
+#define KC_GT_THAN (1 << 3) // keycode greater than (eg for non-transparent keys, or custom keycodes)
+typedef uint8_t indicator_flags_t;
 
 // indicator specification: condition when it has to be drawn + color
 struct PACKED indicator_t {
-    // common config
-    rgb_led_t      color;
-    indicator_fn_t check;
-
-    // conditions
-    uint8_t  mods;
-    uint8_t  layer;
-    uint16_t keycode;
+    rgb_led_t color;
+    indicator_flags_t flags;
+    indicator_fn_args_t conditions;
 };
-
-
-// *** Internal functions ***
-
-RGB_INDICATOR_FN_ATTRS bool keycode_callback(indicator_t *indicator, indicator_fn_args_t *args);
-RGB_INDICATOR_FN_ATTRS bool layer_callback(indicator_t *indicator, indicator_fn_args_t *args);
-RGB_INDICATOR_FN_ATTRS bool keycode_and_layer_callback(indicator_t *indicator, indicator_fn_args_t *args);
-RGB_INDICATOR_FN_ATTRS bool custom_keycode_layer_callback(indicator_t *indicator, indicator_fn_args_t *args);
-RGB_INDICATOR_FN_ATTRS bool layer_and_configured_callback(indicator_t *indicator, indicator_fn_args_t *args);
-RGB_INDICATOR_FN_ATTRS bool keycode_and_mods_callback(indicator_t *indicator, indicator_fn_args_t *args);
-
 
 // *** Macros ***
 
 // this crap is needed for RGB color macros to work nicely...
 // relying on position aka: (rgb_led_t){_col} doesnt work
-#define _RGB(_r, _g, _b) (rgb_led_t){ \
-    .r = _r, \
-    .g = _g, \
-    .b = _b, \
+static inline const rgb_led_t __rgb(uint8_t redish, uint8_t greenish, uint8_t blueish) {
+    return (rgb_led_t) {.r = redish, .g = greenish, .b = blueish};
 }
 
-#define KC(_kc, _col) { \
-    .keycode = _kc, \
-    .color = _RGB(_col), \
-    .check = &keycode_callback, \
+static inline const indicator_t keycode_indicator(uint16_t keycode, uint8_t r, uint8_t g, uint8_t b) {
+    return (indicator_t) {
+        .color = __rgb(r, g, b),
+        .flags = KEYCODE,
+        .conditions = {
+            .keycode = keycode,
+        },
+    };
 }
 
-#define LAYER(_layer, _col) { \
-    .color = _RGB(_col), \
-    .check = &layer_callback, \
-    .layer = _layer, \
+static inline const indicator_t layer_indicator(uint8_t layer, uint8_t r, uint8_t g, uint8_t b) {
+    return (indicator_t) {
+        .color = __rgb(r, g, b),
+        .flags = LAYER,
+        .conditions = {
+            .layer = layer,
+        },
+    };
 }
 
-#define KC_LAYER(_kc, _layer, _col) { \
-    .keycode = _kc, \
-    .color = _RGB(_col), \
-    .check = &keycode_and_layer_callback, \
-    .layer = _layer, \
+static inline const indicator_t keycode_in_layer_indicator(uint16_t keycode, uint8_t layer, uint8_t r, uint8_t g, uint8_t b) {
+    return (indicator_t) {
+        .color = __rgb(r, g, b),
+        .flags = KEYCODE | LAYER,
+        .conditions = {
+            .keycode = keycode,
+            .layer = layer,
+        },
+    };
 }
 
-#define NO_TRNS(_layer, _col) { \
-    .color = _RGB(_col), \
-    .check = &layer_and_configured_callback, \
-    .layer = _layer, \
+static inline const indicator_t no_trans_keycode_in_layer_indicator(uint16_t keycode, uint8_t layer, uint8_t r, uint8_t g, uint8_t b) {
+    return (indicator_t) {
+        .color = __rgb(r, g, b),
+        .flags = LAYER | KC_GT_THAN,
+        .conditions = {
+            .keycode = keycode,
+            .layer = layer,
+        },
+    };
 }
 
-#define KC_MOD(_kc, _mods, _col) { \
-    .keycode = _kc, \
-    .color = _RGB(_col), \
-    .check = &keycode_and_mods_callback, \
-    .mods = _mods, \
+static inline const indicator_t keycode_with_mod_indicator(uint16_t keycode, uint8_t mod_mask, uint8_t r, uint8_t g, uint8_t b) {
+    return (indicator_t) {
+        .color = __rgb(r, g, b),
+        .flags = KEYCODE | MODS,
+        .conditions = {
+            .keycode = keycode,
+            .mods = mod_mask,
+        },
+    };
 }
 
-#define KC_CUSTOM_LAYER(_layer, _col) { \
-    .color = _RGB(_col), \
-    .check = &custom_keycode_layer_callback, \
-    .layer = _layer, \
+static inline const indicator_t custom_keycode_in_layer_indicator(uint8_t layer, uint8_t r, uint8_t g, uint8_t b) {
+    return (indicator_t) {
+        .color = __rgb(r, g, b),
+        .flags = LAYER | KC_GT_THAN,
+        .conditions = {
+            .keycode = QK_USER,
+            .layer = layer,
+        },
+    };
 }
 
 // *** Colors ***

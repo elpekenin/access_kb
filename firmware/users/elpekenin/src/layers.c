@@ -7,18 +7,19 @@
 
 #include "elpekenin/layers.h"
 #include "elpekenin/placeholders.h"
+#include "elpekenin/utils/init.h"
 
 #if defined(XAP_ENABLE)
 #    include "elpekenin/xap.h"
 #endif
 
 #if defined(TRI_LAYER_ENABLE)
-// TODO: Confirm if this is actuall being called
-CONSTRUCTOR(105) static void tri_layer_init(void) {
+USED static void tri_layer_init(void) {
     set_tri_layer_lower_layer(_FN1);
     set_tri_layer_upper_layer(_FN2);
     set_tri_layer_adjust_layer(_RST);
 }
+PEKE_INIT(tri_layer_init, 100);
 #endif
 
 const char *get_layer_name(layer_names_t layer) {

@@ -9,6 +9,7 @@
 #include "elpekenin/logging/backends/split.h"
 #include "elpekenin/split/transactions.h"
 #include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/init.h"
 
 
 // *** Callbacks ***
@@ -46,6 +47,17 @@ void user_ee_clr_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m_
 }
 
 
+extern void xap_receive_base(const void *data);
+
+void user_xap_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m_size, void* s2m_buffer) {
+    if (m2s_size == XAP_EPSIZE) {
+        xap_receive_base(m2s_buffer);
+    } else {
+        logging(SPLIT, LOG_ERROR, "%s size", __func__);
+    }
+}
+
+
 // *** Periodic tasks ***
 
 static inline uint32_t build_info_sync_callback(uint32_t trigger_time, void *cb_arg) {
@@ -66,14 +78,21 @@ void reset_ee_slave(void) {
     transaction_rpc_send(RPC_ID_USER_EE_CLR, 0, NULL);
 }
 
+void xap_execute_slave(const void *data) {
+    xap_split_msg_t msg = {0};
+    // user, qp, operation = 3
+    memcpy(&msg, data - sizeof(xap_request_header_t) - 3, XAP_EPSIZE);
+    transaction_rpc_send(RPC_ID_XAP, XAP_EPSIZE, &msg);
+}
 
 // *** Register messages ***
 
-void split_init(void) {
+USED static void split_init(void) {
     transaction_register_rpc(RPC_ID_BUILD_INFO, build_info_slave_callback);
     transaction_register_rpc(RPC_ID_USER_SHUTDOWN, user_shutdown_slave_callback);
     transaction_register_rpc(RPC_ID_USER_LOGGING, user_logging_slave_callback);
     transaction_register_rpc(RPC_ID_USER_EE_CLR, user_ee_clr_callback);
+    transaction_register_rpc(RPC_ID_XAP, user_xap_callback);
 
     if (is_keyboard_master()) {
         // 5 secs to prevent drawing on eInk right after flash
@@ -81,3 +100,4 @@ void split_init(void) {
         defer_exec(10, slave_log_sync_callback,  NULL);
     }
 }
+PEKE_INIT(split_init, 100);

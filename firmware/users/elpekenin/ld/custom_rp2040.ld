@@ -123,6 +123,15 @@ SECTIONS {
 INCLUDE rules_memory.ld
 
 SECTIONS {
+    .elpekenin_init : ALIGN(4) {
+        . = ALIGN(4);
+        __elpekenin_init_base__ = .;
+        KEEP(*(SORT(.elpekenin_init.*)));
+        __elpekenin_init_end__ = .;
+    } > flash1
+}
+
+SECTIONS {
    .flash_end : {
       __flash_binary_end = .;
    } > flash1

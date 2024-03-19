@@ -20,7 +20,6 @@ typedef struct PACKED {
     uint16_t y;
 } position_t;
 
-void game_init(void);
 void game_reset(void);
 
 void game_frame(void);

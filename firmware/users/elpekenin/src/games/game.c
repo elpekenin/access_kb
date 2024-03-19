@@ -4,6 +4,7 @@
 // TODO: Support for different games
 #include "elpekenin/game.h"
 #include "elpekenin/games/snake.h"
+#include "elpekenin/utils/init.h"
 
 static game_state_t   game       = {0};
 static deferred_token game_token = INVALID_DEFERRED_TOKEN;
@@ -22,9 +23,10 @@ void set_game_device(painter_device_t device) {
 }
 
 
-void game_init() {
+USED static void game_init() {
     game = new_snake_game();
 }
+PEKE_INIT(game_init, 100);
 
 // reset is just re-init
 void game_reset(void) {

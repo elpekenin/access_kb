@@ -11,6 +11,7 @@
 #include "elpekenin/keylog.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/init.h"
 #include "elpekenin/utils/map.h"
 #include "elpekenin/utils/shortcuts.h"
 #include "elpekenin/utils/string.h"
@@ -45,6 +46,7 @@ typedef struct PACKED {
 
 static new_map(replacement_t *, replacements_map);
 
+// TODO: Dont duplicate data in ROM and RAM
 static const replacement_t replacements[] = {
     {.find="0",       .strings={                 [SHIFT]="="              }},
     {.find="1",       .strings={                 [SHIFT]="!",  [AL_GR]="|"}},
@@ -89,7 +91,7 @@ static const replacement_t replacements[] = {
     {.find="VOLU",    .strings={[NO_MODS]="♪",   [SHIFT]="♪"              }},
 };
 
-static void init_replacements(void) {
+USED static void replacements_init(void) {
     // store pointers to the replacements, as they are statically allocated and wontget a freeafteruse
     map_init(replacements_map, ARRAY_SIZE(replacements), NULL);
 
@@ -102,6 +104,7 @@ static void init_replacements(void) {
         map_set(replacements_map, replacement->find, replacement);
     }
 }
+PEKE_INIT(replacements_init, 100);
 
 
 // *** Formatting helpers ***
@@ -260,7 +263,6 @@ void keylog_process(uint16_t keycode, keyrecord_t *record) {
     static bool keylog_init = false;
     if (!keylog_init) {
         keylog_init = true;
-        init_replacements();
         keylog_clear();
     }
 

@@ -13,7 +13,7 @@
 #include "elpekenin/logging/backends/qp.h"
 #include "elpekenin/qp/graphics.h"
 #include "elpekenin/utils/compiler.h"
-#include "elpekenin/utils/dyn_array.h"
+#include "elpekenin/utils/init.h"
 #include "elpekenin/utils/map.h"
 #include "elpekenin/utils/memory.h"
 #include "elpekenin/utils/string.h"
@@ -674,9 +674,7 @@ static uint32_t layer_task_callback(uint32_t trigger_time, void *cb_arg) {
 }
 
 
-// *** API ***
-
-void elpekenin_qp_init(void) {
+USED static void elpekenin_qp_init(void) {
     // TODO: Fragile code, setting image map to 8 works (scales to 16), but eg 3/4 crashes
     map_init(device_map,  2, NULL);
     map_init(  font_map,  2, NULL);
@@ -719,3 +717,4 @@ void elpekenin_qp_init(void) {
 
     defer_exec(10, scrolling_text_tick_callback, NULL);
 }
+PEKE_INIT(elpekenin_qp_init, 100);
