@@ -96,22 +96,14 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
     qp_rect(ili9341, 0, 0, ILI9341_WIDTH, ILI9341_HEIGHT, HSV_BLACK, true);
 #    endif
 
-    if (ret) {
-        logging(QP, LOG_TRACE, "QP Setup: OK");
-    } else {
-        logging(QP, LOG_ERROR, "QP Setup: Error");
-    }
+    log_success(ret, QP, "QP setup");
 #endif
 
 
 #if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && IS_RIGHT_HAND
     ret = touch_spi_init(ili9341_touch);
 
-    if (ret) {
-        logging(TOUCH, LOG_TRACE, "Touch Setup: OK");
-    } else {
-        logging(TOUCH, LOG_ERROR, "Touch Setup: Error");
-    }
+    log_success(ret, TOUCH, "Touch setup");
 #endif
 
 

@@ -95,5 +95,3 @@ typedef struct PACKED {
     xap_msg_id_t msg_id;
     bool         bootloader;
 } shutdown_msg_t;
-
-void xap_shutdown(bool jump_to_bootloader);

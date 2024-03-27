@@ -8,20 +8,20 @@
 
 // wrap some code such that it doesnt spit logging
 // NOTE: silences QMK things, not (at least not granted) `logging` ones
-#define WITHOUT_DEBUG(...) \
+#define WITHOUT_DEBUG(code...) \
     do { \
         bool old_debug_state = debug_config.enable; \
         debug_config.enable  = false; \
-        __VA_ARGS__ \
+        code \
         debug_config.enable = old_debug_state; \
     } while (0)
 
 // wrap the above, to also silence logging for a "feature"
-#define WITHOUT_LOGGING(feature, ...) \
+#define WITHOUT_LOGGING(feature, code...) \
     do { \
         log_level_t old_level = get_level_for(feature); \
         set_level_for(feature, LOG_NONE); \
-        WITHOUT_DEBUG(__VA_ARGS__); \
+        WITHOUT_DEBUG(code); \
         set_level_for(feature, old_level); \
     } while (0)
 

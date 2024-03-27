@@ -23,7 +23,7 @@ void set_game_device(painter_device_t device) {
 }
 
 
-USED static void game_init() {
+static void game_init(void) {
     game = new_snake_game();
 }
 PEKE_INIT(game_init, 100);

@@ -8,6 +8,7 @@
 #include "elpekenin/rgb/matrix/functions.h"
 #include "elpekenin/rgb/matrix/indicators.h"
 #include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/deinit.h"
 #include "elpekenin/utils/shortcuts.h"
 
 
@@ -51,4 +52,9 @@ void rgb_shutdown(bool jump_to_bootloader) {
         // red for reboot
         rgb_matrix_set_color_all(RGB_MATRIX_MAXIMUM_BRIGHTNESS, 0, 0);
     }
+
+    // flush
+    void rgb_matrix_update_pwm_buffers(void);
+    rgb_matrix_update_pwm_buffers();
 }
+PEKE_DEINIT(rgb_shutdown, 100);

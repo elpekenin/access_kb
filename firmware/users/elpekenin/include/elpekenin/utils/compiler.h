@@ -89,13 +89,13 @@
 // mark a pointer argument as read-only
 // second parameter would mean that another argument marks how much bytes will be read
 #ifndef READ_ONLY
-#    define READ_ONLY(...) _ATTR(access(read_only, __VA_ARGS__))
+#    define READ_ONLY(args...) _ATTR(access(read_only, args))
 #endif
 
 // mark a pointer argument as read+write
 // second parameter would mean that another argument marks how much bytes will be read/written
 #ifndef READ_WRITE
-#    define READ_WRITE(...) _ATTR(access(read_write, __VA_ARGS__))
+#    define READ_WRITE(args...) _ATTR(access(read_write, args))
 #endif
 
 // function never returns null
@@ -146,5 +146,5 @@
 // mark a pointer argument as write-only
 // second parameter would mean that another argument marks how much bytes will be written
 #ifndef WRITE_ONLY
-#    define WRITE_ONLY(...) _ATTR(access(write_only, __VA_ARGS__))
+#    define WRITE_ONLY(args...) _ATTR(access(write_only, args))
 #endif

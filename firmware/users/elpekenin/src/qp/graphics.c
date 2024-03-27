@@ -14,6 +14,7 @@
 #include "elpekenin/qp/graphics.h"
 #include "elpekenin/utils/compiler.h"
 #include "elpekenin/utils/init.h"
+#include "elpekenin/utils/deinit.h"
 #include "elpekenin/utils/map.h"
 #include "elpekenin/utils/memory.h"
 #include "elpekenin/utils/string.h"
@@ -235,11 +236,7 @@ static bool render_scrolling_text_state(scrolling_text_state_t *state) {
         }
     }
 
-    if (ret) {
-        logging(SCROLL, LOG_TRACE, "%s: ok", __func__);
-    } else {
-        logging(SCROLL, LOG_ERROR, "%s: fail", __func__);
-    }
+    log_success(ret, SCROLL, "%s", __func__);
     return ret;
 }
 
@@ -674,7 +671,7 @@ static uint32_t layer_task_callback(uint32_t trigger_time, void *cb_arg) {
 }
 
 
-USED static void elpekenin_qp_init(void) {
+static void elpekenin_qp_init(void) {
     // TODO: Fragile code, setting image map to 8 works (scales to 16), but eg 3/4 crashes
     map_init(device_map,  2, NULL);
     map_init(  font_map,  2, NULL);
@@ -718,3 +715,15 @@ USED static void elpekenin_qp_init(void) {
     defer_exec(10, scrolling_text_tick_callback, NULL);
 }
 PEKE_INIT(elpekenin_qp_init, 100);
+
+static void elpekenin_qp_deinit(bool jump_to_bootloader) {
+    for (
+        painter_device_t *device = device_map.values;
+        device < &device_map.values[array_len(device_map.values)];
+        ++device
+    ) {
+        qp_rect(*device, 0, 0, qp_get_width(*device), qp_get_height(*device), HSV_OFF, true);
+        qp_power(*device, false);
+    }
+}
+PEKE_DEINIT(elpekenin_qp_deinit, 100);

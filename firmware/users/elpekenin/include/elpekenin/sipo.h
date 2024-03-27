@@ -29,8 +29,8 @@
 #define _SIPO_BYTES ((N_SIPO_PINS+7)/8)
 
 // create pin lists
-#define configure_sipo_pins(...)           \
-        enum { __VA_ARGS__, __SIPO_PINS }; \
+#define configure_sipo_pins(pin_names...)           \
+        enum { pin_names, __SIPO_PINS }; \
         _Static_assert(__SIPO_PINS <= N_SIPO_PINS, "Defined more pin names than the amount configured")
 
 // control the buffer

@@ -9,6 +9,7 @@
 #include "elpekenin/keycodes.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/placeholders.h"
+#include "elpekenin/utils/init.h"
 #include "elpekenin/utils/memory.h"
 #include "elpekenin/utils/shortcuts.h"
 #include "elpekenin/utils/string.h"
@@ -82,6 +83,8 @@ bool process_autocorrect_user(uint16_t *keycode, keyrecord_t *record, uint8_t *t
     }
     return process_autocorrect_default_handler(keycode, record, typo_buffer_size, mods);
 }
+
+PEKE_INIT(autocorrect_enable, 100);
 #endif
 
 #if defined(KEYLOG_ENABLE)

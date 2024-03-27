@@ -5,6 +5,7 @@
 
 #include "elpekenin/xap.h"
 #include "elpekenin/utils/compiler.h"
+#include "elpekenin/utils/deinit.h"
 
 #include "generated/keycode_str.h"
 
@@ -71,3 +72,4 @@ void xap_shutdown(bool jump_to_bootloader) {
 
     xap_broadcast_user(&msg, sizeof(msg));
 }
+PEKE_DEINIT(xap_shutdown, 100);

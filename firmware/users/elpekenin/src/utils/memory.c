@@ -114,14 +114,24 @@ static void pop_record(void *ptr) {
     logging(ALLOC, LOG_ERROR, "Entry not found");
 }
 
-void *
-WRAP(calloc)
-(size_t nmemb, size_t size) {
+// ^ data tracking
+// -----
+// v new malloc API
+
+static inline void __alloc_entry(void) {
     logging(ALLOC, LOG_TRACE, "%s called", __func__);
+}
+
+static inline void __alloc_error(void) {
+    logging(ALLOC, LOG_ERROR, "%s", __func__);
+}
+
+void *WRAP(calloc)(size_t nmemb, size_t size) {
+    __alloc_entry();
 
     void *ptr = REAL(calloc)(nmemb, size);
     if (ptr == NULL) {
-        logging(ALLOC, LOG_ERROR, "%s", __func__);
+        __alloc_error();
         return NULL;
     }
 
@@ -130,24 +140,20 @@ WRAP(calloc)
     return ptr;
 }
 
-void
-WRAP(free)
-(void *ptr) {
-    logging(ALLOC, LOG_TRACE, "%s called", __func__);
+void WRAP(free)(void *ptr) {
+    __alloc_entry();
 
     REAL(free)(ptr);
 
     pop_record(ptr);
 }
 
-void *
-WRAP(malloc)
-(size_t size) {
-    logging(ALLOC, LOG_TRACE, "%s called", __func__);
+void *WRAP(malloc)(size_t size) {
+    __alloc_entry();
 
     void *ptr = REAL(malloc)(size);
     if (ptr == NULL) {
-        logging(ALLOC, LOG_ERROR, "%s", __func__);
+        __alloc_error();
         return NULL;
     }
 
@@ -156,14 +162,12 @@ WRAP(malloc)
     return ptr;
 }
 
-void *
-WRAP(realloc)
-(void *ptr, size_t size) {
-    logging(ALLOC, LOG_TRACE, "%s called", __func__);
+void *WRAP(realloc)(void *ptr, size_t size) {
+    __alloc_entry();
 
     void *new_ptr = REAL(realloc)(ptr, size);
     if (new_ptr == NULL) {
-        logging(ALLOC, LOG_ERROR, "%s", __func__);
+        __alloc_error();
         return NULL;
     }
 

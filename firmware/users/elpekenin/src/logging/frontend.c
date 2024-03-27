@@ -57,6 +57,10 @@ log_level_t get_level_for(feature_t feature) {
     return feature_levels[feature];
 }
 
+static inline void __logging_error(void) {
+    logging(LOGGER, LOG_ERROR, "%s", __func__);
+}
+
 void set_level_for(feature_t feature, log_level_t level) {
     if (
         (feature < UNKNOWN) // is this possible ?
@@ -64,8 +68,7 @@ void set_level_for(feature_t feature, log_level_t level) {
         || (feature >= __N_FEATURES__)
         || (level >= __N_LEVELS__)
     ) {
-        logging(LOGGER, LOG_ERROR, "%s", __func__);
-        return;
+        return __logging_error();
     }
 
     feature_levels[feature] = level;
@@ -78,8 +81,7 @@ void step_level_for(feature_t feature, bool increase) {
         ((level == LOG_NONE) && !increase)
         || (((level + 1) == __N_LEVELS__) && increase)
     ) {
-        logging(LOGGER, LOG_ERROR, "%s", __func__);
-        return;
+        return __logging_error();
     }
 
     if (increase) {
@@ -133,7 +135,7 @@ NON_NULL(1) READ_ONLY(1) static token_t get_token(const char **str) {
             return INVALID_SPEC;
     }
 
-    logging(LOGGER, LOG_ERROR, "%s", __func__);
+    __logging_error();
     return INVALID_SPEC;
 }
 

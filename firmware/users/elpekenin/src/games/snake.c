@@ -210,7 +210,7 @@ void advance_snake_game(game_state_t *state) {
     draw_game(state);
 }
 
-game_state_t new_snake_game() {
+game_state_t new_snake_game(void) {
     game_state_t state = {
         .device      = NULL,
         .playing     = true,

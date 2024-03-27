@@ -5,7 +5,7 @@
 
 #include "elpekenin/utils/compiler.h"
 
-typedef void (*init_fn)(void);
+typedef void (*deinit_fn)(bool);
 
-#define PEKE_INIT(func, prio) \
-    SECTION(".elpekenin_init." #prio "_" #func) USED static init_fn ___peke_init_##func = func
+#define PEKE_DEINIT(func, prio) \
+    SECTION(".elpekenin_deinit." #prio "_" #func) USED static deinit_fn ___peke_deinit_##func = func

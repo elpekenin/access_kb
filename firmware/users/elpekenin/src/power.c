@@ -6,47 +6,27 @@
 #include "elpekenin.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/placeholders.h"
+#include "elpekenin/utils/deinit.h"
 
-#if defined(QUANTUM_PAINTER_ENABLE)
-#    include "elpekenin/qp/graphics.h"
-#endif
 
-#if defined(RGB_MATRIX_ENABLE)
-#    include "elpekenin/rgb/matrix/functions.h"
-#endif
-
-#if defined(SPLIT_KEYBOARD)
-#    include "elpekenin/split/transactions.h"
-#endif
-
-#if defined(XAP_ENABLE)
-#    include "elpekenin/xap.h"
-#endif
+// positions of the first and last entries
+// each entry is a pointer to an init func
+extern deinit_fn __elpekenin_deinit_base__,
+                 __elpekenin_deinit_end__;
 
 bool shutdown_user(bool jump_to_bootloader) {
     if (!shutdown_keymap(jump_to_bootloader)) {
         return false;
     }
 
-#if defined(SPLIT_KEYBOARD)
-    if (is_keyboard_master()) {
-        transaction_rpc_send(RPC_ID_USER_SHUTDOWN, sizeof(jump_to_bootloader), &jump_to_bootloader);
+    // functions registered with PEKE_DEINIT
+    for (
+        deinit_fn *func = &__elpekenin_deinit_base__;
+        func < &__elpekenin_deinit_end__;
+        ++func
+    ) {
+        (*func)(jump_to_bootloader);
     }
-#endif
-
-#if defined(QUANTUM_PAINTER_ENABLE)
-    for (uint8_t i = 0; i < qp_get_num_displays(); ++i) {
-        qp_power(qp_get_device_by_index(i), false);
-    }
-#endif
-
-#if defined(RGB_MATRIX_ENABLE)
-    rgb_shutdown(jump_to_bootloader);
-#endif
-
-#if defined(XAP_ENABLE)
-    xap_shutdown(jump_to_bootloader);
-#endif
 
     return true;
 }

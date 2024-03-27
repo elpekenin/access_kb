@@ -10,51 +10,55 @@
 #include "elpekenin/split/transactions.h"
 #include "elpekenin/utils/compiler.h"
 #include "elpekenin/utils/init.h"
+#include "elpekenin/utils/deinit.h"
 
+static inline void __split_size_err(void) {
+    logging(SPLIT, LOG_ERROR, "%s size", __func__);
+}
 
 // *** Callbacks ***
 
 WEAK void build_info_sync_keymap_callback(void) { }
 
 void build_info_slave_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m_size, void* s2m_buffer) {
-    if (m2s_size == sizeof(build_info_t)) {
-        build_info_t *build_info = (build_info_t *)m2s_buffer;
-
-        set_build_commit(build_info->commit);
-        set_build_features(build_info->features);
-
-        build_info_sync_keymap_callback();
-    } else {
-        logging(SPLIT, LOG_ERROR, "%s size", __func__);
+    if (m2s_size != sizeof(build_info_t)) {
+        return __split_size_err();
     }
+
+    build_info_t *build_info = (build_info_t *)m2s_buffer;
+
+    set_build_commit(build_info->commit);
+    set_build_features(build_info->features);
+
+    build_info_sync_keymap_callback();
 }
 
 void user_shutdown_slave_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m_size, void* s2m_buffer) {
-    if (m2s_size == sizeof(bool)) {
-        void shutdown_quantum(bool jump_to_bootloader);
-        shutdown_quantum(*(bool *)m2s_buffer);
-    } else {
-        logging(SPLIT, LOG_ERROR, "%s size", __func__);
+    if (m2s_size != sizeof(bool)) {
+        return __split_size_err();
     }
+
+    void shutdown_quantum(bool jump_to_bootloader);
+    shutdown_quantum(*(bool *)m2s_buffer);
 }
 
 void user_ee_clr_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m_size, void* s2m_buffer) {
-    if (m2s_size == 0) {
-        eeconfig_init();
-    } else {
-        logging(SPLIT, LOG_ERROR, "%s size", __func__);
+    if (m2s_size != 0) {
+        return __split_size_err();
     }
+
+    eeconfig_init();
 }
 
 
 extern void xap_receive_base(const void *data);
 
 void user_xap_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t s2m_size, void* s2m_buffer) {
-    if (m2s_size == XAP_EPSIZE) {
-        xap_receive_base(m2s_buffer);
-    } else {
-        logging(SPLIT, LOG_ERROR, "%s size", __func__);
+    if (m2s_size != XAP_EPSIZE) {
+        return __split_size_err();
     }
+
+    xap_receive_base(m2s_buffer);
 }
 
 
@@ -87,7 +91,7 @@ void xap_execute_slave(const void *data) {
 
 // *** Register messages ***
 
-USED static void split_init(void) {
+static void split_init(void) {
     transaction_register_rpc(RPC_ID_BUILD_INFO, build_info_slave_callback);
     transaction_register_rpc(RPC_ID_USER_SHUTDOWN, user_shutdown_slave_callback);
     transaction_register_rpc(RPC_ID_USER_LOGGING, user_logging_slave_callback);
@@ -101,3 +105,10 @@ USED static void split_init(void) {
     }
 }
 PEKE_INIT(split_init, 100);
+
+static void split_deinit(bool jump_to_bootloader) {
+    if (is_keyboard_master()) {
+        transaction_rpc_send(RPC_ID_USER_SHUTDOWN, sizeof(jump_to_bootloader), &jump_to_bootloader);
+    }
+}
+PEKE_DEINIT(split_deinit, 100);

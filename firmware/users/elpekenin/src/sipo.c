@@ -29,7 +29,7 @@ void set_sipo_pin(uint8_t  position, bool state) {
         sipo_pin_state[byte_offset] &= ~(1 << bit_offset);
 }
 
-void send_sipo_state() {
+void send_sipo_state(void) {
     if (!sipo_state_changed) {
         logging(SIPO, LOG_TRACE, "%s: no changes", __func__);
         return;

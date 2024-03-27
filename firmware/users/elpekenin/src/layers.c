@@ -14,7 +14,7 @@
 #endif
 
 #if defined(TRI_LAYER_ENABLE)
-USED static void tri_layer_init(void) {
+static void tri_layer_init(void) {
     set_tri_layer_lower_layer(_FN1);
     set_tri_layer_upper_layer(_FN2);
     set_tri_layer_adjust_layer(_RST);

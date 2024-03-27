@@ -91,7 +91,7 @@ static const replacement_t replacements[] = {
     {.find="VOLU",    .strings={[NO_MODS]="♪",   [SHIFT]="♪"              }},
 };
 
-USED static void replacements_init(void) {
+static void replacements_init(void) {
     // store pointers to the replacements, as they are statically allocated and wontget a freeafteruse
     map_init(replacements_map, ARRAY_SIZE(replacements), NULL);
 

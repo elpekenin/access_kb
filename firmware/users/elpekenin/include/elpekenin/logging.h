@@ -106,3 +106,10 @@ NON_NULL(1) READ_ONLY(1) bool set_logging_fmt(const char *fmt);
 
 
 void dump_stack(void);
+
+#define log_success(success, feature, msg, args...) \
+    do { \
+        log_level_t level = success ? LOG_TRACE : LOG_ERROR; \
+        const char *out = success ? "OK" : "Error"; \
+        logging(feature, level, msg ": %s", ##args, out); \
+    } while(0)
