@@ -8,6 +8,7 @@
 #include "default_keyboard.h" // for LAYOUT
 
 #include "elpekenin.h" // layers names and custom keycodes
+#include "elpekenin/errno.h"
 #include "elpekenin/rgb/matrix/indicators.h"
 #include "elpekenin/utils/allocator.h"
 #include "elpekenin/utils/compiler.h"
@@ -94,9 +95,9 @@ CONST static inline bool is_special_color(uint8_t hue) {
     return hue >= _MARKER_;
 };
 
-NON_NULL(4) WRITE_ONLY(4) static inline bool get_ledmap_color(uint8_t layer, uint8_t row, uint8_t col, rgb_led_t *rgb) {
+NON_NULL(4) WRITE_ONLY(4) static inline int get_ledmap_color(uint8_t layer, uint8_t row, uint8_t col, rgb_led_t *rgb) {
     if (layer >= LEDMAP_LAYERS) {
-        return false;
+        return -EINVAL;
     }
 
     uint8_t hue = pgm_read_byte(&(ledmap[layer][row][col]));
@@ -109,17 +110,17 @@ NON_NULL(4) WRITE_ONLY(4) static inline bool get_ledmap_color(uint8_t layer, uin
         switch (hue) {
             case TRNS:
                 if (layer == 0) {
-                    return false;
+                    return -EINVAL;
                 }
 
                 // look up further down (only on active layers)
-                for (uint8_t __layer = layer - 1; __layer >= 0; --__layer) {
+                for (uint8_t __layer = layer - 1; __layer > 0; --__layer) {
                     if (layer_state & (1 << __layer)) {
                         return get_ledmap_color(layer - 1, row, col, rgb);
                     }
                 }
 
-                return false;
+                return -ENOTFOUND;
 
             case WHITE:
                 hsv = (HSV){0, 0, val};
@@ -132,7 +133,7 @@ NON_NULL(4) WRITE_ONLY(4) static inline bool get_ledmap_color(uint8_t layer, uin
     }
 
     *rgb = hsv_to_rgb(hsv);
-    return true;
+    return 0;
 }
 
 
@@ -159,9 +160,11 @@ bool draw_indicators(uint8_t led_min, uint8_t led_max) {
 
             // draw ledmap color
             rgb_led_t rgb;
-            if (get_ledmap_color(layer, row, col, &rgb)) {
+            if (get_ledmap_color(layer, row, col, &rgb) == 0) {
                 rgb_matrix_set_color(index, rgb.r, rgb.g, rgb.b);
             }
+
+            __errno();
 
             args.led_index = index;
             args.keycode = keymap_key_to_keycode(layer, (keypos_t){col,row});

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "elpekenin/errno.h"
 #include "elpekenin/utils/allocator.h"
 #include "elpekenin/utils/compiler.h"
 
@@ -19,16 +20,16 @@ READ_ONLY(3) void *_new_array(size_t item_size, size_t initial_size, allocator_t
 PURE READ_ONLY(1) header_t *get_header(void *array);
 PURE READ_ONLY(1) size_t array_len(void *array);
 
-WARN_UNUSED bool expand_if_needed(void **array);
+WARN_UNUSED int expand_if_needed(void **array);
 
 #define array_append(__array, __value) ({ \
     /* unless we needed extra space and failed to allocate, append the item */ \
-    bool ret = expand_if_needed((void **)&__array); \
-    if (ret) { \
-        ret = false; \
+    int ret = expand_if_needed((void **)&__array); \
+    if (ret == 0) { \
         header_t *header = get_header(__array); \
-        if (header != NULL) { \
-            ret = true; \
+        if (header == NULL) { \
+            ret = -ENOMEM; \
+        } else { \
             __array[header->length++] = __value; \
         } \
     } \

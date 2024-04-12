@@ -9,6 +9,7 @@
 
 #include "elpekenin/build_info.h"
 #include "elpekenin/crash.h"
+#include "elpekenin/errno.h"
 #include "elpekenin/layers.h"
 #include "elpekenin/rng.h"
 #include "elpekenin/logging/backends/qp.h"
@@ -106,14 +107,14 @@ painter_device_t qp_get_device_by_index(uint8_t index) {
 }
 
 painter_device_t qp_get_device_by_name(const char *name) {
-    bool found;
+    int ret;
 
-    painter_device_t ret = map_get(device_map, name, found);
-    if (!found) {
-        return NULL;
+    painter_device_t device = map_get(device_map, name, ret);
+    if (ret == 0) {
+        return device;
     }
 
-    return ret;
+    return NULL;
 }
 
 
@@ -130,14 +131,14 @@ painter_font_handle_t qp_get_font_by_index(uint8_t index) {
 }
 
 painter_font_handle_t qp_get_font_by_name(const char *name) {
-    bool found;
+    int ret;
 
-    painter_font_handle_t ret = map_get(font_map, name, found);
-    if (!found) {
-        return NULL;
+    painter_font_handle_t font = map_get(font_map, name, ret);
+    if (ret == 0) {
+        return font;
     }
 
-    return ret;
+    return NULL;
 }
 
 
@@ -154,14 +155,14 @@ painter_image_handle_t qp_get_img_by_index(uint8_t index) {
 }
 
 painter_image_handle_t qp_get_img_by_name(const char *name) {
-    bool found;
+    int ret;
 
-    painter_image_handle_t ret = map_get(image_map, name, found);
-    if (!found) {
-        return NULL;
+    painter_image_handle_t img = map_get(image_map, name, ret);
+    if (ret == 0) {
+        return img;
     }
 
-    return ret;
+    return NULL;
 }
 
 
@@ -193,14 +194,14 @@ void draw_commit(painter_device_t device) {
 
 allocator_t *scrolling_allocator = &c_runtime_allocator;
 
-static bool render_scrolling_text_state(scrolling_text_state_t *state) {
+static int render_scrolling_text_state(scrolling_text_state_t *state) {
     logging(SCROLL, LOG_TRACE, "%s: entry (char #%d)", __func__, (int)state->char_number);
 
     // prepare string slice
     char *slice = alloca(state->n_chars + 1); // +1 for null terminator
     if (slice == NULL) {
         logging(SCROLL, LOG_ERROR, "%s: could not allocate", __func__);
-        return false;
+        return -ENOMEM;
     }
     memset(slice, 0, state->n_chars + 1);
 
@@ -218,7 +219,6 @@ static bool render_scrolling_text_state(scrolling_text_state_t *state) {
             slice[i] = ' ';
         }
     }
-
 
     int16_t width = qp_textwidth(state->font, (const char *)slice);
     // clear previous rendering if needed
@@ -245,14 +245,15 @@ static bool render_scrolling_text_state(scrolling_text_state_t *state) {
 
 static uint32_t scrolling_text_callback(uint32_t trigger_time, void *cb_arg) {
     scrolling_text_state_t *state = (scrolling_text_state_t *)cb_arg;
-    bool                    ret = render_scrolling_text_state(state);
+    int                     ret   = render_scrolling_text_state(state);
 
-    if (!ret) {
-        // Setting the device to NULL clears the scrolling slot
+    // Setting the device to NULL clears the scrolling slot
+    if (ret != 0) {
         state->device = NULL;
+        return 0;
     }
-    // If we're successful, keep scrolling -- returning 0 cancels the deferred execution
-    return ret ? state->delay : 0;
+
+    return state->delay;
 }
 
 deferred_token draw_scrolling_text(painter_device_t device, uint16_t x, uint16_t y, painter_font_handle_t font, const char *str, uint8_t n_chars, uint32_t delay) {
@@ -285,7 +286,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     scrolling_state->str = malloc_with(scrolling_allocator, len);
     if (scrolling_state->str == NULL) {
         logging(SCROLL, LOG_ERROR, "%s: fail (allocation)", __func__);
-        return false;
+        return INVALID_DEFERRED_TOKEN;
     }
     strcpy(scrolling_state->str, str);
 
@@ -302,7 +303,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     scrolling_state->bg          = (qp_pixel_t){.hsv888 = {.h = hue_bg, .s = sat_bg, .v = val_bg}};
 
     // Draw the first string
-    if (!render_scrolling_text_state(scrolling_state)) {
+    if (render_scrolling_text_state(scrolling_state) != 0) {
         scrolling_state->device = NULL; // disregard the allocated scroling slot
         logging(SCROLL, LOG_ERROR, "%s: fail (render 1st step)", __func__);
         return INVALID_DEFERRED_TOKEN;

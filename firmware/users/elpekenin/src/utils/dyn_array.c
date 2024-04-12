@@ -43,9 +43,9 @@ size_t array_len(void *array) {
     return header->length;
 }
 
-bool expand_if_needed(void **array) {
+int expand_if_needed(void **array) {
     if (UNLIKELY(*array == NULL)) {
-        return false;
+        return -EINVAL;
     }
 
     header_t *header = get_header(*array);
@@ -58,13 +58,13 @@ bool expand_if_needed(void **array) {
         header_t *new_header = realloc_with(header->allocator, header, total_size);
         if (UNLIKELY(new_header == NULL)) {
             logging(ALLOC, LOG_ERROR, "%s failed", __func__);
-            return false;
+            return -ENOMEM;
         }
 
         *array = new_header + 1;
         new_header->capacity *= 2;
     }
 
-    return true;
+    return 0;
 }
 

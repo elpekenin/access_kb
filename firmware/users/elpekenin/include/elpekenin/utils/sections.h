@@ -37,6 +37,7 @@
 #define INIT_KEYLOG_MAP 1090
 #define INIT_INDICATORS_MAP 1100
 #define INIT_GAME 1110
+#define INIT_DONE 1120 /* keep last, used as a signal that everything is setup */
 
 typedef void (*init_fn)(void);
 #define PEKE_INIT(func, prio) \

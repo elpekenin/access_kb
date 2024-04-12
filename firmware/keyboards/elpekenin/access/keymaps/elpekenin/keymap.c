@@ -58,7 +58,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 const char fmt[] = "%M\n";
 void logging_format(void) {
-    set_logging_fmt(fmt);
+    UNUSED int ret = set_logging_fmt(fmt);
 }
 PEKE_INIT(logging_format, INIT_LOG_FORMAT);
 

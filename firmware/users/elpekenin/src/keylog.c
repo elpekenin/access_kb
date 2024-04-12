@@ -132,15 +132,15 @@ static void skip_prefix(const char **str) {
 }
 
 static void maybe_symbol(const char **str) {
-    bool found;
+    int ret;
     replacements_t replacements;
 
     // disable hash logging momentarily, as a lot of strings wont be in the replacements map
     WITHOUT_LOGGING(MAP,
-        replacements = map_get(replacements_map, *str, found);
+        replacements = map_get(replacements_map, *str, ret);
     );
 
-    if (LIKELY(found == false)) {
+    if (LIKELY(ret == -ENOTFOUND)) {
         return;
     }
 

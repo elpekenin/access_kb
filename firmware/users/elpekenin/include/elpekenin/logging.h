@@ -94,7 +94,7 @@ NON_NULL(1) WRITE_ONLY(1) void get_logging_fmt(char *dest);
 #    define MAX_LOG_FMT_LEN (255)
 #endif
 
-NON_NULL(1) READ_ONLY(1) bool set_logging_fmt(const char *fmt);
+NON_NULL(1) READ_ONLY(1) WARN_UNUSED int set_logging_fmt(const char *fmt);
 
 #define ASSERT_FEATURES(__array) _Static_assert(ARRAY_SIZE(__array) == __N_FEATURES__, "Wrong size")
 #define ASSERT_LEVELS(__array) _Static_assert(ARRAY_SIZE(__array) == __N_LEVELS__, "Wrong size")
@@ -105,6 +105,6 @@ void dump_stack(void);
 #define log_success(success, feature, msg, args...) \
     do { \
         log_level_t level = success ? LOG_TRACE : LOG_ERROR; \
-        const char *out = success ? "OK" : "Error"; \
+        const char *out = (success) ? "OK" : "Error"; \
         logging(feature, level, msg ": %s", ##args, out); \
     } while(0)

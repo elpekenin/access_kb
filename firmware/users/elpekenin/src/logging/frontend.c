@@ -8,6 +8,7 @@
 #include <platforms/timer.h>
 
 #include "elpekenin.h"
+#include "elpekenin/errno.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/string.h"
 
@@ -152,10 +153,10 @@ void get_logging_fmt(char *dest) {
     strcpy(dest, fmt);
 }
 
-bool set_logging_fmt(const char *new_fmt) {
+int set_logging_fmt(const char *new_fmt) {
     if (strlen(new_fmt) >= MAX_LOG_FMT_LEN) {
         logging(LOGGER, LOG_ERROR, "Format too long");
-        return false;
+        return -ENOBUFS;
     }
 
     const char *copy = new_fmt;
@@ -164,12 +165,12 @@ bool set_logging_fmt(const char *new_fmt) {
 
         if (spec == STR_END) {
             strcpy(fmt, new_fmt);
-            return true;
+            return 0;
         }
 
         if (spec == INVALID_SPEC) {
             logging(LOGGER, LOG_ERROR, "Invalid format");
-            return false;
+            return -EINVAL;
         }
 
         copy++;

@@ -27,34 +27,34 @@
 #define map_set(__map, __key, __value) \
     do { \
         /* if key already used, do nothing */ \
-        bool found; \
+        int ret; \
         WITHOUT_LOGGING( \
             MAP, \
-            map_get(__map, __key, found); \
+            map_get(__map, __key, ret); \
         ); \
-        if (!found) { \
+        if (ret == -ENOTFOUND) { \
             /* dont bother with value if key fails */ \
-            if (array_append(__map.keys, __key)) { \
+            if (array_append(__map.keys, __key) == 0) { \
                 /* if pushing value fails, pop key */ \
-                if (!array_append(__map.values, __value)) { \
+                if (array_append(__map.values, __value) != 0) { \
                     array_pop(__map.keys, 1); \
                 } \
             } \
         } \
     } while (0)
 
-#define map_get(__map, __key, __found) ({ \
-    __found = false; \
+#define map_get(__map, __key, __ret) ({ \
+    __ret = -ENOTFOUND; \
     size_t i; \
     for (i = 0; i < array_len(__map.keys); ++i) { \
         if (__map.keys[i] && strcmp(__map.keys[i], __key) == 0) { \
-            __found = true; \
+            __ret = 0; \
             logging(MAP, LOG_TRACE, "Read '%s'", __key); \
             break; /* without this, we get one off (next ++) */ \
         } \
     } \
     \
-    if (!__found) { \
+    if (__ret != 0) { \
         logging(MAP, LOG_ERROR, "Key '%s' not found", __key); \
     } \
     \
