@@ -6,8 +6,9 @@ SERIAL_DRIVER = vendor
 # Custom features
 SIPO_PINS = yes
 
-# **dont** want to default to GENERIC_PROMICRO_RP2040
-BOARD = GENERIC_RP_RP2040
+
+# BOARD = GENERIC_PROMICRO_RP2040  # default
+# BOARD = GENERIC_RP_RP2040  # remove __late_init and some pinctrl settings
 
 # built with 16M Pico's
 EXTRALDFLAGS = -Wl,--defsym,FLASH_LEN=16384k

@@ -22,8 +22,9 @@
 #include <ch.h>
 #include <hal.h>
 
-#include "gpio.h"
-#include "chibios_config.h"
+#include <platforms/gpio.h>
+#include <platforms/chibios/gpio.h>
+#include <platforms/chibios/chibios_config.h>
 
 #include "elpekenin/utils/compiler.h"
 
@@ -115,14 +116,3 @@ void spi_custom_stop(uint8_t index);
 }
 #endif
 
-/* TODO: Fix compatibility with single-driver code
- *
- * Perhaps an #ifdef block on spi_master.h to not declare functions when using multi-SPI
- * Then, we could use these aliases to make old code fallback to index 0
- */
-// #define spi_init() spi_custom_init(0)
-// #define spi_start(cs, lsb, mode, div) spi_custom_start(cs, lsb, mode, div, 0)
-// #define spi_write(data) spi_custom_write(data, 0)
-// #define spi_read() spi_custom_read(0)
-// #define spi_transmit(data, len) spi_custom_transmit(data, len, 0)
-// #define spi_receive(data, len) spi_custom_receive(data, len, 0)

@@ -82,7 +82,7 @@ NON_NULL(1) static inline void draw_game(game_state_t *state) {
     );
 
     if (!state->playing) {
-        const char *text = "Ded, git gut.";
+        const char text[] = "Ded, git gut.";
         painter_font_handle_t font = qp_get_font_by_name("font_fira_code");
 
         int16_t text_w = qp_textwidth(font, text);

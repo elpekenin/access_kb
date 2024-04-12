@@ -3,16 +3,16 @@
 
 #pragma once
 
-#include "xap.h"
-#include "usb_descriptor.h" // XAP_EPSIZE
-#include_next "transactions.h" // QMK's
+#include <quantum/xap/xap.h>
+#include <quantum/split_common/transactions.h>
+#include <tmk_core/protocol/usb_descriptor.h> // XAP_EPSIZE
 
 #include "elpekenin/utils/compiler.h"
 
 
 void reset_ee_slave(void);
-void xap_execute_slave(const void *data);
 void build_info_sync_keymap_callback(void);
+void xap_execute_slave(const void *data);
 
 typedef struct PACKED {
     uint8_t msg[XAP_EPSIZE];

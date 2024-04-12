@@ -4,6 +4,7 @@
 #pragma once
 
 #include "elpekenin/game.h"
+#include "elpekenin/utils/compiler.h"
 
 #define TILE_SIZE 10
 #define GAME_ROWS 10

@@ -1,7 +1,7 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "wait.h"
+#include <platforms/wait.h>
 
 #include "elpekenin/logging.h"
 #include "elpekenin/sipo.h"
@@ -16,11 +16,12 @@ bool touch_spi_init(touch_device_t device) {
     spi_custom_init(TOUCH_SPI_DRIVER_ID);
 
     // Set up CS as output high
-    sipo_write_high(comms_config.chip_select_pin);
+    set_sipo_pin(comms_config.chip_select_pin, true);
+    send_sipo_state();
 
     // Set up IRQ as input
     if (comms_config.irq_pin != NO_PIN) {
-        setPinInput(comms_config.irq_pin);
+        gpio_set_pin_input(comms_config.irq_pin);
     }
 
     return true;
@@ -32,14 +33,18 @@ bool touch_spi_start(spi_touch_comms_config_t comms_config) {
 
 void touch_spi_stop(spi_touch_comms_config_t comms_config) {
     spi_custom_stop(TOUCH_SPI_DRIVER_ID);
-    sipo_write_high(comms_config.chip_select_pin);
+    set_sipo_pin(comms_config.chip_select_pin, true);
+    send_sipo_state();
 }
 
 static inline int16_t read_coord(uint8_t cmd, spi_touch_comms_config_t comms_config) {
-    sipo_write_low(comms_config.chip_select_pin);
+    set_sipo_pin(comms_config.chip_select_pin, false);
+    send_sipo_state();
+
     spi_custom_write(cmd, TOUCH_SPI_DRIVER_ID);
     int16_t coord = ((spi_custom_write(0, TOUCH_SPI_DRIVER_ID) << 8) | spi_custom_write(0, TOUCH_SPI_DRIVER_ID)) >> 3;
-    sipo_write_high(comms_config.chip_select_pin);
+
+    set_sipo_pin(comms_config.chip_select_pin, true);
 
     return coord;
 }

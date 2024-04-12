@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "action_layer.h"
-#include "led.h"
+#include <quantum/action_layer.h>
+#include <quantum/led.h>
 
 #include "elpekenin/utils/compiler.h"
 

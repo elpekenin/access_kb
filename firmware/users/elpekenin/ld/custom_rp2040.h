@@ -122,21 +122,7 @@ SECTIONS {
 
 INCLUDE rules_memory.ld
 
-SECTIONS {
-    .elpekenin_init : ALIGN(4) {
-        . = ALIGN(4);
-        __elpekenin_init_base__ = .;
-        KEEP(*(SORT(.elpekenin_init.*)));
-        __elpekenin_init_end__ = .;
-    } > flash1
-
-   .elpekenin_deinit : ALIGN(4) {
-        . = ALIGN(4);
-        __elpekenin_deinit_base__ = .;
-        KEEP(*(SORT(.elpekenin_deinit.*)));
-        __elpekenin_deinit_end__ = .;
-    } > flash1
-}
+#include "ld/elpekenin_sections.h"
 
 SECTIONS {
    .flash_end : {

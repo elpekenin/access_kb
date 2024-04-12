@@ -3,5 +3,9 @@
 
 #pragma once
 
-#define REAL(__func) __real_##__func
-#define WRAP(__func) __wrap_##__func
+#include_next <mcuconf.h>
+
+#if defined(MCU_RP)
+#    undef  RP_CORE1_START
+#    define RP_CORE1_START TRUE
+#endif

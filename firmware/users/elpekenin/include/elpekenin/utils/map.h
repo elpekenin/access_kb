@@ -16,8 +16,10 @@
     } __name
 
 #define map_init(__map, __size, __allocator) \
-    __map.keys   = new_array(         const char *, __size, __allocator); \
-    __map.values = new_array(typeof(*__map.values), __size, __allocator)
+    do { \
+        __map.keys   = new_array(         const char *, __size, __allocator); \
+        __map.values = new_array(typeof(*__map.values), __size, __allocator); \
+    } while(0)
 
 // can not overwrite
 // does not handle errors if array_append fails
@@ -31,8 +33,13 @@
             map_get(__map, __key, found); \
         ); \
         if (!found) { \
-            array_append(__map.keys, __key); \
-            array_append(__map.values, __value); \
+            /* dont bother with value if key fails */ \
+            if (array_append(__map.keys, __key)) { \
+                /* if pushing value fails, pop key */ \
+                if (!array_append(__map.values, __value)) { \
+                    array_pop(__map.keys, 1); \
+                } \
+            } \
         } \
     } while (0)
 
@@ -40,7 +47,7 @@
     __found = false; \
     size_t i; \
     for (i = 0; i < array_len(__map.keys); ++i) { \
-        if (strcmp(__map.keys[i], __key) == 0) { \
+        if (__map.keys[i] && strcmp(__map.keys[i], __key) == 0) { \
             __found = true; \
             logging(MAP, LOG_TRACE, "Read '%s'", __key); \
             break; /* without this, we get one off (next ++) */ \

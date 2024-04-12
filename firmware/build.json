@@ -86,11 +86,6 @@
         //         "quantum/quantum.c"
         //     ]
         // },
-        {
-            "operation": "cp",
-            "orig": "users/elpekenin/ld/custom_rp2040.ld",
-            "destination": "platforms/chibios/boards/common/ld"
-        }
     ],
     "compile_command": "./keyboards/elpekenin/access/compile",
     "wsl": {

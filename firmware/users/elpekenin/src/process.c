@@ -1,15 +1,15 @@
 // Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "quantum.h"
-#include "sendstring_spanish.h"
+#include <quantum/quantum.h>
+#include <quantum/keymap_extras/sendstring_spanish.h>
 #define DELAY 10 // ms between sendstring actions
 
 #include "elpekenin/crash.h"
 #include "elpekenin/keycodes.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/placeholders.h"
-#include "elpekenin/utils/init.h"
+#include "elpekenin/utils/sections.h"
 #include "elpekenin/utils/memory.h"
 #include "elpekenin/utils/shortcuts.h"
 #include "elpekenin/utils/string.h"
@@ -84,7 +84,7 @@ bool process_autocorrect_user(uint16_t *keycode, keyrecord_t *record, uint8_t *t
     return process_autocorrect_default_handler(keycode, record, typo_buffer_size, mods);
 }
 
-PEKE_INIT(autocorrect_enable, 100);
+PEKE_INIT(autocorrect_enable, INIT_AUTOCORRECT);
 #endif
 
 #if defined(KEYLOG_ENABLE)
@@ -105,6 +105,8 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    char buff[15];
+
 #if defined(KEYLOG_ENABLE)
     if (keylog_enabled) {
         keylog_process(keycode, record);
@@ -175,9 +177,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #if defined(QUANTUM_PAINTER_ENABLE)
         case PK_QCLR:
             if (pressed) {
-                for (uint8_t i = 0; i < LOG_N_LINES; ++i) {
-                    sendchar_qp_hook('\n');
-                }
+                qp_log_clear();
             }
             return false;
 #endif
@@ -242,7 +242,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case PK_SIZE:
         if (pressed) {
-            logging(UNKNOWN, LOG_INFO, "Binary takes %s", pretty_bytes(get_flash_size(), g_scratch, ARRAY_SIZE(g_scratch)));
+            logging(UNKNOWN, LOG_INFO, "Binary takes %s", pretty_bytes(get_flash_size(), buff, sizeof(buff)));
         }
         return false;
 

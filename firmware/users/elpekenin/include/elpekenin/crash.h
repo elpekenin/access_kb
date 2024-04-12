@@ -11,3 +11,6 @@ bool program_crashed(void);
 NON_NULL(1) RETURN_NO_NULL WRITE_ONLY(1) backtrace_t *get_crash_call_stack(uint8_t *depth);
 void print_crash_call_stack(void);
 void clear_crash_info(void);
+
+const char *get_crash_msg(void);
+void set_crash_msg(const char *msg);

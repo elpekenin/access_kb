@@ -3,15 +3,15 @@
 
 #include <string.h>
 
-#include "action_layer.h" // get_highest_layer
-#include "action_util.h" // get_mods
-#include "host.h" // host_keyboard_led_state
-#include "debug.h" // debug_config
+#include <quantum/action_layer.h> // get_highest_layer
+#include <quantum/action_util.h> // get_mods
+#include <quantum/logging/debug.h> // debug_config
+#include <tmk_core/protocol/host.h> // keyboard_led_state
 
 #include "elpekenin/keylog.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/compiler.h"
-#include "elpekenin/utils/init.h"
+#include "elpekenin/utils/sections.h"
 #include "elpekenin/utils/map.h"
 #include "elpekenin/utils/shortcuts.h"
 #include "elpekenin/utils/string.h"
@@ -26,7 +26,10 @@
 #endif
 
 static bool keylog_dirty = true;
-static char keylog[KEYLOG_SIZE + 1] = " "; // extra space for terminator
+static char keylog[KEYLOG_SIZE + 1] = {
+    [0 ... KEYLOG_SIZE - 1] = ' ',
+    [KEYLOG_SIZE] = '\0',
+}; // extra space for terminator
 
 
 // *** Replacements implementation ***
@@ -35,76 +38,81 @@ typedef enum {
     NO_MODS,
     SHIFT,
     AL_GR,
-    // TODO: implement more when needed
+    // ... implement more when needed
     __N_MODS__,
 } active_mods_t;
 
 typedef struct PACKED {
-    const char *find;
     const char *strings[__N_MODS__];
-} replacement_t;
+} replacements_t;
 
-static new_map(replacement_t *, replacements_map);
+static inline replacements_t new_replacement(const char *no_mods, const char *shift, const char *al_gr) {
+    return (replacements_t){
+        .strings = {
+            [NO_MODS] = no_mods,
+            [SHIFT]   = shift,
+            [AL_GR]   = al_gr,
+        }
+    };
+}
 
-// TODO: Dont duplicate data in ROM and RAM
-static const replacement_t replacements[] = {
-    {.find="0",       .strings={                 [SHIFT]="="              }},
-    {.find="1",       .strings={                 [SHIFT]="!",  [AL_GR]="|"}},
-    {.find="2",       .strings={                 [SHIFT]="\"", [AL_GR]="@"}},
-    {.find="3",       .strings={                               [AL_GR]="#"}}, // · breaks keylog
-    {.find="4",       .strings={                 [SHIFT]="$",  [AL_GR]="~"}},
-    {.find="5",       .strings={                 [SHIFT]="%"              }},
-    {.find="6",       .strings={                 [SHIFT]="&"              }},
-    {.find="7",       .strings={                 [SHIFT]="/"              }},
-    {.find="8",       .strings={                 [SHIFT]="("              }},
-    {.find="9",       .strings={                 [SHIFT]=")"              }},
-    {.find="_______", .strings={[NO_MODS]="__"                            }},
-    {.find="AT",      .strings={[NO_MODS]="@"                             }},
-    {.find="BSLS",    .strings={[NO_MODS]="\\"                            }},
-    {.find="BSPC",    .strings={[NO_MODS]="⇤"                             }},
-    {.find="CAPS",    .strings={[NO_MODS]="↕"                             }},
-    {.find="COMM",    .strings={[NO_MODS]=",",   [SHIFT]=";"              }},
-    {.find="DB_TOGG", .strings={[NO_MODS]="DBG"                           }},
-    {.find="DOT",     .strings={[NO_MODS]=".",   [SHIFT]=":"              }},
-    {.find="DOWN",    .strings={[NO_MODS]="↓"                             }},
-    {.find="ENT",     .strings={[NO_MODS]="↲"                             }},
-    {.find="GRV",     .strings={[NO_MODS]="`",   [SHIFT]="^"              }},
-    {.find="HASH",    .strings={[NO_MODS]="#"                             }},
-    {.find="LBRC",    .strings={[NO_MODS]="["                             }},
-    {.find="LCBR",    .strings={[NO_MODS]="{"                             }},
-    {.find="LEFT",    .strings={[NO_MODS]="←"                             }},
-    {.find="LOWR",    .strings={[NO_MODS]="▼"                             }},
-    {.find="MINS",    .strings={[NO_MODS]="-",   [SHIFT]="_"              }},
-    {.find="NTIL",    .strings={[NO_MODS]="´",                            }},
-    {.find="R_SPC",   .strings={[NO_MODS]=" "                             }},
-    {.find="RBRC",    .strings={[NO_MODS]="]"                             }},
-    {.find="RCBR",    .strings={[NO_MODS]="}"                             }},
-    {.find="RIGHT",   .strings={[NO_MODS]="→"                             }},
-    {.find="PLUS",    .strings={[NO_MODS]="+",   [SHIFT]="*"              }},
-    {.find="PIPE",    .strings={[NO_MODS]="|"                             }},
-    {.find="QUOT",    .strings={[NO_MODS]="'",   [SHIFT]="?"              }},
-    {.find="SPC",     .strings={[NO_MODS]=" "                             }},
-    {.find="TAB",     .strings={[NO_MODS]="⇥"                             }},
-    {.find="TILD",    .strings={[NO_MODS]="~"                             }},
-    {.find="UP",      .strings={[NO_MODS]="↑"                             }},
-    {.find="UPPR",    .strings={[NO_MODS]="▲"                             }},
-    {.find="VOLU",    .strings={[NO_MODS]="♪",   [SHIFT]="♪"              }},
-};
+static new_map(replacements_t, replacements_map);
+
+static replacements_t replacements_buff[100];
+static memory_heap_t replacements_heap;
+static allocator_t replacements_allocator;
 
 static void replacements_init(void) {
-    // store pointers to the replacements, as they are statically allocated and wontget a freeafteruse
-    map_init(replacements_map, ARRAY_SIZE(replacements), NULL);
+    chHeapObjectInit(&replacements_heap, &replacements_buff, sizeof(replacements_buff));
+
+    replacements_allocator = new_ch_heap_allocator(&replacements_heap, "replacements heap");
+
+    map_init(replacements_map, 50, &replacements_allocator);
 
     // add replacements to the map
-    for (
-        replacement_t *replacement = (replacement_t *)replacements;
-        replacement < &replacements[ARRAY_SIZE(replacements)];
-        ++replacement
-    ) {
-        map_set(replacements_map, replacement->find, replacement);
-    }
+    map_set(replacements_map, "0",       new_replacement(NULL,  "=",  NULL));
+    map_set(replacements_map, "1",       new_replacement(NULL,  "!",  "|" ));
+    map_set(replacements_map, "2",       new_replacement(NULL,  "\"", "@" ));
+    map_set(replacements_map, "3",       new_replacement(NULL,  NULL, "#" )); // · breaks keylog
+    map_set(replacements_map, "4",       new_replacement(NULL,  "$",  "~" ));
+    map_set(replacements_map, "5",       new_replacement(NULL,  "%",  NULL));
+    map_set(replacements_map, "6",       new_replacement(NULL,  "&",  NULL));
+    map_set(replacements_map, "7",       new_replacement(NULL,  "/",  NULL));
+    map_set(replacements_map, "8",       new_replacement(NULL,  "(",  NULL));
+    map_set(replacements_map, "9",       new_replacement(NULL,  ")",  NULL));
+    map_set(replacements_map, "_______", new_replacement("__",  NULL, NULL));
+    map_set(replacements_map, "AT",      new_replacement("@",   NULL, NULL));
+    map_set(replacements_map, "BSLS",    new_replacement("\\",  NULL, NULL));
+    map_set(replacements_map, "BSPC",    new_replacement("⇤",   NULL, NULL));
+    map_set(replacements_map, "CAPS",    new_replacement("↕",   NULL, NULL));
+    map_set(replacements_map, "COMM",    new_replacement(",",   ";",  NULL));
+    map_set(replacements_map, "DB_TOGG", new_replacement("DBG", NULL, NULL));
+    map_set(replacements_map, "DOT",     new_replacement(".",   ":",  NULL));
+    map_set(replacements_map, "DOWN",    new_replacement("↓",   NULL, NULL));
+    map_set(replacements_map, "ENT",     new_replacement("↲",   NULL, NULL));
+    map_set(replacements_map, "GRV",     new_replacement("`",   "^",  NULL));
+    map_set(replacements_map, "HASH",    new_replacement("#",   NULL, NULL));
+    map_set(replacements_map, "LBRC",    new_replacement("[",   NULL, NULL));
+    map_set(replacements_map, "LCBR",    new_replacement("{",   NULL, NULL));
+    map_set(replacements_map, "LEFT",    new_replacement("←",   NULL, NULL));
+    map_set(replacements_map, "LOWR",    new_replacement("▼",   NULL, NULL));
+    map_set(replacements_map, "MINS",    new_replacement("-",   "_",  NULL));
+    map_set(replacements_map, "NTIL",    new_replacement("´",   NULL, NULL));
+    map_set(replacements_map, "R_SPC",   new_replacement(" ",   NULL, NULL));
+    map_set(replacements_map, "RBRC",    new_replacement("]",   NULL, NULL));
+    map_set(replacements_map, "RCBR",    new_replacement("}",   NULL, NULL));
+    map_set(replacements_map, "RIGHT",   new_replacement("→",   NULL, NULL));
+    map_set(replacements_map, "PLUS",    new_replacement("+",   "*",  NULL));
+    map_set(replacements_map, "PIPE",    new_replacement("|",   NULL, NULL));
+    map_set(replacements_map, "QUOT",    new_replacement("'",   "?",  NULL));
+    map_set(replacements_map, "SPC",     new_replacement(" ",   NULL, NULL));
+    map_set(replacements_map, "TAB",     new_replacement("⇥",   NULL, NULL));
+    map_set(replacements_map, "TILD",    new_replacement("~",   NULL, NULL));
+    map_set(replacements_map, "UP",      new_replacement("↑",   NULL, NULL));
+    map_set(replacements_map, "UPPR",    new_replacement("▲",   NULL, NULL));
+    map_set(replacements_map, "VOLU",    new_replacement("♪",   "♪",  NULL));
 }
-PEKE_INIT(replacements_init, 100);
+PEKE_INIT(replacements_init, INIT_KEYLOG_MAP);
 
 
 // *** Formatting helpers ***
@@ -125,11 +133,10 @@ static void skip_prefix(const char **str) {
 
 static void maybe_symbol(const char **str) {
     bool found;
-    replacement_t *replacements;
+    replacements_t replacements;
 
     // disable hash logging momentarily, as a lot of strings wont be in the replacements map
-    WITHOUT_LOGGING(
-        MAP,
+    WITHOUT_LOGGING(MAP,
         replacements = map_get(replacements_map, *str, found);
     );
 
@@ -140,16 +147,16 @@ static void maybe_symbol(const char **str) {
     const char *target;
     switch (get_mods()) {
         case 0:
-            target = replacements->strings[NO_MODS];
+            target = replacements.strings[NO_MODS];
             break;
 
         case MOD_BIT(KC_LSFT):
         case MOD_BIT(KC_RSFT):
-            target = replacements->strings[SHIFT];
+            target = replacements.strings[SHIFT];
             break;
 
         case MOD_BIT(KC_ALGR):
-            target = replacements->strings[AL_GR];
+            target = replacements.strings[AL_GR];
             break;
 
         default:
@@ -259,13 +266,6 @@ void keycode_repr(const char **str) {
 }
 
 void keylog_process(uint16_t keycode, keyrecord_t *record) {
-    // initial setup
-    static bool keylog_init = false;
-    if (!keylog_init) {
-        keylog_init = true;
-        keylog_clear();
-    }
-
     // nothing on release (for now)
     if (!record->event.pressed) {
         return;

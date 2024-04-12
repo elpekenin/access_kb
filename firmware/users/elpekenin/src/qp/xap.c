@@ -4,8 +4,8 @@
 // TODO
 // - Maybe the XAP answer should be success/failure based on the output from QP functions, returning success for now as in "your request has been handled"
 
-#include "qp.h"
-#include "xap.h"
+#include <quantum/painter/qp.h>
+#include <quantum/xap/xap.h>
 
 #include "elpekenin/qp/graphics.h"
 #include "elpekenin/utils/shortcuts.h"

@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "qp.h"
-#include "qp_internal.h"
+#include <quantum/painter/qp.h>
+#include <quantum/painter/qp_internal.h>
 
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/compiler.h"

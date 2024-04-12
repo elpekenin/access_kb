@@ -1,35 +1,25 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "xap.h"
-#include "usb_descriptor.h"
-#include "timer.h"
-#define MAX_PAYLOAD_SIZE (XAP_EPSIZE - sizeof(xap_broadcast_header_t))
+#include <quantum/xap/xap.h>
+#include <tmk_core/protocol/usb_descriptor.h>
+#define MAX_PAYLOAD_SIZE (XAP_EPSIZE - sizeof(xap_broadcast_header_t)) // -1 for terminator
 
-#include "elpekenin/utils/compiler.h"
-#include "elpekenin/utils/shortcuts.h"
+#include "elpekenin/utils/sections.h"
+#include "elpekenin/utils/ring_buffer.h"
 
+static new_rbuf(char, 200, rbuf);
 
-static uint8_t i = 0;
-static uint8_t buffer[MAX_PAYLOAD_SIZE] = {0};
+static int8_t sendchar_xap_hook(uint8_t c) {
+    rbuf_push(rbuf, c);
 
-int8_t sendchar_xap_hook(uint8_t c) {
-    // sending early on leads to issues, instead wait a bit for USB to settle
-    if (timer_read() < 3000) {
-        return 0;
-    }
-
-    // append data
-    buffer[i++] = c;
-
-    // send on '\n' or when buffer is filled
-    // -1 because we need to keep last element 0 for terminator
-    if (i == (ARRAY_SIZE(buffer) - 1) || c == '\n') {
-        xap_broadcast(0x00, buffer, i);
-
-        i = 0;
-        WIPE_ARRAY(buffer);
+    if (c == '\n' || rbuf_full(rbuf)) {
+        char buff[MAX_PAYLOAD_SIZE];
+        size_t size = rbuf_pop(rbuf, sizeof(buff) - 1, buff);
+        buff[size] = '\0';
+        xap_broadcast(0x00, buff, size);
     }
 
     return 0;
 }
+PEKE_SENDCHAR(sendchar_xap_hook);

@@ -36,9 +36,14 @@ static SPIConfig spi_configs[SPI_COUNT];
 
 bool is_initialised[] = {[0 ... SPI_COUNT-1] = false};
 
+static inline spi_status_t __spi_error(uint8_t index) {
+    logging(SPI, LOG_ERROR, "Index %d invalid", index);
+    return SPI_STATUS_ERROR;
+}
+
 __attribute__((weak)) void spi_custom_init(uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, LOG_ERROR, "Index %d invalid", index);
+        __spi_error(index);
         return;
     }
 
@@ -52,9 +57,9 @@ __attribute__((weak)) void spi_custom_init(uint8_t index) {
 #endif
 
         // Try releasing special pins for a short time
-        setPinInput(spi_sck_pins[index]);
-        setPinInput(spi_mosi_pins[index]);
-        setPinInput(spi_miso_pins[index]);
+        gpio_set_pin_input(spi_sck_pins[index]);
+        gpio_set_pin_input(spi_mosi_pins[index]);
+        gpio_set_pin_input(spi_miso_pins[index]);
 
         chThdSleepMilliseconds(10);
 #if defined(USE_GPIOV1)
@@ -73,7 +78,7 @@ __attribute__((weak)) void spi_custom_init(uint8_t index) {
 
 bool spi_custom_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divisor, uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, LOG_ERROR, "Index %d invalid", index);
+        __spi_error(index);
         return false;
     }
 
@@ -276,7 +281,7 @@ bool spi_custom_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divi
     spi_configs[index].ssport = PAL_PORT(slavePin);
     spi_configs[index].sspad  = PAL_PAD(slavePin);
 
-    setPinOutput(slavePin);
+    gpio_set_pin_output(slavePin);
     spiStart(drivers[index], &spi_configs[index]);
     spiSelect(drivers[index]);
 
@@ -285,8 +290,7 @@ bool spi_custom_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divi
 
 spi_status_t spi_custom_write(uint8_t data, uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, LOG_ERROR, "Index %d invalid", index);
-        return SPI_STATUS_ERROR;
+        return __spi_error(index);
     }
 
     uint8_t rxData;
@@ -297,8 +301,7 @@ spi_status_t spi_custom_write(uint8_t data, uint8_t index) {
 
 spi_status_t spi_custom_read(uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, LOG_ERROR, "Index %d invalid", index);
-        return SPI_STATUS_ERROR;
+        return __spi_error(index);
     }
 
     uint8_t data = 0;
@@ -309,8 +312,7 @@ spi_status_t spi_custom_read(uint8_t index) {
 
 spi_status_t spi_custom_transmit(const uint8_t *data, uint16_t length, uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, LOG_ERROR, "Index %d invalid", index);
-        return SPI_STATUS_ERROR;
+        return __spi_error(index);
     }
 
     spiSend(drivers[index], length, data);
@@ -319,8 +321,7 @@ spi_status_t spi_custom_transmit(const uint8_t *data, uint16_t length, uint8_t i
 
 spi_status_t spi_custom_receive(uint8_t *data, uint16_t length, uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, LOG_ERROR, "Index %d invalid", index);
-        return SPI_STATUS_ERROR;
+        return __spi_error(index);
     }
 
     spiReceive(drivers[index], length, data);
@@ -329,7 +330,7 @@ spi_status_t spi_custom_receive(uint8_t *data, uint16_t length, uint8_t index) {
 
 void spi_custom_stop(uint8_t index) {
     if (index >= SPI_COUNT) {
-        logging(SPI, LOG_ERROR, "Index %d invalid", index);
+        __spi_error(index);
         return;
     }
 

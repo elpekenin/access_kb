@@ -2,21 +2,20 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "elpekenin/logging.h"
+#include "elpekenin/utils/allocator.h"
 #include "elpekenin/utils/dyn_array.h"
 
 void *_new_array(size_t item_size, size_t initial_size, allocator_t *allocator) {
-    if (LIKELY(allocator == NULL)) {
-        allocator = &default_allocator;
+    if (UNLIKELY(allocator == NULL)) {
+        allocator = get_default_allocator();
     }
 
     size_t items_size = item_size * initial_size;
     size_t total_size = sizeof(header_t) + items_size;
 
-    header_t *ptr = allocator->malloc(total_size);
-    if (UNLIKELY(ptr == NULL)) {
-        logging(ALLOC, LOG_ERROR, "%s", __func__);
-        return NULL;
-    }
+    header_t *ptr = malloc_with(allocator, total_size);
+    // TODO?: Add error handling for malloc failing
+    //        Shouldn't happen as we always call this very early
 
     ptr->allocator = allocator;
     ptr->capacity  = initial_size;
@@ -31,7 +30,7 @@ header_t *get_header(void *array) {
         return NULL;
     }
 
-    return (header_t *)array - 1;
+    return ((header_t *)array) - 1;
 }
 
 size_t array_len(void *array) {
@@ -56,14 +55,14 @@ bool expand_if_needed(void **array) {
         size_t current_size = header->item_size * header->capacity;
         size_t total_size    = sizeof(header_t) + current_size * 2;
 
-        header = header->allocator->realloc(header, total_size);
-        if (UNLIKELY(header == false)) {
+        header_t *new_header = realloc_with(header->allocator, header, total_size);
+        if (UNLIKELY(new_header == NULL)) {
             logging(ALLOC, LOG_ERROR, "%s failed", __func__);
             return false;
         }
 
-        *array = header + 1;
-        header->capacity *= 2;
+        *array = new_header + 1;
+        new_header->capacity *= 2;
     }
 
     return true;

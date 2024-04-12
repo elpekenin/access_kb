@@ -1,12 +1,12 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "color.h"
+#include <quantum/color.h>
 
 #include "elpekenin/logging.h"
 #include "elpekenin/logging/backends/qp.h"
 #include "elpekenin/qp/graphics.h"
-#include "elpekenin/utils/shortcuts.h"
+#include "elpekenin/utils/sections.h"
 
 static char           qp_log[LOG_N_LINES][LOG_N_CHARS + 1];
 static uint8_t        qp_log_current_col;
@@ -15,19 +15,17 @@ static deferred_token qp_log_tokens[LOG_N_LINES];
 static bool           qp_log_redraw;
 static log_level_t    qp_log_levels[LOG_N_LINES];
 
-int8_t sendchar_qp_hook(uint8_t c) {
-    // Setup the arrays on the 1st go
-    static bool initialized = false;
-    if (!initialized) {
-        WIPE_ARRAY(qp_log);
-        for (uint8_t i = 0; i < LOG_N_LINES; ++i) {
-            qp_log_pointers[i] = qp_log[i];
-            qp_log_tokens[i]   = INVALID_DEFERRED_TOKEN;
-        }
-        qp_log_redraw = false;
-        initialized = true;
+static void qp_log_init(void) {
+    memset(qp_log, 0, sizeof(qp_log));
+    for (uint8_t i = 0; i < LOG_N_LINES; ++i) {
+        qp_log_pointers[i] = qp_log[i];
+        qp_log_tokens[i]   = INVALID_DEFERRED_TOKEN;
     }
+    qp_log_redraw = false;
+}
+PEKE_INIT(qp_log_init, INIT_QP_LOG);
 
+static int8_t sendchar_qp_hook(uint8_t c) {
     if (c == '\n') {
         // Add null pointer to current line
         qp_log_pointers[LOG_N_LINES - 1][qp_log_current_col] = 0;
@@ -55,6 +53,13 @@ int8_t sendchar_qp_hook(uint8_t c) {
     }
 
     return 0;
+}
+PEKE_SENDCHAR(sendchar_qp_hook);
+
+void qp_log_clear(void) {
+    for (uint8_t i = 0; i < LOG_N_LINES; ++i) {
+        sendchar_qp_hook('\n');
+    }
 }
 
 static const HSV log_colors[] = {
@@ -91,10 +96,8 @@ void qp_logging_backend_render(qp_callback_args_t *args) {
 
         bool text_fits = textwidth < (qp_get_width(args->device) - args->x);
 
-        if (qp_log_tokens[i] != INVALID_DEFERRED_TOKEN) {
-            stop_scrolling_text(qp_log_tokens[i]);
-            qp_log_tokens[i] = INVALID_DEFERRED_TOKEN;
-        }
+        stop_scrolling_text(qp_log_tokens[i]);
+        qp_log_tokens[i] = INVALID_DEFERRED_TOKEN;
 
         y += args->font->line_height;
 

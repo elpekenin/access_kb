@@ -69,8 +69,8 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
 #if defined (QUANTUM_PAINTER_ENABLE)
     // *** SIPO ***
 
-    setPinOutput(SIPO_CS_PIN);
-    writePinHigh(SIPO_CS_PIN);
+    gpio_set_pin_output(SIPO_CS_PIN);
+    gpio_write_pin_high(SIPO_CS_PIN);
 
 
     // *** QP ***

@@ -1,16 +1,16 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "deferred_exec.h"
-#include "eeconfig.h"
+#include <quantum/deferred_exec.h>
+#include <quantum/eeconfig.h>
 
+#include "elpekenin.h"
 #include "elpekenin/build_info.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/logging/backends/split.h"
 #include "elpekenin/split/transactions.h"
 #include "elpekenin/utils/compiler.h"
-#include "elpekenin/utils/init.h"
-#include "elpekenin/utils/deinit.h"
+#include "elpekenin/utils/sections.h"
 
 static inline void __split_size_err(void) {
     logging(SPLIT, LOG_ERROR, "%s size", __func__);
@@ -98,17 +98,20 @@ static void split_init(void) {
     transaction_register_rpc(RPC_ID_USER_EE_CLR, user_ee_clr_callback);
     transaction_register_rpc(RPC_ID_XAP, user_xap_callback);
 
-    if (is_keyboard_master()) {
+    // race condition, QMK fills the left/master fields **after** this func is called
+    // lets manually invoke that logic to get it working
+    bool is_keyboard_master_impl(void);
+    if (is_keyboard_master_impl()) {
         // 5 secs to prevent drawing on eInk right after flash
         defer_exec(5000, build_info_sync_callback, NULL);
-        defer_exec(10, slave_log_sync_callback,  NULL);
+        defer_exec(10, slave_log_sync_callback, NULL);
     }
 }
-PEKE_INIT(split_init, 100);
+PEKE_INIT(split_init, INIT_SPLIT);
 
 static void split_deinit(bool jump_to_bootloader) {
     if (is_keyboard_master()) {
         transaction_rpc_send(RPC_ID_USER_SHUTDOWN, sizeof(jump_to_bootloader), &jump_to_bootloader);
     }
 }
-PEKE_DEINIT(split_deinit, 100);
+PEKE_DEINIT(split_deinit, DEINIT_SPLIT);

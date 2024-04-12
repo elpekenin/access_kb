@@ -24,8 +24,3 @@
         WITHOUT_DEBUG(code); \
         set_level_for(feature, old_level); \
     } while (0)
-
-#define WIPE_VAR(__x) memset(&(__x), 0, sizeof(__x))
-#define WIPE_ARRAY(__x) memset((__x), 0, sizeof(__x))
-
-#define HIGHEST_LAYER (get_highest_layer(layer_state | default_layer_state))

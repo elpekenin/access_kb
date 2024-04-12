@@ -1,25 +1,34 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "action_layer.h"
-#include "action_util.h"
+#include <quantum/action_layer.h>
+#include <quantum/action_util.h>
+#include <quantum/keymap_common.h>
+#include <platforms/progmem.h>
 #include "default_keyboard.h" // for LAYOUT
-#include "keymap_common.h"
-#include "progmem.h"
 
 #include "elpekenin.h" // layers names and custom keycodes
 #include "elpekenin/rgb/matrix/indicators.h"
+#include "elpekenin/utils/allocator.h"
 #include "elpekenin/utils/compiler.h"
 #include "elpekenin/utils/dyn_array.h"
-#include "elpekenin/utils/init.h"
+#include "elpekenin/utils/sections.h"
 
 
 // *** Definitions ***
 
+static indicator_t indicator_buff[25];
+static memory_heap_t indicator_heap;
+static allocator_t indicator_allocator;
+
 static indicator_t *indicators;
 
 USED void indicators_init(void) {
-    indicators = new_array(indicator_t, 10, NULL);
+    chHeapObjectInit(&indicator_heap, &indicator_buff, sizeof(indicator_buff));
+
+    indicator_allocator = new_ch_heap_allocator(&indicator_heap, "indicators heap");
+
+    indicators = new_array(indicator_t, 5, &indicator_allocator);
 
     array_append(indicators, layer_indicator(_RST, RGB_OFF));
 
@@ -32,9 +41,8 @@ USED void indicators_init(void) {
 
     // custom keycodes
     array_append(indicators, custom_keycode_in_layer_indicator(_RST, RGB_BLUE));
-
 }
-PEKE_INIT(indicators_init, 100);
+PEKE_INIT(indicators_init, INIT_INDICATORS_MAP);
 
 // NOTES:
 //   - Assumes (for now?) that all LEDs are mapped to a key (no underglow or w/e)

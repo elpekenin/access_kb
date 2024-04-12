@@ -47,7 +47,7 @@ H_FILE = lines(
 C_FILE = lines(
     C_HEADER,
     "",
-    '#include "quantum.h"',
+    '#include <quantum/quantum.h>',
     "",
     '#include "elpekenin.h" // keycodes and layers',
     "",

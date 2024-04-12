@@ -1,11 +1,11 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "quantum.h"
+#include <quantum/quantum.h>
 
 #include "elpekenin/xap.h"
 #include "elpekenin/utils/compiler.h"
-#include "elpekenin/utils/deinit.h"
+#include "elpekenin/utils/sections.h"
 
 #include "generated/keycode_str.h"
 
@@ -72,4 +72,4 @@ void xap_shutdown(bool jump_to_bootloader) {
 
     xap_broadcast_user(&msg, sizeof(msg));
 }
-PEKE_DEINIT(xap_shutdown, 100);
+PEKE_DEINIT(xap_shutdown, DEINIT_XAP);

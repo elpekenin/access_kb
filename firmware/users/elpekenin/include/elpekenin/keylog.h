@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "action.h" // keyrecord_t
+#include <quantum/action.h> // keyrecord_t
 
 #include "elpekenin/utils/compiler.h"
 

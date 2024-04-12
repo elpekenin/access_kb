@@ -7,6 +7,7 @@
 #include "elpekenin/rng.h"
 #include "elpekenin/xap.h"
 #include "elpekenin/qp/graphics.h"
+#include "elpekenin/utils/sections.h"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY] = LAYOUT(
@@ -55,10 +56,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 
-const char *fmt = "%M\n";
-void keyboard_pre_init_keymap(void) {
+const char fmt[] = "%M\n";
+void logging_format(void) {
     set_logging_fmt(fmt);
 }
+PEKE_INIT(logging_format, INIT_LOG_FORMAT);
 
 #if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && IS_RIGHT_HAND
 static uint32_t read_touch_callback(uint32_t trigger_time, void *cb_arg) {

@@ -4,13 +4,44 @@
 #include "elpekenin/logging.h"
 #include "elpekenin/sipo.h"
 #include "elpekenin/spi_custom.h"
+#include "elpekenin/utils/shortcuts.h"
 
-static uint8_t sipo_pin_state[_SIPO_BYTES] = {0};
+#define SIPO_BYTES ((N_SIPO_PINS + 7) / 8)
+
+static uint8_t sipo_pin_state[SIPO_BYTES] = {0};
 static bool    sipo_state_changed          = true;
+
+static inline void print_sipo_byte(uint8_t x) {
+    uint8_t byte = sipo_pin_state[x];
+
+    logging(
+        SIPO,
+        LOG_DEBUG,
+        "%d%d%d%d%d%d%d%d",
+        GET_BIT(byte, 0),
+        GET_BIT(byte, 1),
+        GET_BIT(byte, 2),
+        GET_BIT(byte, 3),
+        GET_BIT(byte, 4),
+        GET_BIT(byte, 5),
+        GET_BIT(byte, 6),
+        GET_BIT(byte, 7)
+    );
+}
+
+static inline void print_sipo_status(void) {
+    logging(SIPO, LOG_DEBUG, "MCU");
+
+    for (int i = (SIPO_BYTES - 1); i >= 0; --i) {
+        print_sipo_byte(i);
+    }
+
+    logging(SIPO, LOG_DEBUG, "END");
+}
 
 void set_sipo_pin(uint8_t  position, bool state) {
     // this change makes position 0 to be the closest to the MCU, instead of being the 1st bit of the last byte
-    uint8_t byte_offset = _SIPO_BYTES - 1 - (position / 8);
+    uint8_t byte_offset = SIPO_BYTES - 1 - (position / 8);
     uint8_t bit_offset  = position % 8;
 
     // Check if pin already had that state
@@ -44,11 +75,11 @@ void send_sipo_state(void) {
         return;
     }
 
-    writePinLow(SIPO_CS_PIN);
-    spi_custom_transmit(sipo_pin_state, _SIPO_BYTES, REGISTERS_SPI_DRIVER_ID);
-    writePinHigh(SIPO_CS_PIN);
+    gpio_write_pin_low(SIPO_CS_PIN);
+    spi_custom_transmit(sipo_pin_state, SIPO_BYTES, REGISTERS_SPI_DRIVER_ID);
+    gpio_write_pin_high(SIPO_CS_PIN);
 
     spi_custom_stop(REGISTERS_SPI_DRIVER_ID);
 
-    PRINT_SIPO_STATUS();
+    print_sipo_status();
 }

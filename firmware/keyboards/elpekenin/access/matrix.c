@@ -7,7 +7,7 @@
  *  !! this would not hold for other registers with a different amount of inputs
  */
 
-#include "quantum.h"
+#include <quantum/quantum.h>
 
 #include "elpekenin/spi_custom.h"
 
@@ -16,8 +16,8 @@
 #endif // TOUCH_SCREEN_ENABLE && INIT_EE_HANDS_RIGHT
 
 void matrix_init_custom(void) {
-    setPinOutput(PISO_CS_PIN);
-    writePinHigh(PISO_CS_PIN);
+    gpio_set_pin_output(PISO_CS_PIN);
+    gpio_write_pin_high(PISO_CS_PIN);
     spi_custom_init(REGISTERS_SPI_DRIVER_ID);
 }
 

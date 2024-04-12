@@ -4,9 +4,10 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "print.h"
-#include "timer.h"
+#include <quantum/logging/print.h>
+#include <platforms/timer.h>
 
+#include "elpekenin.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/string.h"
 
@@ -41,15 +42,15 @@ ASSERT_FEATURES(feature_str);
 // logging level for each feature
 log_level_t feature_levels[] = { // sorted alphabetically
     [UNKNOWN] = LOG_INFO,
-    [ALLOC]   = LOG_ERROR,
-    [MAP]     = LOG_ERROR,
-    [LOGGER]  = LOG_ERROR,
-    [QP]      = LOG_INFO,
-    [SCROLL]  = LOG_ERROR,
-    [SIPO]    = LOG_NONE,
-    [SPLIT]   = LOG_ERROR,
-    [SPI]     = LOG_NONE,
-    [TOUCH]   = LOG_ERROR,
+    [ALLOC]   = LOG_WARN,
+    [MAP]     = LOG_WARN,
+    [LOGGER]  = LOG_WARN,
+    [QP]      = LOG_WARN,
+    [SCROLL]  = LOG_WARN,
+    [SIPO]    = LOG_WARN,
+    [SPLIT]   = LOG_WARN,
+    [SPI]     = LOG_WARN,
+    [TOUCH]   = LOG_WARN,
 };
 ASSERT_FEATURES(feature_levels);
 
@@ -183,7 +184,8 @@ log_level_t get_message_level(void) {
 
 WEAK const char *log_time(void) {
     static char buff[10] = {0};
-    return _itoa(timer_read32() / 1000, buff);
+    snprintf(buff, sizeof(buff), "%ld", timer_read32() / 1000);
+    return buff;
 }
 
 void logging(feature_t feature, log_level_t level, const char *msg, ...) {
@@ -255,9 +257,9 @@ void print_str(const char *str, const sendchar_func_t func) {
 }
 
 void print_u8(const uint8_t val, const sendchar_func_t func) {
-    // max(u8) == 255 == 4 bytes, extra one for safety
-    char txt[5] = {0};
-    print_str(_itoa(val, txt), func);
+    char buff[4];
+    snprintf(buff, sizeof(buff), "%d", val);
+    print_str(buff, func);
 }
 
 void print_u8_array(const uint8_t *list, const size_t len, const sendchar_func_t func) {

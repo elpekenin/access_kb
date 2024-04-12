@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include_next "keycodes.h"
+#include <quantum/keycodes.h>
 
-#include "keymap_spanish.h"
+#include <quantum/keymap_extras/keymap_spanish.h>
 
 #define _______ KC_TRNS
 #define R_SPC   LT(_FN3, KC_SPC)

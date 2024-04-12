@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-#include "keyboard.h"
+#include <quantum/keyboard.h>
 #include "version.h"
 
 #include "elpekenin/build_info.h"

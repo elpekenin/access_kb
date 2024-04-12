@@ -1,14 +1,14 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "quantum.h"
+#include <quantum/quantum.h>
 
 #include "elpekenin/layers.h"
 #include "elpekenin/placeholders.h"
 #include "elpekenin/rgb/matrix/functions.h"
 #include "elpekenin/rgb/matrix/indicators.h"
 #include "elpekenin/utils/compiler.h"
-#include "elpekenin/utils/deinit.h"
+#include "elpekenin/utils/sections.h"
 #include "elpekenin/utils/shortcuts.h"
 
 
@@ -57,4 +57,4 @@ void rgb_shutdown(bool jump_to_bootloader) {
     void rgb_matrix_update_pwm_buffers(void);
     rgb_matrix_update_pwm_buffers();
 }
-PEKE_DEINIT(rgb_shutdown, 100);
+PEKE_DEINIT(rgb_shutdown, DEINIT_RGB);

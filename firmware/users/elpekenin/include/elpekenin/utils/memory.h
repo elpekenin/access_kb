@@ -11,7 +11,6 @@ CONST READ_ONLY(1) bool ptr_in_main_stack(const void *addr);
 CONST READ_ONLY(1) bool ptr_in_process_stack(const void *addr);
 CONST READ_ONLY(1) bool ptr_in_stack(const void *addr);
 
-size_t get_used_heap(void);
 CONST size_t get_heap_size(void);
 
 #if defined(MCU_RP)

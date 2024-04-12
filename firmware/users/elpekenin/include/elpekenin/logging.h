@@ -5,15 +5,11 @@
 
 #include <stdint.h>
 
-#include "print.h"
+#include <quantum/logging/print.h>
 
 #include "backtrace.h"
 
 #include "elpekenin/utils/compiler.h"
-
-// to change printf's "backend", dont use.
-int8_t user_sendchar(uint8_t c);
-
 
 // *** Debugging helpers ***  print on a single backend
 
@@ -69,8 +65,6 @@ typedef enum {
     T_SPEC,
 } token_t;
 
-// TODO?: Per-level or per-(feature+level) formatting
-
 // Specifiers supported:
     // %F - The feature's name (nothing if `UNKNOWN`)
 
@@ -79,8 +73,9 @@ typedef enum {
 
     // %M - The actual message specified by `fmt` and `...` on `logging` - can contain regular specifiers
 
-    // %T - Current time, you can override `char *log_time(void);` func to hook it with a RTC or whatever. Defaults to seconds since boot 
-    //    >>> itoa(timer_read32() / 1000)
+    // %T - Current time, you can override `char *log_time(void);` func to hook it with a RTC or whatever. Defaults to seconds since boot
+    //    >>> snprintf(buff, sizeof(buff), "%d", timer_read32() / 1000);
+    //    >>> return buff;
 RETURN_NO_NULL const char *log_time(void);
 
     // %% - Write a "%"

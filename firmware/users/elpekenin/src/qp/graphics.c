@@ -1,20 +1,21 @@
 // Copyright 2024 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "color.h"
+#include <quantum/color.h>
 
 #if defined(WPM_ENABLE)
-#    include "wpm.h"
+#    include <quantum/wpm.h>
 #endif
 
 #include "elpekenin/build_info.h"
+#include "elpekenin/crash.h"
 #include "elpekenin/layers.h"
 #include "elpekenin/rng.h"
 #include "elpekenin/logging/backends/qp.h"
 #include "elpekenin/qp/graphics.h"
+#include "elpekenin/utils/allocator.h"
 #include "elpekenin/utils/compiler.h"
-#include "elpekenin/utils/init.h"
-#include "elpekenin/utils/deinit.h"
+#include "elpekenin/utils/sections.h"
 #include "elpekenin/utils/map.h"
 #include "elpekenin/utils/memory.h"
 #include "elpekenin/utils/string.h"
@@ -190,6 +191,8 @@ void draw_commit(painter_device_t device) {
 
 // *** Scrolling text ***
 
+allocator_t *scrolling_allocator = &c_runtime_allocator;
+
 static bool render_scrolling_text_state(scrolling_text_state_t *state) {
     logging(SCROLL, LOG_TRACE, "%s: entry (char #%d)", __func__, (int)state->char_number);
 
@@ -279,7 +282,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     // make a copy of the string, to prevent issues if the original variable is removed
     // note: input is expected to end in null terminator
     uint8_t len          = strlen(str) + 1; // add one to also allocate/copy the terminator
-    scrolling_state->str = malloc(len);
+    scrolling_state->str = malloc_with(scrolling_allocator, len);
     if (scrolling_state->str == NULL) {
         logging(SCROLL, LOG_ERROR, "%s: fail (allocation)", __func__);
         return false;
@@ -326,7 +329,7 @@ void extend_scrolling_text(deferred_token scrolling_token, const char *str) {
         if (state->defer_token == scrolling_token) {
             uint8_t cur_len = strlen(state->str);
             uint8_t new_len = strlen(str);
-            char *  new_pos = realloc(state->str, cur_len + new_len);
+            char *  new_pos = realloc_with(scrolling_allocator, state->str, cur_len + new_len);
 
             if (new_pos == NULL) {
                 logging(SCROLL, LOG_ERROR, "%s: fail (realloc)", __func__);
@@ -342,26 +345,32 @@ void extend_scrolling_text(deferred_token scrolling_token, const char *str) {
 }
 
 void stop_scrolling_text(deferred_token scrolling_token) {
+    if (scrolling_token == INVALID_DEFERRED_TOKEN) {
+        return;
+    }
+
     for (
         scrolling_text_state_t *state = scrolling_text_states;
         state < &scrolling_text_states[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS];
         ++state
     ) {
         if (state->defer_token == scrolling_token) {
-            cancel_deferred_exec_advanced(scrolling_text_executors, QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS, scrolling_token);
-
             // Clear screen and de-allocate
             qp_rect(state->device, state->x, state->y, state->x + state->width, state->y + state->font->line_height, HSV_BLACK, true);
 
-            free(state->str);
+            free_with(scrolling_allocator, state->str);
 
             // Cleanup the state
             state->device      = NULL;
             state->defer_token = INVALID_DEFERRED_TOKEN;
 
+            cancel_deferred_exec_advanced(scrolling_text_executors, QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS, scrolling_token);
+
             return;
         }
     }
+
+    logging(QP, LOG_ERROR, "404 scrolling token");
 }
 
 
@@ -507,6 +516,9 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
 
     size_t used  = get_used_heap();
 
+    char buff[100];
+    size_t buff_size = sizeof(buff);
+
     static size_t last_used = 0;
 
     if (
@@ -522,22 +534,22 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
     if (!flash) {
         flash = true;
 
-        strcpy(g_scratch, "Flash: ");
+        strcpy(buff, "Flash: ");
 
-        size_t offset = strlen(g_scratch);
+        size_t offset = strlen(buff);
         pretty_bytes(
             get_used_flash(),
-            g_scratch + offset,
-            ARRAY_SIZE(g_scratch) - offset
+            buff + offset,
+            buff_size - offset
         );
 
-        strcat(g_scratch, "/");
+        strcat(buff, "/");
 
-        offset = strlen(g_scratch);
+        offset = strlen(buff);
         pretty_bytes(
             get_flash_size(),
-            g_scratch + offset,
-            ARRAY_SIZE(g_scratch) - offset
+            buff + offset,
+            buff_size - offset
         );
 
         qp_drawtext(
@@ -545,7 +557,7 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
             args->x,
             args->y - args->font->line_height,
             args->font,
-            g_scratch
+            buff
         );
     }
 
@@ -553,19 +565,19 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
     state->running = true;
 
     size_t offset = 0;
-    pretty_bytes(used, g_scratch + offset, ARRAY_SIZE(g_scratch) - offset);
+    pretty_bytes(used, buff + offset, buff_size - offset);
 
-    strcat(g_scratch, "/");
+    strcat(buff, "/");
 
-    offset = strlen(g_scratch);
+    offset = strlen(buff);
     pretty_bytes(
         get_heap_size(),
-        g_scratch + offset,
-        ARRAY_SIZE(g_scratch) - offset
+        buff + offset,
+        buff_size - offset
     );
 
     // start the animation
-    strcpy(state->dest, g_scratch);
+    strcpy(state->dest, buff);
     state->mask  = 0;
     state->state = FILLING;
     defer_exec(10, glitch_text_callback, args);
@@ -652,7 +664,7 @@ static uint32_t layer_task_callback(uint32_t trigger_time, void *cb_arg) {
 
     static uint8_t last_layer = UINT8_MAX;
 
-    const uint8_t layer = HIGHEST_LAYER;
+    const uint8_t layer = get_highest_layer(layer_state | default_layer_state);
 
     if (args->device == NULL || last_layer == layer || state->running) {
         return 100;
@@ -670,12 +682,18 @@ static uint32_t layer_task_callback(uint32_t trigger_time, void *cb_arg) {
     return 100;
 }
 
+static uint8_t qp_heap_buf[1000];
+static memory_heap_t qp_heap;
+static allocator_t qp_allocator;
 
 static void elpekenin_qp_init(void) {
-    // TODO: Fragile code, setting image map to 8 works (scales to 16), but eg 3/4 crashes
-    map_init(device_map,  2, NULL);
-    map_init(  font_map,  2, NULL);
-    map_init( image_map, 10, NULL);
+    chHeapObjectInit(&qp_heap, &qp_heap_buf, sizeof(qp_heap_buf));
+
+    qp_allocator = new_ch_heap_allocator(&qp_heap, "qp heap");
+
+    map_init(device_map, 2, &qp_allocator);
+    map_init(font_map,   2, &qp_allocator);
+    map_init(image_map, 10, &qp_allocator);
 
     // has to be after the maps, as it uses them
     load_qp_resources();
@@ -714,7 +732,7 @@ static void elpekenin_qp_init(void) {
 
     defer_exec(10, scrolling_text_tick_callback, NULL);
 }
-PEKE_INIT(elpekenin_qp_init, 100);
+PEKE_INIT(elpekenin_qp_init, INIT_QP_MAPS_AND_TASKS);
 
 static void elpekenin_qp_deinit(bool jump_to_bootloader) {
     for (
@@ -726,4 +744,4 @@ static void elpekenin_qp_deinit(bool jump_to_bootloader) {
         qp_power(*device, false);
     }
 }
-PEKE_DEINIT(elpekenin_qp_deinit, 100);
+PEKE_DEINIT(elpekenin_qp_deinit, DEINIT_QP);

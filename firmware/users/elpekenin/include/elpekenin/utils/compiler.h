@@ -8,7 +8,7 @@
 #pragma once
 
 // re-export QMK utils
-#include "quantum/util.h"
+#include <quantum/util.h>
 
 // base for other attributes
 #ifndef _ATTR

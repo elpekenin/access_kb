@@ -2,7 +2,19 @@ ifeq ($(MCU_SERIES), RP2040)
     # NOTE: QMK adds divider and int64_ops
 
     # custom script to keep preinit symbol from SDK, needed to init wrappers
-    MCU_LDSCRIPT = custom_rp2040
+    # bake a custom LD with some macros for other similar custom sections
+    # NOTE: gcc -E doesnt seem to like .ld's
+    # TODO: decouple to reuse on other boards
+    $(shell gcc -E $(USER_PATH)/ld/custom_rp2040.h \
+                -I $(USER_PATH) -I $(USER_PATH)/include \
+                -o $(TOP_DIR)/platforms/chibios/boards/common/ld/elpekenin.ld)
+    MCU_LDSCRIPT = elpekenin
+
+    # tell ChibiOS' crt0_v6m.S to enable second core
+    OPT_DEFS += -DCRT0_EXTRA_CORES_NUMBER=1
+
+    # sdk wrappers init + c1 main
+    SRC += $(USER_SRC)/mcu/rp2040.c
 
     PICO_SDK_WRAPPERS ?= yes
     ifeq ($(strip $(PICO_SDK_WRAPPERS)), yes)
@@ -15,8 +27,6 @@ ifeq ($(MCU_SERIES), RP2040)
                     -DPICO_BITS_IN_RAM=1 \
                     -DPICO_DOUBLE_IN_RAM=1 \
                     -DPICO_FLOAT_IN_RAM=1
-
-        SRC += $(USER_SRC)/utils/rp2040_wrappers_init.c
 
         # bit
         SRC += $(PICOSDKROOT)/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S

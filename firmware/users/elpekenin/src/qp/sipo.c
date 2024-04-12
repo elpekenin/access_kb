@@ -20,7 +20,8 @@ bool qp_comms_spi_init(painter_device_t device) {
     spi_custom_init(SCREENS_SPI_DRIVER_ID);
 
     // Set up CS as output high
-    sipo_write_high(comms_config->chip_select_pin);
+    set_sipo_pin(comms_config->chip_select_pin, true);
+    send_sipo_state();
 
     return true;
 }
@@ -49,8 +50,11 @@ uint32_t qp_comms_spi_send_data(painter_device_t device, const void *data, uint3
 void qp_comms_spi_stop(painter_device_t device) {
     painter_driver_t *     driver       = (painter_driver_t *)device;
     qp_comms_spi_config_t *comms_config = (qp_comms_spi_config_t *)driver->comms_config;
+
     spi_custom_stop(SCREENS_SPI_DRIVER_ID);
-    sipo_write_high(comms_config->chip_select_pin);
+
+    set_sipo_pin(comms_config->chip_select_pin, true);
+    send_sipo_state();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,13 +71,19 @@ bool qp_comms_spi_dc_reset_init(painter_device_t device) {
     qp_comms_spi_dc_reset_config_t *comms_config = (qp_comms_spi_dc_reset_config_t *)driver->comms_config;
 
     // Set up D/C as output low, if specified
-    sipo_buffer_low(comms_config->dc_pin); // SIPO buffer flushed by next line
+    if (comms_config->dc_pin != NO_PIN) {
+        set_sipo_pin(comms_config->dc_pin, false);
+        send_sipo_state();
+    }
 
     // Use RST as to perform a reset
     if (comms_config->reset_pin != NO_PIN) {
-        sipo_write_low(comms_config->reset_pin);
+        set_sipo_pin(comms_config->reset_pin, false);
+        send_sipo_state();
         wait_ms(20);
-        sipo_write_high(comms_config->reset_pin);
+
+        set_sipo_pin(comms_config->reset_pin, true);
+        send_sipo_state();
         wait_ms(20);
     }
 
@@ -84,10 +94,14 @@ uint32_t qp_comms_spi_dc_reset_send_data(painter_device_t device, const void *da
     painter_driver_t *              driver       = (painter_driver_t *)device;
     qp_comms_spi_dc_reset_config_t *comms_config = (qp_comms_spi_dc_reset_config_t *)driver->comms_config;
 
-    sipo_buffer_high(comms_config->dc_pin); // SIPO buffer flushed by next line
-    sipo_write_low(comms_config->spi_config.chip_select_pin);
+    set_sipo_pin(comms_config->dc_pin, true);
+    set_sipo_pin(comms_config->spi_config.chip_select_pin, false);
+    send_sipo_state();
+
     uint32_t ret = qp_comms_spi_send_data(device, data, byte_count);
-    sipo_write_high(comms_config->spi_config.chip_select_pin);
+
+    set_sipo_pin(comms_config->spi_config.chip_select_pin, true);
+    send_sipo_state();
 
     return ret;
 }
@@ -96,10 +110,14 @@ void qp_comms_spi_dc_reset_send_command(painter_device_t device, uint8_t cmd) {
     painter_driver_t *              driver       = (painter_driver_t *)device;
     qp_comms_spi_dc_reset_config_t *comms_config = (qp_comms_spi_dc_reset_config_t *)driver->comms_config;
 
-    sipo_buffer_low(comms_config->dc_pin); // SIPO buffer flushed by next line
-    sipo_write_low(comms_config->spi_config.chip_select_pin);
+    set_sipo_pin(comms_config->dc_pin, false);
+    set_sipo_pin(comms_config->spi_config.chip_select_pin, false);
+    send_sipo_state();
+
     spi_custom_write(cmd, SCREENS_SPI_DRIVER_ID);
-    sipo_write_high(comms_config->spi_config.chip_select_pin);
+
+    set_sipo_pin(comms_config->spi_config.chip_select_pin, true);
+    send_sipo_state();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,10 +127,14 @@ void qp_comms_spi_dc_reset_single_byte_send_command(painter_device_t device, uin
     painter_driver_t *              driver       = (painter_driver_t *)device;
     qp_comms_spi_dc_reset_config_t *comms_config = (qp_comms_spi_dc_reset_config_t *)driver->comms_config;
 
-    sipo_buffer_low(comms_config->dc_pin); // SIPO buffer flushed by next line
-    sipo_write_low(comms_config->spi_config.chip_select_pin);
+    set_sipo_pin(comms_config->dc_pin, false);
+    set_sipo_pin(comms_config->spi_config.chip_select_pin, false);
+    send_sipo_state();
+
     spi_custom_write(cmd, SCREENS_SPI_DRIVER_ID);
-    sipo_write_high(comms_config->spi_config.chip_select_pin);
+
+    set_sipo_pin(comms_config->spi_config.chip_select_pin, true);
+    send_sipo_state();
 }
 
 uint32_t qp_comms_spi_dc_reset_single_byte_send_data(painter_device_t device, const void *data, uint32_t byte_count) {
@@ -123,12 +145,18 @@ uint32_t qp_comms_spi_dc_reset_single_byte_send_data(painter_device_t device, co
     const uint8_t *p               = (const uint8_t *)data;
     uint32_t       max_msg_length  = 1;
 
-    sipo_buffer_high(comms_config->dc_pin); // SIPO buffer flushed by next line
+    set_sipo_pin(comms_config->dc_pin, true);
     while (bytes_remaining > 0) {
         uint32_t bytes_this_loop = MIN(bytes_remaining, max_msg_length);
-        sipo_write_low(comms_config->spi_config.chip_select_pin);
+
+        set_sipo_pin(comms_config->spi_config.chip_select_pin, false);
+        send_sipo_state();
+
         spi_custom_transmit(p, bytes_this_loop, SCREENS_SPI_DRIVER_ID);
-        sipo_write_high(comms_config->spi_config.chip_select_pin);
+
+        set_sipo_pin(comms_config->spi_config.chip_select_pin, true);
+        send_sipo_state();
+
         p += bytes_this_loop;
         bytes_remaining -= bytes_this_loop;
     }

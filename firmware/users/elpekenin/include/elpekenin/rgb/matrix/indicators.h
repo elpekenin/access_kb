@@ -3,15 +3,13 @@
 
 #pragma once
 
-#include "color.h"
+#include <quantum/color.h>
 
 #include "elpekenin/utils/compiler.h"
 
 // *** Types ***
 
-typedef struct indicator_t indicator_t;
-
-// arguments passed from rgb_matrix_indicators to indicators_fn_t
+// arguments passed from rgb_matrix_indicators to check function
 typedef struct PACKED {
     uint8_t led_index;
     uint8_t layer;
@@ -26,12 +24,12 @@ typedef struct PACKED {
 #define KC_GT_THAN (1 << 3) // keycode greater than (eg for non-transparent keys, or custom keycodes)
 typedef uint8_t indicator_flags_t;
 
-// indicator specification: condition when it has to be drawn + color
-struct PACKED indicator_t {
+// indicator specification: checks to perform (and their values) and color to draw
+typedef struct PACKED  {
     rgb_led_t color;
     indicator_flags_t flags;
     indicator_fn_args_t conditions;
-};
+} indicator_t;
 
 // *** Macros ***
 

@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "quantum.h"
-#include "usb_descriptor.h" // XAP_EPSIZE
+#include <quantum/quantum.h>
+#include <tmk_core/protocol/usb_descriptor.h> // XAP_EPSIZE
 
 #include "elpekenin/utils/compiler.h"
 

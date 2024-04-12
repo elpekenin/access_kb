@@ -7,7 +7,7 @@
 
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/compiler.h"
-#include "elpekenin/utils/shortcuts.h"
+#include "elpekenin/utils/sections.h"
 
 
 #define MAGIC_VALUE (0xDEADA55)
@@ -18,29 +18,34 @@ typedef struct {
     uint8_t     stack_depth;
     backtrace_t call_stack[DEPTH];
     const char *cause;
+    char        msg[100];
 } crash_info_t;
 
-static crash_info_t crash_info SECTION(".no_init");
+SECTION(".no_init") static crash_info_t crash_info;
 static crash_info_t copied_crash_info = {0};
 
 
 // *** API ***
 
-void _copy(void) {
-    static bool copied = false;
-    if (!copied) {
-        copied = true;
-        memcpy(&copied_crash_info, &crash_info, sizeof(crash_info_t));
-    }
+static void copy_crash_info(void) {
+    memcpy(&copied_crash_info, &crash_info, sizeof(crash_info_t));
 }
+PEKE_INIT(copy_crash_info, INIT_CRASH);
 
 bool program_crashed(void) {
-    _copy();
     return copied_crash_info.magic == MAGIC_VALUE;
 }
 
+const char *get_crash_msg(void) {
+    return copied_crash_info.msg;
+}
+
+void set_crash_msg(const char *msg) {
+    strcpy(crash_info.msg, msg);
+}
+
 backtrace_t *get_crash_call_stack(uint8_t *depth) {
-    if (!program_crashed()) { // calls _copy
+    if (!program_crashed()) {
         *depth = 0;
         return NULL;
     }
@@ -51,7 +56,7 @@ backtrace_t *get_crash_call_stack(uint8_t *depth) {
 
 void print_crash_call_stack(void) {
     uint8_t      depth;
-    backtrace_t *call_stack = get_crash_call_stack(&depth); // calls _copy
+    backtrace_t *call_stack = get_crash_call_stack(&depth);
 
     // first entry is the error handler, skip it
     logging(UNKNOWN, LOG_WARN, "Crash (%s)", copied_crash_info.cause);
@@ -63,8 +68,7 @@ void print_crash_call_stack(void) {
 
 void clear_crash_info(void) {
     // make sure we store it before wiping
-    _copy();
-    WIPE_VAR(crash_info);
+    memset(&crash_info, 0, sizeof(crash_info));
 }
 
 

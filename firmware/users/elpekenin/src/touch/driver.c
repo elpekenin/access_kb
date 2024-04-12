@@ -1,8 +1,8 @@
 // Copyright 2023 Pablo Martinez (@elpekenin) <elpekenin@elpekenin.dev>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "spi_master.h"
-#include "wait.h"
+#include <platforms/wait.h>
+#include <platforms/chibios/drivers/spi_master.h>
 
 #include "elpekenin/logging.h"
 #include "elpekenin/touch.h"
@@ -15,11 +15,11 @@ WEAK bool touch_spi_init(touch_device_t device) {
     spi_init();
 
     // Set up CS as output high
-    setPinOutput(comms_config.chip_select_pin);
-    writePinHigh(comms_config.chip_select_pin);
+    gpio_set_pin_output(comms_config.chip_select_pin);
+    gpio_write_pin_high(comms_config.chip_select_pin);
 
     // Set up IRQ as input
-    setPinInput(comms_config.irq_pin);
+    gpio_set_pin_input(comms_config.irq_pin);
 
     return true;
 }
@@ -30,7 +30,7 @@ WEAK bool touch_spi_start(spi_touch_comms_config_t comms_config) {
 
 WEAK void touch_spi_stop(spi_touch_comms_config_t comms_config) {
     spi_stop();
-    writePinHigh(comms_config.chip_select_pin);
+    gpio_write_pin_high(comms_config.chip_select_pin);
 }
 
 static inline void read_data(int16_t *x, int16_t *y, spi_touch_comms_config_t comms_config) {

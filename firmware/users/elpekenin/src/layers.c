@@ -7,7 +7,7 @@
 
 #include "elpekenin/layers.h"
 #include "elpekenin/placeholders.h"
-#include "elpekenin/utils/init.h"
+#include "elpekenin/utils/sections.h"
 
 #if defined(XAP_ENABLE)
 #    include "elpekenin/xap.h"
@@ -19,7 +19,7 @@ static void tri_layer_init(void) {
     set_tri_layer_upper_layer(_FN2);
     set_tri_layer_adjust_layer(_RST);
 }
-PEKE_INIT(tri_layer_init, 100);
+PEKE_INIT(tri_layer_init, INIT_TRI_LAYER);
 #endif
 
 const char *get_layer_name(layer_names_t layer) {
