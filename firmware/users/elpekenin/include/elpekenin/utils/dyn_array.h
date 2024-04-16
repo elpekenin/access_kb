@@ -17,8 +17,24 @@ typedef struct PACKED {
 #define new_array(__type, __size, __allocator) (__type *)_new_array(sizeof(__type), __size, __allocator)
 READ_ONLY(3) void *_new_array(size_t item_size, size_t initial_size, allocator_t *allocator);
 
-PURE READ_ONLY(1) header_t *get_header(void *array);
-PURE READ_ONLY(1) size_t array_len(void *array);
+
+PURE READ_ONLY(1) static inline header_t *get_header(void *array) {
+    if (UNLIKELY(array == NULL)) {
+        return NULL;
+    }
+
+    return ((header_t *)array) - 1;
+}
+
+PURE READ_ONLY(1) static inline size_t array_len(void *array) {
+    header_t *header = get_header(array);
+
+    if (UNLIKELY(header == NULL)) {
+        return 0;
+    }
+
+    return header->length;
+}
 
 WARN_UNUSED int expand_if_needed(void **array);
 
@@ -37,4 +53,7 @@ WARN_UNUSED int expand_if_needed(void **array);
     ret; \
 })
 
-#define array_pop(__array, n_items) (get_header(__array)->length -= n_items)
+static inline void array_pop(void *array, size_t n_items) {
+    header_t *header = get_header(array);
+    header->length -= n_items;
+}

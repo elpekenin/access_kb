@@ -26,6 +26,10 @@ static void qp_log_init(void) {
 PEKE_INIT(qp_log_init, INIT_QP_LOG);
 
 static int8_t sendchar_qp_hook(uint8_t c) {
+#if defined(QUANTUM_PAINTER_DEBUG)
+    return 0;
+#endif
+
     if (c == '\n') {
         // Add null pointer to current line
         qp_log_pointers[LOG_N_LINES - 1][qp_log_current_col] = 0;

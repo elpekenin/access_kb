@@ -36,6 +36,8 @@ static SPIConfig spi_configs[SPI_COUNT];
 
 bool is_initialised[] = {[0 ... SPI_COUNT-1] = false};
 
+static MUTEX_DECL(spi_mutex);
+
 static inline spi_status_t __spi_error(uint8_t index) {
     logging(SPI, LOG_ERROR, "Index %d invalid", index);
     return SPI_STATUS_ERROR;
@@ -86,6 +88,8 @@ bool spi_custom_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divi
         return false;
     }
 
+    chMtxLock(&spi_mutex);
+
 #if !(defined(WB32F3G71xx) || defined(WB32FQ95xx))
     uint16_t roundedDivisor = 2;
     while (roundedDivisor < divisor) {
@@ -93,7 +97,7 @@ bool spi_custom_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divi
     }
 
     if (roundedDivisor < 2 || roundedDivisor > 256) {
-        return false;
+        goto err;
     }
 #endif
 
@@ -176,7 +180,7 @@ bool spi_custom_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divi
     }
 
     if (divisor < 1) {
-        return false;
+        goto err;
     }
 
     spi_configs[index].SPI_BaudRatePrescaler = (divisor << 2);
@@ -286,6 +290,10 @@ bool spi_custom_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divi
     spiSelect(drivers[index]);
 
     return true;
+
+err:
+    chMtxUnlock(&spi_mutex);
+    return false;
 }
 
 spi_status_t spi_custom_write(uint8_t data, uint8_t index) {
@@ -339,4 +347,6 @@ void spi_custom_stop(uint8_t index) {
         spiStop(drivers[index]);
         slave_pins[index] = NO_PIN;
     }
+
+    chMtxUnlock(&spi_mutex);
 }

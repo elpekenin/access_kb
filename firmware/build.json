@@ -20,28 +20,6 @@
             "id": 20032
         },
         {
-            // TODO: Remove this test code. coupled with a diff right now :(
-            "operation": "checkout",
-            "files": [
-                "drivers/painter/comms/qp_comms_spi.c",
-                "drivers/painter/generic/qp_surface_mono1bpp.c",
-
-                "quantum/painter/qff.c", "quantum/painter/qff.h",
-                "quantum/painter/qgf.c", "quantum/painter/qgf.h",
-
-                "quantum/painter/qp_draw.h",
-                "quantum/painter/qp_draw_core.c",
-                "quantum/painter/qp_draw_ellipse.c",
-                "quantum/painter/qp_draw_image.c",
-                "quantum/painter/qp_draw_text.c",
-                "quantum/painter/qp_internal.h",
-                "quantum/painter/qp_internal_formats.h"
-
-            ],
-            "repo": "https://github.com/elpekenin/qmk_firmware",
-            "branch": "feat/qp-transparent"
-        },
-        {
             "operation": "checkout",
             "files": ["drivers/painter/il91874"],
             "repo": "https://github.com/elpekenin/qmk_firmware",
@@ -63,29 +41,6 @@
             "operation": "diff",
             "file": "print_no_console.diff"
         },
-        {
-            "operation": "diff",
-            "file": "xap_keytester.diff"
-        },
-        {
-            "operation": "diff",
-            "file": "eink_transparent.diff"
-        },
-        {
-            "operation": "diff",
-            "file": "xap_dynamic.diff"
-        },
-        // {
-        //     "operation": "checkout",
-        //     "repo": "https://github.com/elpekenin/qmk_firmware",
-        //     "branch": "multibank",
-        //     "files": [
-        //         "quantum/keycode_config.h",
-        //         "quantum/keycodes.h",
-        //         "quantum/process_keycode/process_autocorrect.*",
-        //         "quantum/quantum.c"
-        //     ]
-        // },
     ],
     "compile_command": "./keyboards/elpekenin/access/compile",
     "wsl": {

@@ -62,12 +62,12 @@ touch_report_t get_spi_touch_report(touch_device_t device, bool check_irq) {
     };
 
     if (check_irq && comms_config.irq_pin != NO_PIN && readPin(comms_config.irq_pin)) {
-        report.pressed = false;
-        return report;
+        goto err;
     }
 
     if (!touch_spi_start(comms_config)) {
         logging(TOUCH, LOG_DEBUG, "Start comms");
+        goto err;
     }
 
     report.pressed = true;
@@ -84,5 +84,9 @@ touch_report_t get_spi_touch_report(touch_device_t device, bool check_irq) {
 
     touch_spi_stop(comms_config);
 
+    return report;
+
+err:
+    report.pressed = false;
     return report;
 }

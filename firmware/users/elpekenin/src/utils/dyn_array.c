@@ -25,24 +25,6 @@ void *_new_array(size_t item_size, size_t initial_size, allocator_t *allocator) 
     return ptr + 1;
 }
 
-header_t *get_header(void *array) {
-    if (UNLIKELY(array == NULL)) {
-        return NULL;
-    }
-
-    return ((header_t *)array) - 1;
-}
-
-size_t array_len(void *array) {
-    header_t *header = get_header(array);
-
-    if (UNLIKELY(header == NULL)) {
-        return 0;
-    }
-
-    return header->length;
-}
-
 int expand_if_needed(void **array) {
     if (UNLIKELY(*array == NULL)) {
         return -EINVAL;

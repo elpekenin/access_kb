@@ -3,13 +3,17 @@
 
 #include <ch.h>
 
-#include <platforms/gpio.h>
-#include <platforms/chibios/gpio.h>
-
+#include "elpekenin/errno.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/sections.h"
 
 volatile static bool ready = false;
+
+static void signal_c1(void) {
+    ready = true;
+}
+PEKE_INIT(signal_c1, INIT_DONE);
+
 
 // will be a no-op if PICO_SDK_WRAPPERS is disabled on elpekenin/mk/mcu.mk
 static void pico_sdk_init(void) {
@@ -26,13 +30,18 @@ static void pico_sdk_init(void) {
 }
 PEKE_INIT(pico_sdk_init, INIT_SDK);
 
-
-static void setup_done(void) {
-    // tell second core that everything is ready
-    ready = true;
+void __wrap_qp_internal_task(void) {
 }
-PEKE_INIT(setup_done, INIT_DONE);
 
+void __wrap_deferred_exec_task(void) {
+}
+
+void __wrap_housekeeping_task(void) {
+}
+
+extern void __real_qp_internal_task(void);
+extern void __real_deferred_exec_task(void);
+extern void __real_housekeeping_task(void);
 
 void c1_main(void) {
     chSysWaitSystemState(ch_sys_running);
@@ -40,10 +49,16 @@ void c1_main(void) {
 
     chSysUnlock();
 
-    // wait for everything to settle
+    // wait for everything to be configured
     while (!ready) { }
 
-    logging(UNKNOWN, LOG_INFO, "Hello from core %d", port_get_core_id());
+    logging(UNKNOWN, LOG_INFO, "Hello from core 1");
+    chThdSleepMilliseconds(3000);
 
-    while (ready) { }
+    while (true) {
+        __real_qp_internal_task();
+        __real_deferred_exec_task();
+        __real_housekeeping_task();
+        chThdSleepMilliseconds(100);
+    }
 }

@@ -20,7 +20,6 @@ AUTOCORRECT_ENABLE ?= yes
 DEFERRED_EXEC_ENABLE ?= yes
 KEY_OVERRIDE_ENABLE ?= yes
 TRI_LAYER_ENABLE ?= yes
-DYNAMIC_KEYMAP_ENABLE ?= no
 
 # Include everything, checks are inside the files
 include $(MK_PATH)/codegen.mk

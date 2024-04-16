@@ -9,6 +9,7 @@
 
 #include <quantum/quantum.h>
 
+#include "elpekenin/logging.h"
 #include "elpekenin/spi_custom.h"
 
 #if defined(TOUCH_SCREEN_ENABLE) && IS_RIGHT_HAND
@@ -26,7 +27,10 @@ bool matrix_scan_custom(matrix_row_t *current_matrix) {
     matrix_row_t temp_matrix[ROWS_PER_HAND];
 
     // Read matrix over SPI
-    spi_custom_start(PISO_CS_PIN, false, REGISTERS_SPI_MODE, PISO_SPI_DIV, REGISTERS_SPI_DRIVER_ID);
+    if (!spi_custom_start(PISO_CS_PIN, false, REGISTERS_SPI_MODE, PISO_SPI_DIV, REGISTERS_SPI_DRIVER_ID)) {
+        logging(UNKNOWN, LOG_ERROR, "%s (init SPI)", __func__);
+        return false;
+    }
     spi_custom_receive((uint8_t *)temp_matrix, ROWS_PER_HAND, REGISTERS_SPI_DRIVER_ID);
     spi_custom_stop(REGISTERS_SPI_DRIVER_ID);
 

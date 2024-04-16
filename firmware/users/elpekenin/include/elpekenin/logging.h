@@ -47,7 +47,8 @@ PURE log_level_t get_level_for(feature_t feature);
 void set_level_for(feature_t feature, log_level_t level);
 void step_level_for(feature_t feature, bool increase);
 
-NON_NULL(3) PRINTF(3) READ_ONLY(3) void logging(feature_t feature, log_level_t level, const char *msg, ...);
+// TODO: make this WARN_UNUSED?
+NON_NULL(3) PRINTF(3) READ_ONLY(3) int logging(feature_t feature, log_level_t level, const char *msg, ...);
 
 // for sendchar backends to see the current message's level
 PURE log_level_t get_message_level(void);

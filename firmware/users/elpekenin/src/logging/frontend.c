@@ -4,6 +4,8 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include <ch.h>
+
 #include <quantum/logging/print.h>
 #include <platforms/timer.h>
 
@@ -189,34 +191,48 @@ WEAK const char *log_time(void) {
     return buff;
 }
 
-void logging(feature_t feature, log_level_t level, const char *msg, ...) {
+
+static MUTEX_DECL(logging_mutex);
+
+int logging(feature_t feature, log_level_t level, const char *msg, ...) {
     // message filtered out, quit
     log_level_t feat_level = feature_levels[feature];
     if (level < feat_level || feat_level == LOG_NONE) {
-        return;
+        return 0;
+    }
+
+    // (try) lock before running, avoid problems with two different
+    if (!chMtxTryLock(&logging_mutex)) {
+        return -EBUSY;
     }
 
     // set msg lvel
     msg_level = level;
 
     va_list args;
-    const char *copy = fmt;
+    const char *p_fmt = fmt;
+
+    int ret = 0;
+    bool done = false;
 
     // set_format does not allow setting an invalid format, just go thru it
-    while (1) {
+    while (!done) {
         // order specs alphabetically, special cases first
-        switch (get_token(&copy)) {
+        switch (get_token(&p_fmt)) {
             case INVALID_SPEC: // unreachable, guarded by set_logging_fmt
                 logging(LOGGER, LOG_ERROR, "???");
-                return;
+                done = true;
+                ret = -EINVAL;
+                break;
 
             case NO_SPEC: // print any char
-                putchar_(*copy);
+                putchar_(*p_fmt);
                 break;
 
             case STR_END:
                 msg_level = LOG_NONE;
-                return;
+                done = true;
+                break;
 
             // ----------
 
@@ -247,8 +263,11 @@ void logging(feature_t feature, log_level_t level, const char *msg, ...) {
                 break;
         }
 
-        copy++;
+        p_fmt++;
     }
+
+    chMtxUnlock(&logging_mutex);
+    return ret;
 }
 
 void print_str(const char *str, const sendchar_func_t func) {
