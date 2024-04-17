@@ -59,7 +59,7 @@ static const touch_driver_t ili9341_touch_driver = {
 touch_device_t ili9341_touch = &ili9341_touch_driver;
 #endif
 
-uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
+void keyboard_post_init_kb(void) {
     debug_enable = true;
 
     logging(UNKNOWN, LOG_TRACE, "-- kb init --");
@@ -111,10 +111,4 @@ uint32_t deferred_init(uint32_t trigger_time, void *cb_arg) {
 
     logging(UNKNOWN, LOG_TRACE, "-- user code --");
     keyboard_post_init_user();
-
-    return 0;
-}
-
-void keyboard_post_init_kb(void) {
-    defer_exec(INIT_DELAY, deferred_init, NULL);
 }

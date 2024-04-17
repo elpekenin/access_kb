@@ -35,5 +35,11 @@ void keyboard_post_init_user(void) {
         }
         clear_crash_info();
     }
+
+#if defined(MCU_RP)
+    // tell core1 that we are ready to go
+    void signal_c1(void);
+    signal_c1();
+#endif
 }
 

@@ -28,7 +28,6 @@ bool matrix_scan_custom(matrix_row_t *current_matrix) {
 
     // Read matrix over SPI
     if (!spi_custom_start(PISO_CS_PIN, false, REGISTERS_SPI_MODE, PISO_SPI_DIV, REGISTERS_SPI_DRIVER_ID)) {
-        logging(UNKNOWN, LOG_ERROR, "%s (init SPI)", __func__);
         return false;
     }
     spi_custom_receive((uint8_t *)temp_matrix, ROWS_PER_HAND, REGISTERS_SPI_DRIVER_ID);

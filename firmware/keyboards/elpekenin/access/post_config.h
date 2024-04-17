@@ -48,10 +48,3 @@
 #    define IL91874_WIDTH  _IL91874_HEIGHT
 #    define IL91874_HEIGHT _IL91874_WIDTH
 #endif
-
-
-// *** Default values ***
-
-#if !defined(INIT_DELAY)
-#    define INIT_DELAY 5
-#endif

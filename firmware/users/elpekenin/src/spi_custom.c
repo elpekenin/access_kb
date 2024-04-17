@@ -88,7 +88,9 @@ bool spi_custom_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divi
         return false;
     }
 
-    chMtxLock(&spi_mutex);
+    if (!chMtxTryLock(&spi_mutex)) {
+        return false;
+    }
 
 #if !(defined(WB32F3G71xx) || defined(WB32FQ95xx))
     uint16_t roundedDivisor = 2;
