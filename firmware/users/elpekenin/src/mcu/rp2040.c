@@ -9,10 +9,10 @@
 
 volatile static bool ready = false;
 
-void signal_c1(void) {
+static void signal_c1(void) {
     ready = true;
 }
-// PEKE_INIT(signal_c1, INIT_DONE);
+PEKE_POST_INIT(signal_c1, INIT_DONE);
 
 
 // will be a no-op if PICO_SDK_WRAPPERS is disabled on elpekenin/mk/mcu.mk
@@ -28,9 +28,10 @@ static void pico_sdk_init(void) {
         (*func)();
     }
 }
-PEKE_INIT(pico_sdk_init, INIT_SDK);
+PEKE_PRE_INIT(pico_sdk_init, INIT_SDK);
 
 
+#if defined(SECOND_CORE_TASKS)
 extern void __real_qp_internal_task(void);
 extern void __real_deferred_exec_task(void);
 extern void __real_housekeeping_task(void);
@@ -38,7 +39,7 @@ extern void __real_housekeeping_task(void);
 void __wrap_qp_internal_task(void) { }
 void __wrap_deferred_exec_task(void) { }
 void __wrap_housekeeping_task(void) { }
-
+#endif
 
 void c1_main(void) {
     chSysWaitSystemState(ch_sys_running);
@@ -52,8 +53,10 @@ void c1_main(void) {
     logging(UNKNOWN, LOG_INFO, "Hello from core 1");
 
     while (true) {
+#if defined(SECOND_CORE_TASKS)
         __real_qp_internal_task();
         __real_deferred_exec_task();
         __real_housekeeping_task();
+#endif
     }
 }

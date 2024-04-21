@@ -60,7 +60,7 @@ const char fmt[] = "%M\n";
 void logging_format(void) {
     UNUSED int ret = set_logging_fmt(fmt);
 }
-PEKE_INIT(logging_format, INIT_LOG_FORMAT);
+PEKE_PRE_INIT(logging_format, INIT_LOG_FORMAT);
 
 #if defined(QUANTUM_PAINTER_ENABLE) && defined (TOUCH_SCREEN_ENABLE) && IS_RIGHT_HAND
 static uint32_t read_touch_callback(uint32_t trigger_time, void *cb_arg) {

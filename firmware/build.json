@@ -41,6 +41,10 @@
             "operation": "diff",
             "file": "print_no_console.diff"
         },
+        {
+            "operation": "diff",
+            "file": "animation.diff"
+        },
     ],
     "compile_command": "./keyboards/elpekenin/access/compile",
     "wsl": {

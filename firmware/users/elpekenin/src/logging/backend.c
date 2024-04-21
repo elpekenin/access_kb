@@ -21,4 +21,4 @@ static int8_t user_sendchar(uint8_t c) {
 static void init_sendchar(void) {
     print_set_sendchar(user_sendchar);
 }
-PEKE_INIT(init_sendchar, INIT_SENDCHAR);
+PEKE_PRE_INIT(init_sendchar, INIT_SENDCHAR);

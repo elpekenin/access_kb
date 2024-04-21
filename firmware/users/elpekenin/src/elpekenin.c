@@ -16,8 +16,8 @@ void housekeeping_task_user(void) {
 }
 
 void keyboard_pre_init_user(void) {
-    // functions registered with PEKE_INIT
-    FOREACH_SECTION(init_fn, init, func) {
+    // PEKE_PRE_INIT
+    FOREACH_SECTION(init_fn, pre_init, func) {
         (*func)();
     }
 
@@ -36,10 +36,9 @@ void keyboard_post_init_user(void) {
         clear_crash_info();
     }
 
-#if defined(MCU_RP)
-    // tell core1 that we are ready to go
-    void signal_c1(void);
-    signal_c1();
-#endif
+    // PEKE_POST_INIT
+    FOREACH_SECTION(init_fn, post_init, func) {
+        (*func)();
+    }
 }
 

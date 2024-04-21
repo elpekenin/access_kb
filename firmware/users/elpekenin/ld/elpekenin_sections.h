@@ -10,7 +10,8 @@
 
 SECTIONS {
    .elpekenin_funcs : ALIGN(4) {
-      LD_BLOCK(init)
+      LD_BLOCK(pre_init)
+      LD_BLOCK(post_init)
       LD_BLOCK(deinit)
       LD_BLOCK(sendchar)
     } > flash1

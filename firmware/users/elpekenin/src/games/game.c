@@ -26,7 +26,7 @@ void set_game_device(painter_device_t device) {
 static void game_init(void) {
     game = new_snake_game();
 }
-PEKE_INIT(game_init, INIT_GAME);
+PEKE_PRE_INIT(game_init, INIT_GAME);
 
 // reset is just re-init
 void game_reset(void) {

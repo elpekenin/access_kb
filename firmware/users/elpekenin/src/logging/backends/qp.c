@@ -23,13 +23,9 @@ static void qp_log_init(void) {
     }
     qp_log_redraw = false;
 }
-PEKE_INIT(qp_log_init, INIT_QP_LOG);
+PEKE_PRE_INIT(qp_log_init, PRE_INIT_QP_LOG);
 
 static int8_t sendchar_qp_hook(uint8_t c) {
-#if defined(QUANTUM_PAINTER_DEBUG)
-    return 0;
-#endif
-
     if (c == '\n') {
         // Add null pointer to current line
         qp_log_pointers[LOG_N_LINES - 1][qp_log_current_col] = 0;
@@ -77,6 +73,10 @@ static const HSV log_colors[] = {
 ASSERT_LEVELS(log_colors);
 
 void qp_logging_backend_render(qp_callback_args_t *args) {
+#if defined(QUANTUM_PAINTER_DEBUG)
+    return;
+#endif
+
     if (!qp_log_redraw || args->device == NULL) {
         return;
     }

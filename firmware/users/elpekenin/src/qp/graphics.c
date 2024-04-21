@@ -733,7 +733,7 @@ static void elpekenin_qp_init(void) {
 
     defer_exec(10, scrolling_text_tick_callback, NULL);
 }
-PEKE_INIT(elpekenin_qp_init, INIT_QP_MAPS_AND_TASKS);
+PEKE_PRE_INIT(elpekenin_qp_init, INIT_QP_MAPS_AND_TASKS);
 
 static void elpekenin_qp_deinit(bool jump_to_bootloader) {
     for (

@@ -24,7 +24,7 @@ static allocator_t indicator_allocator;
 
 static indicator_t *indicators;
 
-USED void indicators_init(void) {
+static void indicators_init(void) {
     chHeapObjectInit(&indicator_heap, &indicator_buff, sizeof(indicator_buff));
 
     indicator_allocator = new_ch_heap_allocator(&indicator_heap, "indicators heap");
@@ -43,7 +43,7 @@ USED void indicators_init(void) {
     // custom keycodes
     array_append(indicators, custom_keycode_in_layer_indicator(_RST, RGB_BLUE));
 }
-PEKE_INIT(indicators_init, INIT_INDICATORS_MAP);
+PEKE_PRE_INIT(indicators_init, INIT_INDICATORS_MAP);
 
 // NOTES:
 //   - Assumes (for now?) that all LEDs are mapped to a key (no underglow or w/e)

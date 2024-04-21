@@ -15,8 +15,12 @@ ifeq ($(MCU_SERIES), RP2040)
 
     # wrap some periodic logic, so that QMK's mainloop (core 0)
     # does nothing and we will execute it on the second one instead
-    MAIN_TASKS := qp_internal_task deferred_exec_task housekeeping_task
-    $(call WRAP, $(MAIN_TASKS))
+    SECOND_CORE_TASKS ?= yes
+    ifeq ($(strip $(SECOND_CORE_TASKS)), yes)
+        OPT_DEFS += -DSECOND_CORE_TASKS
+        MAIN_TASKS := qp_internal_task deferred_exec_task housekeeping_task
+        $(call WRAP, $(MAIN_TASKS))
+    endif
 
     # sdk wrappers init + c1 main
     SRC += $(USER_SRC)/mcu/rp2040.c

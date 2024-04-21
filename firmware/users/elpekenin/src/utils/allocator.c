@@ -34,7 +34,7 @@ static void alloc_pool_init(void) {
     chPoolObjectInit(&alloc_info_pool, sizeof(alloc_info_t), NULL);
     chPoolLoadArray(&alloc_info_pool, alloc_info_buff, ARRAY_SIZE(alloc_info_buff));
 }
-PEKE_INIT(alloc_pool_init, INIT_ALLOC);
+PEKE_PRE_INIT(alloc_pool_init, INIT_ALLOC);
 
 const allocator_t **get_known_allocators(uint8_t *n) {
     *n = n_known;

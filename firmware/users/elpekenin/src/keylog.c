@@ -112,7 +112,7 @@ static void replacements_init(void) {
     map_set(replacements_map, "UPPR",    new_replacement("▲",   NULL, NULL));
     map_set(replacements_map, "VOLU",    new_replacement("♪",   "♪",  NULL));
 }
-PEKE_INIT(replacements_init, INIT_KEYLOG_MAP);
+PEKE_PRE_INIT(replacements_init, INIT_KEYLOG_MAP);
 
 
 // *** Formatting helpers ***

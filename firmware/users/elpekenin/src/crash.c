@@ -30,7 +30,7 @@ static crash_info_t copied_crash_info = {0};
 static void copy_crash_info(void) {
     memcpy(&copied_crash_info, &crash_info, sizeof(crash_info_t));
 }
-PEKE_INIT(copy_crash_info, INIT_CRASH);
+PEKE_PRE_INIT(copy_crash_info, INIT_CRASH);
 
 bool program_crashed(void) {
     return copied_crash_info.magic == MAGIC_VALUE;

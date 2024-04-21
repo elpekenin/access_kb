@@ -84,7 +84,7 @@ bool process_autocorrect_user(uint16_t *keycode, keyrecord_t *record, uint8_t *t
     return process_autocorrect_default_handler(keycode, record, typo_buffer_size, mods);
 }
 
-PEKE_INIT(autocorrect_enable, INIT_AUTOCORRECT);
+PEKE_PRE_INIT(autocorrect_enable, INIT_AUTOCORRECT);
 #endif
 
 #if defined(KEYLOG_ENABLE)

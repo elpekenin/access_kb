@@ -37,11 +37,14 @@
 #define INIT_KEYLOG_MAP 1090
 #define INIT_INDICATORS_MAP 1100
 #define INIT_GAME 1110
-#define INIT_DONE 1120 /* keep last, used as a signal that everything is setup */
+#define INIT_DONE 9990 /* keep last, it used as a signal that everything is setup */
 
 typedef void (*init_fn)(void);
-#define PEKE_INIT(func, prio) \
-    FULL_SECTION_NAME(init, func, prio) USED static init_fn __##func = func
+#define PEKE_PRE_INIT(func, prio) \
+    FULL_SECTION_NAME(pre_init, func, prio) USED static init_fn __##func = func
+
+#define PEKE_POST_INIT(func, prio) \
+    FULL_SECTION_NAME(post_init, func, prio) USED static init_fn __##func = func
 
 
 /* this order should not matter, but lets first "warn" slave

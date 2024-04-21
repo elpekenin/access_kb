@@ -107,7 +107,7 @@ static void split_init(void) {
         defer_exec(10, slave_log_sync_callback, NULL);
     }
 }
-PEKE_INIT(split_init, INIT_SPLIT);
+PEKE_PRE_INIT(split_init, INIT_SPLIT);
 
 static void split_deinit(bool jump_to_bootloader) {
     if (is_keyboard_master()) {
