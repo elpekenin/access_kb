@@ -6,6 +6,7 @@ ifeq ($(MCU_SERIES), RP2040)
     # NOTE: gcc -E doesnt seem to like .ld's
     # TODO: decouple to reuse on other boards
     $(shell gcc -E $(USER_PATH)/ld/custom_rp2040.h \
+                -P \
                 -I $(USER_PATH) -I $(USER_PATH)/include \
                 -o $(TOP_DIR)/platforms/chibios/boards/common/ld/elpekenin.ld)
     MCU_LDSCRIPT = elpekenin

@@ -7,5 +7,5 @@ KM=elpekenin
 
 for SIDE in left right
 do
-    qmk compile -kb $KB -km $KM --compiledb -e MAKECMDGOALS=uf2-split-$SIDE > /dev/null -e TARGET=$SIDE || exit
+    qmk compile -kb $KB -km $KM --compiledb -e MAKECMDGOALS=uf2-split-$SIDE > errors.log 2>&1 -e TARGET=$SIDE || (cat errors.log && exit 1)
 done
