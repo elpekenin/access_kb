@@ -63,3 +63,10 @@ typedef void (*deinit_fn)(bool);
 typedef int8_t (*sendchar_func_t)(uint8_t c);
 #define PEKE_SENDCHAR(func) \
     FULL_SECTION_NAME(sendchar, func, 0) USED static sendchar_func_t __##func = func
+
+
+#define PEKE_CORE1_INIT(func) \
+    FULL_SECTION_NAME(core1_init, func, 0) USED static init_fn __##func = func
+
+#define PEKE_CORE1_LOOP(func) \
+    FULL_SECTION_NAME(core1_loop, func, 0) USED static init_fn __##func = func

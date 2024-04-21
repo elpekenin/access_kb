@@ -11,6 +11,7 @@
 
 #include "elpekenin/logging.h"
 #include "elpekenin/spi_custom.h"
+#include "elpekenin/utils/sections.h"
 
 #if defined(TOUCH_SCREEN_ENABLE) && IS_RIGHT_HAND
 #    include "elpekenin/touch.h"
@@ -22,26 +23,34 @@ void matrix_init_custom(void) {
     spi_custom_init(REGISTERS_SPI_DRIVER_ID);
 }
 
+static matrix_row_t scanned_matrix[ROWS_PER_HAND];
 
-bool matrix_scan_custom(matrix_row_t *current_matrix) {
-    matrix_row_t temp_matrix[ROWS_PER_HAND];
-
-    // Read matrix over SPI
+static void __matrix_scan(void) {
     if (!spi_custom_start(PISO_CS_PIN, false, REGISTERS_SPI_MODE, PISO_SPI_DIV, REGISTERS_SPI_DRIVER_ID)) {
-        return false;
+        // could not start SPI, quit
+        return;
     }
-    spi_custom_receive((uint8_t *)temp_matrix, ROWS_PER_HAND, REGISTERS_SPI_DRIVER_ID);
+    spi_custom_receive((uint8_t *)scanned_matrix, ROWS_PER_HAND, REGISTERS_SPI_DRIVER_ID);
     spi_custom_stop(REGISTERS_SPI_DRIVER_ID);
 
     if (!is_keyboard_left()) {
         // IRQ pin is connected to the 1st input of the last shift register
         // invert its value so it reflects whether the screen is pressed
-        temp_matrix[4] ^= (1 << 0); // column 0
+        scanned_matrix[4] ^= (1 << 0); // column 0
     }
+}
+PEKE_CORE1_LOOP(__matrix_scan);
 
-    bool changed = memcmp(current_matrix, temp_matrix, ROWS_PER_HAND) != 0;
+
+// prevent potential issues if buffer happens to change between memcmp and memcpy'ing it to QMK
+static matrix_row_t snapshot_matrix[ROWS_PER_HAND];
+
+bool matrix_scan_custom(matrix_row_t *current_matrix) {
+    memcpy(snapshot_matrix, scanned_matrix, sizeof(scanned_matrix));
+
+    bool changed = memcmp(current_matrix, snapshot_matrix, ROWS_PER_HAND) != 0;
     if (changed) {
-        memcpy(current_matrix, temp_matrix, ROWS_PER_HAND);
+        memcpy(current_matrix, snapshot_matrix, ROWS_PER_HAND);
     }
 
     return changed;

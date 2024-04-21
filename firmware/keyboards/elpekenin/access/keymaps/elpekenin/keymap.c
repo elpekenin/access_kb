@@ -115,3 +115,8 @@ void build_info_sync_keymap_callback(void) {
     draw_features(il91874);
 #endif
 }
+
+static void start_animation(void) {
+    qp_animate(qp_get_device_by_name("ili9163"), 0, 0, qp_get_img_by_name("gfx_pedro"));
+}
+PEKE_CORE1_INIT(start_animation);

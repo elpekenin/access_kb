@@ -52,11 +52,20 @@ void c1_main(void) {
 
     logging(UNKNOWN, LOG_INFO, "Hello from core 1");
 
+    // PEKE_CORE1_INIT
+    FOREACH_SECTION(init_fn, core1_init, func) {
+        (*func)();
+    }
+
     while (true) {
 #if defined(SECOND_CORE_TASKS)
         __real_qp_internal_task();
         __real_deferred_exec_task();
         __real_housekeeping_task();
 #endif
+        // PEKE_CORE1_LOOP
+        FOREACH_SECTION(init_fn, core1_loop, func) {
+            (*func)();
+        }
     }
 }
