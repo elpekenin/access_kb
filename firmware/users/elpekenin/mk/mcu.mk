@@ -12,7 +12,8 @@ ifeq ($(MCU_SERIES), RP2040)
     MCU_LDSCRIPT = elpekenin
 
     # tell ChibiOS' crt0_v6m.S to enable second core
-    OPT_DEFS += -DCRT0_EXTRA_CORES_NUMBER=1
+    OPT_DEFS += -UCRT0_EXTRA_CORES_NUMBER \
+                -DCRT0_EXTRA_CORES_NUMBER=1
 
     # wrap some periodic logic, so that QMK's mainloop (core 0)
     # does nothing and we will execute it on the second one instead
@@ -21,6 +22,11 @@ ifeq ($(MCU_SERIES), RP2040)
         OPT_DEFS += -DSECOND_CORE_TASKS
         MAIN_TASKS := qp_internal_task deferred_exec_task housekeeping_task
         $(call WRAP, $(MAIN_TASKS))
+    endif
+
+    SECOND_CORE_MATRIX ?= yes
+    ifeq ($(strip $(SECOND_CORE_MATRIX)), yes)
+        OPT_DEFS += -DSECOND_CORE_MATRIX
     endif
 
     # sdk wrappers init + c1 main
