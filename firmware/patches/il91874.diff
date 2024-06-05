@@ -3,7 +3,7 @@ index 0e81467e26..16e4e6f9af 100644
 --- a/quantum/painter/qp_internal.c
 +++ b/quantum/painter/qp_internal.c
 @@ -17,6 +17,7 @@ enum {
-                      + (GC9A01_NUM_DEVICES)  // GC9A01
+                      + (GC9107_NUM_DEVICES)  // GC9107
                       + (SSD1351_NUM_DEVICES) // SSD1351
                       + (SH1106_NUM_DEVICES)  // SH1106
 +                     + (IL91874_NUM_DEVICES) // IL91874
@@ -16,7 +16,7 @@ index 186765664f..4a2902c4c1 100644
 --- a/quantum/painter/rules.mk
 +++ b/quantum/painter/rules.mk
 @@ -15,7 +15,8 @@ VALID_QUANTUM_PAINTER_DRIVERS := \
-     gc9a01_spi \
+     gc9107_spi \
      ssd1351_spi \
      sh1106_i2c \
 -    sh1106_spi
