@@ -14,7 +14,7 @@ static bool    sipo_state_changed          = true;
 static inline void print_sipo_byte(uint8_t x) {
     uint8_t byte = sipo_pin_state[x];
 
-    logging(
+    _ = logging(
         SIPO,
         LOG_DEBUG,
         "%d%d%d%d%d%d%d%d",
@@ -30,13 +30,13 @@ static inline void print_sipo_byte(uint8_t x) {
 }
 
 static inline void print_sipo_status(void) {
-    logging(SIPO, LOG_DEBUG, "MCU");
+    _ = logging(SIPO, LOG_DEBUG, "MCU");
 
     for (int i = (SIPO_BYTES - 1); i >= 0; --i) {
         print_sipo_byte(i);
     }
 
-    logging(SIPO, LOG_DEBUG, "END");
+    _ = logging(SIPO, LOG_DEBUG, "END");
 }
 
 void set_sipo_pin(uint8_t  position, bool state) {
@@ -47,7 +47,7 @@ void set_sipo_pin(uint8_t  position, bool state) {
     // Check if pin already had that state
     uint8_t curr_value = (sipo_pin_state[byte_offset] >> bit_offset) & 1;
     if (curr_value == state) {
-        logging(SIPO, LOG_TRACE, "%s: no changes", __func__);
+        _ = logging(SIPO, LOG_DEBUG, "%s: no changes", __func__);
         return;
     }
 
@@ -62,7 +62,7 @@ void set_sipo_pin(uint8_t  position, bool state) {
 
 void send_sipo_state(void) {
     if (!sipo_state_changed) {
-        logging(SIPO, LOG_TRACE, "%s: no changes", __func__);
+        _ = logging(SIPO, LOG_DEBUG, "%s: no changes", __func__);
         return;
     }
 
@@ -71,7 +71,7 @@ void send_sipo_state(void) {
     spi_custom_init(REGISTERS_SPI_DRIVER_ID);
 
     if(!spi_custom_start(SIPO_CS_PIN, false, REGISTERS_SPI_MODE, REGISTERS_SPI_DIV, REGISTERS_SPI_DRIVER_ID)) {
-        logging(SIPO, LOG_ERROR, "%s (init SPI)", __func__);
+        _ = logging(SIPO, LOG_ERROR, "%s (init SPI)", __func__);
         return;
     }
 

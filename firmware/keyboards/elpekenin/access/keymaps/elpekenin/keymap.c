@@ -11,48 +11,47 @@
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY] = LAYOUT(
-        KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,           KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSPC,
-        KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,           KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    ES_PLUS,
-        KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,           KC_H,    KC_J,    KC_K,    KC_L,    TD_NTIL, KC_ENT,
-        KC_LSFT, TD_Z,    KC_X,    KC_C,    KC_V,    KC_B,           KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_UP,   KC_VOLU,
-        KC_LCTL, KC_LGUI, TL_UPPR, KC_LALT,     TD_SPC,                  R_SPC,        TL_LOWR, KC_LEFT, KC_DOWN, KC_RIGHT
+        ESC,     N1,      N2,      N3,      N4,      N5,             N6,      N7,      N8,      N9,      N0,      BSPC,
+        TAB,     Q,       W,       E,       R,       T,              Y,       U,       I,       O,       P,       PLUS,
+        XXXXXXX, A,       S,       D,       F,       G,              H,       J,       K,       L,       TD_NTIL, XXXXXXX,
+        SFT,     TD_Z,    X,       C,       V,       B,              N,       M,       COMM,    DOT,     MINS,    GRV,
+        CTL,     GUI,     ALT,     TL_UPPR,   TD_SPC,                    ENT,          TL_LOWR, XXXXXXX, XXXXXXX, KC_VOLU
     ),
 
     // LOWER
     [_FN1] = LAYOUT(
-        XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,          KC_F6,   KC_F7,   KC_F8,   KC_9,    KC_F10,  ES_BSLS,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, ES_LBRC, ES_RBRC, PK_CPYR,
-        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_VAI, RGB_MOD,
-        XXXXXXX, XXXXXXX, _______, XXXXXXX,    PK_UCIS,                  XXXXXXX,      _______, RGB_SPD, RGB_VAD, RGB_SPI
+        XXXXXXX, PIPE,    AT,      HASH,    F4,      F5,             F6,      F7,      F8,      F9,      F10,     BSLS,
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, LBRC,    RBRC,    XXXXXXX,
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, LCBR,    RCBR,    PK_CPYR,
+        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RM_VALU, XXXXXXX,
+        _______, _______, _______, _______,    PK_UCIS,                  _______,      _______, RM_SPDU, RM_VALD, RM_SPDD
     ),
 
     // UPPER
-    // Note: Using number row keycodes instead of numpad, so we dont care about numlock
     [_FN2] = LAYOUT(
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        KC_7,    KC_8,    KC_9,    XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        KC_4,    KC_5,    KC_6,    XXXXXXX, XXXXXXX, XXXXXXX,
-        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        KC_1,    KC_2,    KC_3,    XXXXXXX, RGB_VAI, XXXXXXX,
-        XXXXXXX, XXXXXXX, _______, XXXXXXX,     XXXXXXX,                  KC_0,        _______, RGB_SPD, RGB_VAD, RGB_SPI
+        _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, BSLS,
+        ESC,     N1,      N2,      N3,      N4,      N5,             N6,      N7,      N8,      N9,      N0,      XXXXXXX,
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        LEFT,    DOWN,    UP,      RIGHT,   XXXXXXX, XXXXXXX,
+        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RM_VALU, XXXXXXX,
+        _______, _______, _______, _______,     _______,                  _______,     _______, RM_SPDU, RM_VALD, RM_SPDD
     ),
 
-    [_FN3] = LAYOUT(
-        XXXXXXX, ES_PIPE, ES_AT,   ES_HASH, ES_TILD, ES_EURO,        ES_NOT,  XXXXXXX, XXXXXXX, XXXXXXX, ES_QUOT, ES_BSLS,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, TD_GRV,  XXXXXXX,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, ES_LCBR, ES_RCBR, XXXXXXX,
-        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, ES_MINS, XXXXXXX, XXXXXXX,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,      XXXXXXX,                 _______,     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
-    ),
+    // [_FN3] = LAYOUT(
+    //     XXXXXXX, PIPE,    AT,      HASH,    TILD,    EURO,           NOT,     XXXXXXX, XXXXXXX, XXXXXXX, QUOT,    BSLS,
+    //     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, TD_GRV,  XXXXXXX,
+    //     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, LCBR,    RCBR,    XXXXXXX,
+    //     _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, MINS,    XXXXXXX, XXXXXXX,
+    //     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,      XXXXXXX,                 _______,     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
+    // ),
 
     // ADJUST
     [_RST] = LAYOUT(
-        QK_BOOT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, PK_LOG,         PK_GAME, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, EE_CLR,
+        QK_BOOT, XXXXXXX, F2,      XXXXXXX, F4,      PK_LOG,         PK_GAME, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, EE_CLR,
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         PK_QCLR, AC_TOGG, XXXXXXX, XXXXXXX, PK_SIZE, PK_PCSH,        PK_KLOG, PK_CRSH, XXXXXXX, XXXXXXX, XXXXXXX, QK_RBT,
         _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
      // XXXXXXX, XXXXXXX, _______, XXXXXXX,     DB_TOGG,                 DB_TOGG,      _______, XXXXXXX, XXXXXXX, AC_DICT
-        XXXXXXX, XXXXXXX, _______, XXXXXXX,     DB_TOGG,                 DB_TOGG,      _______, XXXXXXX, XXXXXXX, XXXXXXX
+        XXXXXXX, XXXXXXX, _______, _______,     DB_TOGG,                 DB_TOGG,      _______, XXXXXXX, XXXXXXX, XXXXXXX
     ),
 };
 
@@ -84,16 +83,16 @@ static uint32_t read_touch_callback(uint32_t trigger_time, void *cb_arg) {
 void keyboard_post_init_keymap(void) {
 #if defined(QUANTUM_PAINTER_ENABLE)
 #    if IS_LEFT_HAND
-    load_display(il91874);
+    load_display(il91874, "il91874");
 #    endif
 
 #    if IS_RIGHT_HAND
-    load_display(ili9163);
-    load_display(ili9341);
+    load_display(ili9163, "ili9163");
+    load_display(ili9341, "ili9341");
 
-    set_uptime_device(ili9341);
-    set_logging_device(ili9341);
-    set_heap_stats_device(ili9341);
+    // set_uptime_device(ili9341);
+    // set_logging_device(ili9341);
+    // set_heap_stats_device(ili9341);
     set_layer_device(ili9341);
 #        if defined(KEYLOG_ENABLE)
     set_keylog_device(ili9341);
@@ -116,9 +115,9 @@ void build_info_sync_keymap_callback(void) {
 #endif
 }
 
-#if defined(QUANTUM_PAINTER_ENABLE) && IS_RIGHT_HAND
+#if 0 && defined(QUANTUM_PAINTER_ENABLE) && IS_RIGHT_HAND
 static void start_animation(void) {
-    qp_animate(qp_get_device_by_name("ili9163"), 0, 0, qp_get_img_by_name("gfx_pedro"));
+    qp_animate(qp_get_device_by_name("ili9163"), 0, 0, qp_get_img_by_name(<image>));
 }
 // somehow fails from PEKE_CORE1_INIT, but not PEKE_POST_INIT
 // ... which makes no sense as the actual logic happens on core1 (__real_deferred_exec_task)

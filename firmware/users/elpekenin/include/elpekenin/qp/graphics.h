@@ -17,21 +17,9 @@
 #endif // QUANTUM_PAINTER_NUM_DISPLAYS
 
 // *** Asset handling ***
-#define load_display(x) _load_display(x, #x)
-#define load_font(x) _load_font(x, #x)
-#define load_image(x) _load_image(x, #x)
-
-NON_NULL(2) READ_ONLY(1) void _load_display(painter_device_t display, const char *name);
-NON_NULL(2) READ_ONLY(1) void _load_font(const uint8_t *font, const char *name);
-NON_NULL(2) READ_ONLY(1) void _load_image(const uint8_t *img, const char *name);
-
-PURE uint8_t qp_get_num_displays(void);
-PURE uint8_t qp_get_num_imgs(void);
-PURE uint8_t qp_get_num_fonts(void);
-
-PURE painter_device_t       qp_get_device_by_index(uint8_t index);
-PURE painter_font_handle_t  qp_get_font_by_index(uint8_t index);
-PURE painter_image_handle_t qp_get_img_by_index(uint8_t index);
+NON_NULL(2) READ_ONLY(1) void load_display(painter_device_t display, const char *name);
+NON_NULL(2) READ_ONLY(1) void load_font(const uint8_t *font, const char *name);
+NON_NULL(2) READ_ONLY(1) void load_image(const uint8_t *img, const char *name);
 
 NON_NULL(1) PURE READ_ONLY(1) painter_device_t       qp_get_device_by_name(const char *name);
 NON_NULL(1) PURE READ_ONLY(1) painter_font_handle_t  qp_get_font_by_name(const char *name);

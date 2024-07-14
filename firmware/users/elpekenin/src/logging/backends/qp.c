@@ -64,8 +64,7 @@ void qp_log_clear(void) {
 
 static const HSV log_colors[] = {
     [LOG_NONE]  = {HSV_WHITE},
-    [LOG_TRACE] = {0, 0, 100},
-    [LOG_DEBUG] = {HSV_YELLOW},
+    [LOG_DEBUG] = {0, 0, 100},
     [LOG_INFO]  = {HSV_BLUE},
     [LOG_WARN]  = {HSV_ORANGE},
     [LOG_ERROR] = {HSV_RED},

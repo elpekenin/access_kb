@@ -62,8 +62,6 @@ touch_device_t ili9341_touch = &ili9341_touch_driver;
 void keyboard_post_init_kb(void) {
     debug_enable = true;
 
-    logging(UNKNOWN, LOG_TRACE, "-- kb init --");
-
     UNUSED bool ret = true;
 
 #if defined (QUANTUM_PAINTER_ENABLE)
@@ -109,6 +107,5 @@ void keyboard_post_init_kb(void) {
 
     // *** User ***
 
-    logging(UNKNOWN, LOG_TRACE, "-- user code --");
     keyboard_post_init_user();
 }

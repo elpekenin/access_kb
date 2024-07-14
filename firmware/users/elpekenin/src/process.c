@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <quantum/quantum.h>
+#include <quantum/process_keycode/process_rgb_matrix.h>
 #include <quantum/keymap_extras/sendstring_spanish.h>
-#define DELAY 10 // ms between sendstring actions
 
 #include "elpekenin/crash.h"
 #include "elpekenin/keycodes.h"
@@ -44,7 +44,7 @@
 static bool last_td_spc = false;
 
 bool apply_autocorrect(uint8_t backspaces, const char *str, char *typo, char *correct) {
-    logging(UNKNOWN, LOG_WARN, "'%s' - '%s'", typo, correct);
+    _ = logging(UNKNOWN, LOG_WARN, "'%s' - '%s'", typo, correct);
 
     // regular handle
     if (!last_td_spc) {
@@ -54,12 +54,12 @@ bool apply_autocorrect(uint8_t backspaces, const char *str, char *typo, char *co
     // on space tap dance
     // ... fix the typo
     for (uint8_t i = 0; i < backspaces; ++i) {
-        tap_code(KC_BSPC);
+        tap_code(BSPC);
     }
     send_string_P(str);
 
     // ... and add the actual space
-    tap_code(KC_SPC);
+    tap_code(SPC);
 
     return false;
 }
@@ -92,9 +92,9 @@ bool keylog_enabled = true;
 #endif
 
 #if defined(KEY_OVERRIDE_ENABLE)
-const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
+const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, BSPC,    DEL);
 const key_override_t volume_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_VOLU, KC_VOLD);
-const key_override_t alt_f4_key_override = ko_make_basic(MOD_MASK_ALT,   KC_4,    A(KC_F4));
+const key_override_t alt_f4_key_override = ko_make_basic(MOD_MASK_ALT,   N4,      LALT(F4));
 const key_override_t **key_overrides = (const key_override_t *[]){
     &delete_key_override,
     &volume_key_override,
@@ -119,27 +119,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
 
 #if defined(RGB_MATRIX_ENABLE)
-    // special case for RGB keycodes, disable debug while they do their thing, as they throw a long but useless output
-
-    static bool is_handling_rgb = false;
-    if (IS_RGB_KEYCODE(keycode)) {
-        // early exit, dont want to recursively call ourselves
-        if (is_handling_rgb) {
-            return true; // need true because RGB handling happens **after** the user callback
-        }
-
-        // disable debug and re-inject event into QMK to get the logic (instead of duplicating it)
-        is_handling_rgb = true;
-        WITHOUT_DEBUG(
-            process_record_quantum(record);
-        );
-        is_handling_rgb = false;
-
+    if (IS_RGB_MATRIX_KEYCODE(keycode)) {
         if (record->event.pressed) {
-            logging(UNKNOWN, LOG_INFO, "Used %s", get_keycode_name(keycode));
+            _ = logging(UNKNOWN, LOG_INFO, "Used %s", get_keycode_name(keycode));
         }
 
-        return false;
+        bool ret;
+        WITHOUT_DEBUG(
+            ret = process_rgb_matrix(keycode, record);
+        );
+        return ret;
     }
 #endif
 
@@ -205,19 +194,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
 
 #if defined(GAME_ENABLE)
-        case KC_W:
+        case W:
             set_game_movement(TOP);
             break;
 
-        case KC_A:
+        case A:
             set_game_movement(LEFT);
             break;
 
-        case KC_S:
+        case S:
             set_game_movement(BOTTOM);
             break;
 
-        case KC_D:
+        case D:
             set_game_movement(RIGHT);
             break;
 
@@ -229,9 +218,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
 
     case PK_CRSH:
-        if (pressed) {
-            printf("%c", *(volatile const char *)NULL);
-        }
+        set_crash_info("test");
+        NVIC_SystemReset();
         return false;
 
     case PK_PCSH:
@@ -242,89 +230,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case PK_SIZE:
         if (pressed) {
-            logging(UNKNOWN, LOG_INFO, "Binary takes %s", pretty_bytes(get_flash_size(), buff, sizeof(buff)));
+            _ = logging(UNKNOWN, LOG_INFO, "Binary takes %s", pretty_bytes(get_flash_size(), buff, sizeof(buff)));
         }
         return false;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return true;
 }
-
-#if defined(TAP_DANCE_ENABLE)
-void td_ntil_finished(tap_dance_state_t *state, void *build_info) {
-    switch (state->count) {
-        case 1:
-            tap_code16(ES_ACUT); // ´
-            break;
-
-        case 2:
-            tap_code16(ES_NTIL); // ñ
-            break;
-
-        default:
-            break;
-    }
-}
-
-void td_z_finished(tap_dance_state_t *state, void *build_info) {
-    switch (state->count) {
-        case 1:
-            register_code16(KC_Z); // z
-            break;
-
-        case 2:
-            tap_code16(ES_LABK); // <
-            break;
-
-        case 3:
-            tap_code16(ES_RABK); // >
-            break;
-
-        default:
-            break;
-    }
-}
-
-void td_z_reset(tap_dance_state_t *state, void *build_info) {
-    switch (state->count) {
-        case 1:
-            unregister_code16(KC_Z);
-    }
-}
-
-void td_spc_each(tap_dance_state_t *state, void *build_info) {
-    unregister_code16(KC_SPC);
-    register_code16(KC_SPC);
-
-    if ((state->count % 2) == 0) {
-        unregister_code16(KC_SPC);
-        tap_code16(KC_SPC);
-        register_code16(KC_SPC);
-    }
-}
-
-void td_spc_reset(tap_dance_state_t *state, void *build_info) {
-    unregister_code16(KC_SPC);
-}
-
-void td_grv_finished(tap_dance_state_t *state, void *build_info) {
-    if (state->count == 1) {
-        tap_code16(ES_GRV);
-        return;
-    }
-
-    // TODO: Change tap-hold decision so this doesnt work funny
-    send_string_with_delay("``` " SS_LSFT("\n\n") "``` ", DELAY);
-    tap_code16(KC_UP);
-}
-
-tap_dance_action_t tap_dance_actions[] = {
-    [_TD_NTIL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ntil_finished, NULL),
-    [_TD_Z]    = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_z_finished, td_z_reset),
-    [_TD_SPC]  = ACTION_TAP_DANCE_FN_ADVANCED(td_spc_each, NULL, td_spc_reset),
-    [_TD_GRV]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_grv_finished, NULL),
-};
-#endif

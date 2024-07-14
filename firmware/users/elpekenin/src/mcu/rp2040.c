@@ -9,17 +9,22 @@
 
 volatile static bool ready = false;
 
-static void signal_c1(void) {
+static void start_signal(void) {
     ready = true;
 }
-PEKE_POST_INIT(signal_c1, INIT_DONE);
+PEKE_POST_INIT(start_signal, POST_INIT_CORE1);
+
+static void stop_signal(bool unused) {
+    ready = false;
+}
+PEKE_DEINIT(stop_signal, DEINIT_CORE1);
 
 
 // will be a no-op if PICO_SDK_WRAPPERS is disabled on elpekenin/mk/mcu.mk
-static void pico_sdk_init(void) {
-    // these are defined by PicoSDK
-    extern init_fn __preinit_array_base__, __preinit_array_end__;
+// these are defined by PicoSDK
+extern init_fn __preinit_array_base__, __preinit_array_end__;
 
+static void pico_sdk_init(void) {
     for (
         init_fn *func = &__preinit_array_base__;
         func < &__preinit_array_end__;
@@ -32,13 +37,19 @@ PEKE_PRE_INIT(pico_sdk_init, INIT_SDK);
 
 
 #if defined(SECOND_CORE_TASKS)
+// core0
+void __wrap_qp_internal_task(void) { }
+void __wrap_deferred_exec_task(void) { }
+void __wrap_housekeeping_task(void) { }
+
+// core1
 extern void __real_qp_internal_task(void);
 extern void __real_deferred_exec_task(void);
 extern void __real_housekeeping_task(void);
 
-void __wrap_qp_internal_task(void) { }
-void __wrap_deferred_exec_task(void) { }
-void __wrap_housekeeping_task(void) { }
+PEKE_CORE1_LOOP(__real_qp_internal_task);
+PEKE_CORE1_LOOP(__real_deferred_exec_task);
+PEKE_CORE1_LOOP(__real_housekeeping_task);
 #endif
 
 void c1_main(void) {
@@ -50,7 +61,7 @@ void c1_main(void) {
     // wait for everything to be configured
     while (!ready) { }
 
-    logging(UNKNOWN, LOG_INFO, "Hello from core 1");
+    _ = logging(UNKNOWN, LOG_DEBUG, "Hello from core 1");
 
     // PEKE_CORE1_INIT
     FOREACH_SECTION(init_fn, core1_init, func) {
@@ -58,11 +69,6 @@ void c1_main(void) {
     }
 
     while (true) {
-#if defined(SECOND_CORE_TASKS)
-        __real_qp_internal_task();
-        __real_deferred_exec_task();
-        __real_housekeeping_task();
-#endif
         // PEKE_CORE1_LOOP
         FOREACH_SECTION(init_fn, core1_loop, func) {
             (*func)();

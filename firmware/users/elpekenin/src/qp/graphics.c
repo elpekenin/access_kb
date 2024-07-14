@@ -37,14 +37,10 @@
         __name##_args.device = device; \
         cancel_deferred_exec(__name##_token); \
         __name##_token = defer_exec(10, __name##_task_callback, &__name##_args); \
-    } \
+    }
 
 
 // *** Internal variables ***
-
-static new_map(painter_device_t,       device_map);
-static new_map(painter_font_handle_t,  font_map);
-static new_map(painter_image_handle_t, image_map);
 
 static deferred_executor_t    scrolling_text_executors[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS] = {0};
 static scrolling_text_state_t scrolling_text_states[QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS] = {0};
@@ -78,102 +74,22 @@ static glitch_text_state_t layer_extra = {0};
 
 // *** Asset handling ***
 
-void _load_display(painter_device_t display, const char *name) {
-    logging(QP, LOG_DEBUG, "'%s' at [%d]", name, array_len(device_map.values));
-    map_set(device_map, name, display);
-}
-
-void _load_font(const uint8_t *font, const char *name) {
-    logging(QP, LOG_DEBUG, "'%s' at [%d]", name, array_len(font_map.values));
-    map_set(font_map, name, qp_load_font_mem(font));
-}
-
-void _load_image(const uint8_t *img, const char *name) {
-    logging(QP, LOG_DEBUG, "'%s' at [%d]", name, array_len(image_map.values));
-    map_set(image_map, name, qp_load_image_mem(img));
-}
-
-// getters
-uint8_t qp_get_num_displays(void) {
-    return array_len(device_map.values);
-}
-
-painter_device_t qp_get_device_by_index(uint8_t index) {
-    if (index >= qp_get_num_displays()) {
-        return NULL;
-    }
-
-    return device_map.values[index];
-}
-
-painter_device_t qp_get_device_by_name(const char *name) {
-    int ret;
-
-    painter_device_t device = map_get(device_map, name, ret);
-    if (ret == 0) {
-        return device;
-    }
-
-    return NULL;
-}
-
-
-uint8_t qp_get_num_fonts(void) {
-    return array_len(font_map.values);
-}
-
-painter_font_handle_t qp_get_font_by_index(uint8_t index) {
-    if (index >= qp_get_num_fonts()) {
-        return NULL;
-    }
-
-    return font_map.values[index];
-}
-
-painter_font_handle_t qp_get_font_by_name(const char *name) {
-    int ret;
-
-    painter_font_handle_t font = map_get(font_map, name, ret);
-    if (ret == 0) {
-        return font;
-    }
-
-    return NULL;
-}
-
-
-uint8_t qp_get_num_imgs(void) {
-    return array_len(image_map.values);
-}
-
-painter_image_handle_t qp_get_img_by_index(uint8_t index) {
-    if (index >= qp_get_num_imgs()) {
-        return NULL;
-    }
-
-    return image_map.values[index];
-}
-
-painter_image_handle_t qp_get_img_by_name(const char *name) {
-    int ret;
-
-    painter_image_handle_t img = map_get(image_map, name, ret);
-    if (ret == 0) {
-        return img;
-    }
-
-    return NULL;
-}
+// Ported to zig :)
 
 
 // *** Build info ***
 
 void draw_commit(painter_device_t device) {
-    painter_driver_t *    driver     = (painter_driver_t *)device;
-    painter_font_handle_t font       = qp_get_font_by_name("font_fira_code");
-    uint16_t              width      = driver->panel_width;
-    uint16_t              height     = driver->panel_height;
-    int16_t               hash_width = qp_textwidth(font, get_build_info().commit);
+    painter_font_handle_t font = qp_get_font_by_name("font_fira_code");
+    if (font == NULL) {
+        _ = logging(QP, LOG_ERROR, "Font was NULL");
+        return;
+    }
+
+    painter_driver_t *driver     = (painter_driver_t *)device;
+    uint16_t          width      = driver->panel_width;
+    uint16_t          height     = driver->panel_height;
+    int16_t           hash_width = qp_textwidth(font, get_build_info().commit);
 
     uint16_t real_width  = width;
     uint16_t real_height = height;
@@ -195,12 +111,12 @@ void draw_commit(painter_device_t device) {
 allocator_t *scrolling_allocator = &c_runtime_allocator;
 
 static int render_scrolling_text_state(scrolling_text_state_t *state) {
-    logging(SCROLL, LOG_TRACE, "%s: entry (char #%d)", __func__, (int)state->char_number);
+    _ = logging(SCROLL, LOG_DEBUG, "%s: entry (char #%d)", __func__, (int)state->char_number);
 
     // prepare string slice
     char *slice = alloca(state->n_chars + 1); // +1 for null terminator
     if (slice == NULL) {
-        logging(SCROLL, LOG_ERROR, "%s: could not allocate", __func__);
+        _ = logging(SCROLL, LOG_ERROR, "%s: could not allocate", __func__);
         return -ENOMEM;
     }
     memset(slice, 0, state->n_chars + 1);
@@ -261,7 +177,7 @@ deferred_token draw_scrolling_text(painter_device_t device, uint16_t x, uint16_t
 }
 
 deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, uint16_t y, painter_font_handle_t font, const char *str, uint8_t n_chars, uint32_t delay, uint8_t hue_fg, uint8_t sat_fg, uint8_t val_fg, uint8_t hue_bg, uint8_t sat_bg, uint8_t val_bg) {
-    logging(SCROLL, LOG_TRACE, "%s: entry", __func__);
+    _ = logging(SCROLL, LOG_DEBUG, "%s: entry", __func__);
 
     scrolling_text_state_t *scrolling_state = NULL;
     for (
@@ -276,7 +192,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     }
 
     if (scrolling_state == NULL) {
-        logging(SCROLL, LOG_ERROR, "%s: fail (no free slot)", __func__);
+        _ = logging(SCROLL, LOG_ERROR, "%s: fail (no free slot)", __func__);
         return INVALID_DEFERRED_TOKEN;
     }
 
@@ -285,7 +201,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     uint8_t len          = strlen(str) + 1; // add one to also allocate/copy the terminator
     scrolling_state->str = malloc_with(scrolling_allocator, len);
     if (scrolling_state->str == NULL) {
-        logging(SCROLL, LOG_ERROR, "%s: fail (allocation)", __func__);
+        _ = logging(SCROLL, LOG_ERROR, "%s: fail (allocation)", __func__);
         return INVALID_DEFERRED_TOKEN;
     }
     strcpy(scrolling_state->str, str);
@@ -305,7 +221,7 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     // Draw the first string
     if (render_scrolling_text_state(scrolling_state) != 0) {
         scrolling_state->device = NULL; // disregard the allocated scroling slot
-        logging(SCROLL, LOG_ERROR, "%s: fail (render 1st step)", __func__);
+        _ = logging(SCROLL, LOG_ERROR, "%s: fail (render 1st step)", __func__);
         return INVALID_DEFERRED_TOKEN;
     }
 
@@ -313,11 +229,11 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
     scrolling_state->defer_token = defer_exec_advanced(scrolling_text_executors, QUANTUM_PAINTER_CONCURRENT_SCROLLING_TEXTS, delay, scrolling_text_callback, scrolling_state);
     if (scrolling_state->defer_token == INVALID_DEFERRED_TOKEN) {
         scrolling_state->device = NULL; // disregard the allocated scrolling slot
-        logging(SCROLL, LOG_ERROR, "%s: fail (setup executor)", __func__);
+        _ = logging(SCROLL, LOG_ERROR, "%s: fail (setup executor)", __func__);
         return INVALID_DEFERRED_TOKEN;
     }
 
-    logging(SCROLL, LOG_TRACE, "%s: ok (deferred token = %d)", __func__, (int)scrolling_state->defer_token);
+    _ = logging(SCROLL, LOG_DEBUG, "%s: ok (deferred token = %d)", __func__, (int)scrolling_state->defer_token);
     return scrolling_state->defer_token;
 }
 
@@ -333,7 +249,7 @@ void extend_scrolling_text(deferred_token scrolling_token, const char *str) {
             char *  new_pos = realloc_with(scrolling_allocator, state->str, cur_len + new_len);
 
             if (new_pos == NULL) {
-                logging(SCROLL, LOG_ERROR, "%s: fail (realloc)", __func__);
+                _ = logging(SCROLL, LOG_ERROR, "%s: fail (realloc)", __func__);
                 return;
             }
             state->str = new_pos;
@@ -371,7 +287,7 @@ void stop_scrolling_text(deferred_token scrolling_token) {
         }
     }
 
-    logging(QP, LOG_ERROR, "404 scrolling token");
+    _ = logging(QP, LOG_ERROR, "404 scrolling token");
 }
 
 
@@ -392,7 +308,7 @@ static uint32_t logging_task_callback(uint32_t trigger_time, void *cb_arg) {
 static uint32_t uptime_task_callback(uint32_t trigger_time, void *cb_arg) {
     qp_callback_args_t *args = (qp_callback_args_t *)cb_arg;
  
-    if (args->device == NULL) {
+    if (args->device == NULL || args->font == NULL) {
         return 1000;
     }
 
@@ -430,6 +346,10 @@ static void draw_heap(void *cb_arg) {
     qp_callback_args_t  *args  = (qp_callback_args_t *)cb_arg;
     glitch_text_state_t *state = (glitch_text_state_t *)args->extra;
 
+    if (args->device == NULL || args->font == NULL) {
+        return;
+    }
+
     int16_t width = qp_drawtext(
         args->device,
         args->x,
@@ -452,6 +372,8 @@ static void draw_heap(void *cb_arg) {
 static uint32_t glitch_text_callback(uint32_t trigger_time, void *cb_arg) {
     qp_callback_args_t  *args  = (qp_callback_args_t *)cb_arg;
     glitch_text_state_t *state = (glitch_text_state_t *)args->extra;
+
+    // getting here means arguments are none, executing this function is guarded by checks
 
     // strings converged, draw and quit
     if (state->state == DONE) {
@@ -524,6 +446,7 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
 
     if (
         args->device == NULL
+        || args->font == NULL
         || last_used == used
         || state->running
     ) {
@@ -590,7 +513,7 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
 static uint32_t keylog_task_callback(uint32_t trigger_time, void *cb_arg) {
     qp_callback_args_t *args = (qp_callback_args_t *)cb_arg;
 
-    if (args->device == NULL || !is_keylog_dirty()) {
+    if (args->device == NULL || args->font == NULL || !is_keylog_dirty()) {
         return 10;
     }
 
@@ -644,6 +567,10 @@ static void draw_layer(void *cb_arg) {
     qp_callback_args_t  *args  = (qp_callback_args_t *)cb_arg;
     glitch_text_state_t *state = (glitch_text_state_t *)args->extra;
 
+    if (args->device == NULL || args->font == NULL) {
+        return;
+    }
+
     // random color
     // sat = 0 => white regardless of hue
     uint8_t hue = rng_min_max(0, 255);
@@ -667,7 +594,7 @@ static uint32_t layer_task_callback(uint32_t trigger_time, void *cb_arg) {
 
     const uint8_t layer = get_highest_layer(layer_state | default_layer_state);
 
-    if (args->device == NULL || last_layer == layer || state->running) {
+    if (args->device == NULL || args->font == NULL || last_layer == layer || state->running) {
         return 100;
     }
 
@@ -683,23 +610,14 @@ static uint32_t layer_task_callback(uint32_t trigger_time, void *cb_arg) {
     return 100;
 }
 
-static uint8_t qp_heap_buf[1000];
-static memory_heap_t qp_heap;
-static allocator_t qp_allocator;
-
 static void elpekenin_qp_init(void) {
-    chHeapObjectInit(&qp_heap, &qp_heap_buf, sizeof(qp_heap_buf));
-
-    qp_allocator = new_ch_heap_allocator(&qp_heap, "qp heap");
-
-    map_init(device_map, 2, &qp_allocator);
-    map_init(font_map,   2, &qp_allocator);
-    map_init(image_map, 10, &qp_allocator);
-
-    // has to be after the maps, as it uses them
     load_qp_resources();
 
     painter_font_handle_t fira_code = qp_get_font_by_name("font_fira_code");
+    if (fira_code == NULL) {
+        _ = logging(QP, LOG_ERROR, "Font was NULL");
+        return;
+    }
 
     // positions are hard-coded for ILI9341 on access
 
@@ -735,14 +653,5 @@ static void elpekenin_qp_init(void) {
 }
 PEKE_PRE_INIT(elpekenin_qp_init, INIT_QP_MAPS_AND_TASKS);
 
-static void elpekenin_qp_deinit(bool jump_to_bootloader) {
-    for (
-        painter_device_t *device = device_map.values;
-        device < &device_map.values[array_len(device_map.values)];
-        ++device
-    ) {
-        qp_rect(*device, 0, 0, qp_get_width(*device), qp_get_height(*device), HSV_OFF, true);
-        qp_power(*device, false);
-    }
-}
+extern void elpekenin_qp_deinit(bool);
 PEKE_DEINIT(elpekenin_qp_deinit, DEINIT_QP);

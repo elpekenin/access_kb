@@ -7,22 +7,20 @@
 #include "version.h"
 
 #include "elpekenin/build_info.h"
+#include "elpekenin/utils/sections.h"
 
 static build_info_t build_info = {0};
 
-build_info_t get_build_info(void) {
-    if (is_keyboard_master()) {
-        strcpy(build_info.commit, QMK_GIT_HASH);
-        build_info.features = get_enabled_features();
-    }
+static void fill_build_info(void) {
+    strcpy(build_info.commit, QMK_GIT_HASH);
+    build_info.features = get_enabled_features();
+}
+PEKE_PRE_INIT(fill_build_info, INIT_BUILD);
 
+build_info_t get_build_info(void) {
     return build_info;
 }
 
-void set_build_commit(const char *commit) {
-    strcpy(build_info.commit, commit);
-}
-
-void set_build_features(enabled_features_t features) {
-    build_info.features = features;
+void set_build_info(build_info_t new_build_info) {
+    memcpy(&build_info, &new_build_info, sizeof(build_info_t));
 }

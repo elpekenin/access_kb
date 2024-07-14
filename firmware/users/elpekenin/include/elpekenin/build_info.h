@@ -14,7 +14,6 @@ typedef struct PACKED {
     enabled_features_t features;
 } build_info_t;
 
-PURE build_info_t get_build_info(void);
+build_info_t get_build_info(void);
 
-NON_NULL(1) READ_ONLY(1) void set_build_commit(const char *commit);
-void set_build_features(enabled_features_t features);
+void set_build_info(build_info_t new_build_info);

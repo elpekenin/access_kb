@@ -9,6 +9,7 @@
 
 #include "backtrace.h"
 
+#include "elpekenin/errno.h"
 #include "elpekenin/utils/compiler.h"
 
 // *** Debugging helpers ***  print on a single backend
@@ -35,7 +36,6 @@ typedef enum {
 
 typedef enum {
     LOG_NONE,
-    LOG_TRACE,
     LOG_DEBUG,
     LOG_INFO,
     LOG_WARN,
@@ -47,8 +47,10 @@ PURE log_level_t get_level_for(feature_t feature);
 void set_level_for(feature_t feature, log_level_t level);
 void step_level_for(feature_t feature, bool increase);
 
-// TODO: make this WARN_UNUSED?
-NON_NULL(3) PRINTF(3) READ_ONLY(3) int logging(feature_t feature, log_level_t level, const char *msg, ...);
+
+// discard values the Python/zig way
+extern int _;
+NON_NULL(3) PRINTF(3) READ_ONLY(3) WARN_UNUSED int logging(feature_t feature, log_level_t level, const char *msg, ...);
 
 // for sendchar backends to see the current message's level
 PURE log_level_t get_message_level(void);
@@ -105,7 +107,7 @@ void dump_stack(void);
 
 #define log_success(success, feature, msg, args...) \
     do { \
-        log_level_t level = success ? LOG_TRACE : LOG_ERROR; \
+        log_level_t level = success ? LOG_DEBUG : LOG_ERROR; \
         const char *out = (success) ? "OK" : "Error"; \
-        logging(feature, level, msg ": %s", ##args, out); \
+        _ = logging(feature, level, msg ": %s", ##args, out); \
     } while(0)

@@ -13,3 +13,8 @@ kicad.kicad_prl
 __pycache__/
 *.py[cod]
 *$py.class
+
+TODO.md
+
+.zig-cache
+zig-out

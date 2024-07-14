@@ -17,14 +17,14 @@ ifeq ($(MCU_SERIES), RP2040)
 
     # wrap some periodic logic, so that QMK's mainloop (core 0)
     # does nothing and we will execute it on the second one instead
-    SECOND_CORE_TASKS ?= yes
+    SECOND_CORE_TASKS ?= no
     ifeq ($(strip $(SECOND_CORE_TASKS)), yes)
         OPT_DEFS += -DSECOND_CORE_TASKS
         MAIN_TASKS := qp_internal_task deferred_exec_task housekeeping_task
         $(call WRAP, $(MAIN_TASKS))
     endif
 
-    SECOND_CORE_MATRIX ?= yes
+    SECOND_CORE_MATRIX ?= no
     ifeq ($(strip $(SECOND_CORE_MATRIX)), yes)
         OPT_DEFS += -DSECOND_CORE_MATRIX
     endif

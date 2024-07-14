@@ -39,7 +39,7 @@ int expand_if_needed(void **array) {
 
         header_t *new_header = realloc_with(header->allocator, header, total_size);
         if (UNLIKELY(new_header == NULL)) {
-            logging(ALLOC, LOG_ERROR, "%s failed", __func__);
+            _ = logging(ALLOC, LOG_ERROR, "%s failed", __func__);
             return -ENOMEM;
         }
 

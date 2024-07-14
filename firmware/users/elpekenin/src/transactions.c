@@ -13,7 +13,7 @@
 #include "elpekenin/utils/sections.h"
 
 static inline void __split_size_err(void) {
-    logging(SPLIT, LOG_ERROR, "%s size", __func__);
+    _ = logging(SPLIT, LOG_ERROR, "%s size", __func__);
 }
 
 // *** Callbacks ***
@@ -25,11 +25,9 @@ void build_info_slave_callback(uint8_t m2s_size, const void* m2s_buffer, uint8_t
         return __split_size_err();
     }
 
-    build_info_t *build_info = (build_info_t *)m2s_buffer;
+    build_info_t *received_build_info = (build_info_t *)m2s_buffer;
 
-    set_build_commit(build_info->commit);
-    set_build_features(build_info->features);
-
+    set_build_info(*received_build_info);
     build_info_sync_keymap_callback();
 }
 
@@ -103,15 +101,16 @@ static void split_init(void) {
     bool is_keyboard_master_impl(void);
     if (is_keyboard_master_impl()) {
         // 5 secs to prevent drawing on eInk right after flash
+        // and issues if slave is not yet working (or w/eekenin))
         defer_exec(5000, build_info_sync_callback, NULL);
-        defer_exec(10, slave_log_sync_callback, NULL);
+        defer_exec(5000, slave_log_sync_callback, NULL);
     }
 }
 PEKE_PRE_INIT(split_init, INIT_SPLIT);
 
-static void split_deinit(bool jump_to_bootloader) {
-    if (is_keyboard_master()) {
-        transaction_rpc_send(RPC_ID_USER_SHUTDOWN, sizeof(jump_to_bootloader), &jump_to_bootloader);
-    }
-}
-PEKE_DEINIT(split_deinit, DEINIT_SPLIT);
+// static void split_deinit(bool jump_to_bootloader) {
+//     if (is_keyboard_master()) {
+//         transaction_rpc_send(RPC_ID_USER_SHUTDOWN, sizeof(jump_to_bootloader), &jump_to_bootloader);
+//     }
+// }
+// PEKE_DEINIT(split_deinit, DEINIT_SPLIT);

@@ -150,12 +150,12 @@ static void maybe_symbol(const char **str) {
             target = replacements.strings[NO_MODS];
             break;
 
-        case MOD_BIT(KC_LSFT):
-        case MOD_BIT(KC_RSFT):
+        case MOD_BIT_LCTRL:
+        case MOD_BIT_RCTRL:
             target = replacements.strings[SHIFT];
             break;
 
-        case MOD_BIT(KC_ALGR):
+        case MOD_BIT_RALT:
             target = replacements.strings[AL_GR];
             break;
 

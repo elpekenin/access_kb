@@ -9,7 +9,6 @@
 #include "elpekenin/utils/compiler.h"
 #include "elpekenin/utils/sections.h"
 
-
 #define MAGIC_VALUE (0xDEADA55)
 #define DEPTH (100) /* max size */
 
@@ -17,7 +16,6 @@ typedef struct {
     uint32_t    magic;
     uint8_t     stack_depth;
     backtrace_t call_stack[DEPTH];
-    const char *cause;
     char        msg[100];
 } crash_info_t;
 
@@ -36,11 +34,9 @@ bool program_crashed(void) {
     return copied_crash_info.magic == MAGIC_VALUE;
 }
 
-const char *get_crash_msg(void) {
-    return copied_crash_info.msg;
-}
-
-void set_crash_msg(const char *msg) {
+void set_crash_info(const char *msg) {
+    crash_info.magic = MAGIC_VALUE;
+    crash_info.stack_depth = backtrace_unwind(crash_info.call_stack, DEPTH);
     strcpy(crash_info.msg, msg);
 }
 
@@ -59,10 +55,10 @@ void print_crash_call_stack(void) {
     backtrace_t *call_stack = get_crash_call_stack(&depth);
 
     // first entry is the error handler, skip it
-    logging(UNKNOWN, LOG_WARN, "Crash (%s)", copied_crash_info.cause);
+    _ =  logging(UNKNOWN, LOG_WARN, "Crash (%s)", copied_crash_info.msg);
     for (uint8_t i = 1; i < depth; ++i) {
-        logging(UNKNOWN, LOG_ERROR, "%s", call_stack[i].name);
-        logging(UNKNOWN, LOG_ERROR, "%p", call_stack[i].address);
+        _ = logging(UNKNOWN, LOG_ERROR, "%s", call_stack[i].name);
+        _ = logging(UNKNOWN, LOG_ERROR, "%p", call_stack[i].address);
     }
 }
 
@@ -76,9 +72,7 @@ void clear_crash_info(void) {
 
 #define HANDLER(__func, __name) \
     INTERRUPT NORETURN void __func(void) { \
-        crash_info.magic = MAGIC_VALUE; \
-        crash_info.stack_depth = backtrace_unwind(crash_info.call_stack, DEPTH); \
-        crash_info.cause = __name; \
+        set_crash_info(__name); \
         NVIC_SystemReset(); \
     }
 

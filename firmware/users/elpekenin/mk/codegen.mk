@@ -29,5 +29,6 @@ ifeq ($(strip $(QUANTUM_PAINTER_ENABLE)), yes)
     $(shell $(USER_SCRIPTS)/qp_resources.py $(USER_GENERATED) $(QP_DIRS))
     SRC += $(USER_GENERATED)/qp_resources.c \
            $(USER_GENERATED)/features_draw.c
+
     include $(USER_GENERATED)/qp_resources.mk
 endif

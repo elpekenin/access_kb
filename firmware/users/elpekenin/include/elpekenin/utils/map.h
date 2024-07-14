@@ -49,13 +49,13 @@
     for (i = 0; i < array_len(__map.keys); ++i) { \
         if (__map.keys[i] && strcmp(__map.keys[i], __key) == 0) { \
             __ret = 0; \
-            logging(MAP, LOG_TRACE, "Read '%s'", __key); \
+            _ = logging(MAP, LOG_DEBUG, "Read '%s'", __key); \
             break; /* without this, we get one off (next ++) */ \
         } \
     } \
     \
-    if (__ret != 0) { \
-        logging(MAP, LOG_ERROR, "Key '%s' not found", __key); \
+    if (__ret < 0) { \
+        _ = logging(MAP, LOG_ERROR, "Key '%s' not found", __key); \
     } \
     \
     __map.values[i]; \

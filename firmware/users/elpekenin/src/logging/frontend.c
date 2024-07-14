@@ -10,16 +10,15 @@
 #include <platforms/timer.h>
 
 #include "elpekenin.h"
-#include "elpekenin/errno.h"
 #include "elpekenin/logging.h"
 #include "elpekenin/utils/string.h"
+#include "elpekenin/utils/sections.h"
 
 // *** Actual logging ***
 
 // stringify log levels
 static const char *level_str[] = {
     [LOG_NONE]  = "UNREACHABLE",
-    [LOG_TRACE] = "TRACE",
     [LOG_DEBUG] = "DEBUG",
     [LOG_INFO]  = "INFO",
     [LOG_WARN]  = "WARN",
@@ -44,7 +43,7 @@ ASSERT_FEATURES(feature_str);
 
 // logging level for each feature
 log_level_t feature_levels[] = { // sorted alphabetically
-    [UNKNOWN] = LOG_INFO,
+    [UNKNOWN] = LOG_DEBUG,
     [ALLOC]   = LOG_WARN,
     [MAP]     = LOG_WARN,
     [LOGGER]  = LOG_WARN,
@@ -62,7 +61,7 @@ log_level_t get_level_for(feature_t feature) {
 }
 
 static inline void __logging_error(void) {
-    logging(LOGGER, LOG_ERROR, "%s", __func__);
+    _ = logging(LOGGER, LOG_ERROR, "%s", __func__);
 }
 
 void set_level_for(feature_t feature, log_level_t level) {
@@ -157,7 +156,7 @@ void get_logging_fmt(char *dest) {
 
 int set_logging_fmt(const char *new_fmt) {
     if (strlen(new_fmt) >= MAX_LOG_FMT_LEN) {
-        logging(LOGGER, LOG_ERROR, "Format too long");
+        _ = logging(LOGGER, LOG_ERROR, "Format too long");
         return -ENOBUFS;
     }
 
@@ -171,7 +170,7 @@ int set_logging_fmt(const char *new_fmt) {
         }
 
         if (spec == INVALID_SPEC) {
-            logging(LOGGER, LOG_ERROR, "Invalid format");
+            _ = logging(LOGGER, LOG_ERROR, "Invalid format");
             return -EINVAL;
         }
 
@@ -194,44 +193,61 @@ WEAK const char *log_time(void) {
 
 static MUTEX_DECL(logging_mutex);
 
+int _;
+
+static bool ready = false;
+void logging_ready(void) {
+    ready = true;
+}
+PEKE_POST_INIT(logging_ready, POST_INIT_CORE1);
+
 int logging(feature_t feature, log_level_t level, const char *msg, ...) {
-    // message filtered out, quit
-    log_level_t feat_level = feature_levels[feature];
-    if (level < feat_level || feat_level == LOG_NONE) {
-        return 0;
-    }
-
-    // (try) lock before running, avoid problems with two different
-    if (!chMtxTryLock(&logging_mutex)) {
-        return -EBUSY;
-    }
-
-    // set msg lvel
-    msg_level = level;
-
     va_list args;
     const char *p_fmt = fmt;
 
     int ret = 0;
-    bool done = false;
+    bool locked = false;
+
+    // message filtered out, quit
+    log_level_t feat_level = feature_levels[feature];
+    if (level < feat_level || feat_level == LOG_NONE) {
+        goto exit;
+    }
+
+    // (try) lock before running, avoid problems with two different
+    if (!chMtxTryLock(&logging_mutex)) {
+        ret = -EBUSY;
+        goto exit;
+    }
+    locked = true;
+
+    // set msg lvel
+    msg_level = level;
+
+    // there seems to be some issue using logging() early on, let's alias to print while not 100% ready
+    if (!ready) {
+        va_start(args, msg);
+        vprintf(msg, args);
+        va_end(args);
+        putchar_('\n');
+        goto exit;
+    }
 
     // set_format does not allow setting an invalid format, just go thru it
-    while (!done) {
+    while (true) {
         // order specs alphabetically, special cases first
         switch (get_token(&p_fmt)) {
             case INVALID_SPEC: // unreachable, guarded by set_logging_fmt
-                logging(LOGGER, LOG_ERROR, "???");
-                done = true;
+                _ = logging(LOGGER, LOG_ERROR, "???");
                 ret = -EINVAL;
-                break;
-
-            case NO_SPEC: // print any char
-                putchar_(*p_fmt);
-                break;
+                goto exit;
 
             case STR_END:
                 msg_level = LOG_NONE;
-                done = true;
+                goto exit;
+
+            case NO_SPEC: // print any char
+                putchar_(*p_fmt);
                 break;
 
             // ----------
@@ -266,7 +282,10 @@ int logging(feature_t feature, log_level_t level, const char *msg, ...) {
         p_fmt++;
     }
 
-    chMtxUnlock(&logging_mutex);
+exit:
+    if (locked) {
+        chMtxUnlock(&logging_mutex);
+    }
     return ret;
 }
 
@@ -296,12 +315,12 @@ void dump_stack(void) {
     backtrace_t call_stack[50];
     uint8_t depth = backtrace_unwind(call_stack, ARRAY_SIZE(call_stack));
 
-    logging(UNKNOWN, LOG_ERROR, "Crash traceback");
+    _ = logging(UNKNOWN, LOG_ERROR, "Crash traceback");
     for (
         backtrace_t *stack_frame = call_stack;
         stack_frame < &call_stack[depth];
         ++stack_frame
     ) { // 1 to ignore `dump_stack` itself
-        logging(UNKNOWN, LOG_ERROR, "%s@%p", stack_frame->name, stack_frame->function);
+        _ = logging(UNKNOWN, LOG_ERROR, "%s@%p", stack_frame->name, stack_frame->function);
     }
 }

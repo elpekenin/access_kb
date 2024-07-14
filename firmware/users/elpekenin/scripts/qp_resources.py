@@ -92,7 +92,7 @@ def _h_generator(key: str, paths: list[Path]) -> str:
 
 
 def _c_generator(key: str, paths: list[Path]) -> str:
-    macro = "load_font" if key == "fonts" else "load_image"
+    function = "load_font" if key == "fonts" else "load_image"
 
     def _name_generator(key: str, path: Path) -> str:
         key = "font" if key == "fonts" else "gfx"
@@ -103,14 +103,12 @@ def _c_generator(key: str, paths: list[Path]) -> str:
 
         return f"{key}_{name}"
 
-    return lines(
-        f"    // {key}",
-        "\n".join(
-            f"    {macro}({_name_generator(key, path)});"
-            for path in paths
-        ),
-        ""
-    )
+    _lines = [f"    // {key}"]
+    for path in paths:
+        name = _name_generator(key, path)
+        _lines.append(f'    {function}({name}, "{name}");')
+
+    return lines(*_lines)
 
 def _mk_generator(key: str, paths: list[Path]) -> str:
     return lines(

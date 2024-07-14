@@ -20,6 +20,7 @@ AUTOCORRECT_ENABLE ?= yes
 DEFERRED_EXEC_ENABLE ?= yes
 KEY_OVERRIDE_ENABLE ?= yes
 TRI_LAYER_ENABLE ?= yes
+INTROSPECTION_KEYMAP_C = $(USER_SRC)/introspection.c
 
 # Include everything, checks are inside the files
 include $(MK_PATH)/codegen.mk
@@ -36,6 +37,7 @@ include $(MK_PATH)/wrappers.mk
 include $(MK_PATH)/xap.mk
 include $(MK_PATH)/3rd_party.mk
 include $(MK_PATH)/mcu.mk
+include $(MK_PATH)/zig.mk
 
 # downloaded (sometimes) using qmk_build
 -include $(MK_PATH)/rtc.mk

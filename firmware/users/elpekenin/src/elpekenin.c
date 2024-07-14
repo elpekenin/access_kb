@@ -29,10 +29,6 @@ void keyboard_post_init_user(void) {
 
     if (program_crashed()) {
         print_crash_call_stack();
-        const char *msg = get_crash_msg();
-        if (*msg != '\0') {
-            logging(UNKNOWN, LOG_ERROR, "Crashed with: %s", msg);
-        }
         clear_crash_info();
     }
 

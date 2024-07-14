@@ -6,6 +6,8 @@
 #include <quantum/keyboard.h>
 #include <quantum/logging/print.h>
 
+
+#include "elpekenin/logging.h"
 #include "elpekenin/split/transactions.h"
 #include "elpekenin/utils/compiler.h"
 #include "elpekenin/utils/sections.h"
@@ -91,8 +93,7 @@ void user_logging_master_poll(void) {
         size_t size = rbuf_pop(master_rbuf, sizeof(buff), buff);
         buff[size] = '\0';
 
-        printf("--- SLAVE ---\n");
-        printf("%s", buff);
-        printf("-------------\n");
+        // keep retrying until we get to write it
+        while (logging(UNKNOWN, LOG_DEBUG, "*****\n" "%s" "*****\n", buff) == -EINVAL) {}
     }
 }

@@ -82,20 +82,23 @@ NON_NULL(1) static inline void draw_game(game_state_t *state) {
     );
 
     if (!state->playing) {
-        const char text[] = "Ded, git gut.";
         painter_font_handle_t font = qp_get_font_by_name("font_fira_code");
+        if (font == NULL) {
+            _ = logging(QP, LOG_ERROR, "Font was NULL");
+        } else {
+            const char text[] = "Ded, git gut.";
+            int16_t  text_w   = qp_textwidth(font, text);
+            uint16_t board_w  = board_end.x - board_start.x;
+            uint16_t board_h  = board_end.y - board_start.y;
 
-        int16_t text_w = qp_textwidth(font, text);
-        uint16_t board_w = board_end.x - board_start.x;
-        uint16_t board_h = board_end.y - board_start.y;
-        
-        qp_drawtext(
-            state->device,
-            board_start.x + (board_w - text_w) / 2,
-            board_start.y + (board_h - font->line_height) / 2,
-            font,
-            text
-        );
+            qp_drawtext(
+                state->device,
+                board_start.x + (board_w - text_w) / 2,
+                board_start.y + (board_h - font->line_height) / 2,
+                font,
+                text
+            );
+        }
         return;
     }
 
@@ -162,7 +165,7 @@ void advance_snake_game(game_state_t *state) {
             break;
 
         case NO_MOVEMENT:
-            logging(UNKNOWN, LOG_ERROR, "%s unreachable.", __func__);
+            _ = logging(UNKNOWN, LOG_ERROR, "%s unreachable.", __func__);
             return;
     }
 
@@ -176,7 +179,7 @@ void advance_snake_game(game_state_t *state) {
             return;
         }
     } else {
-        logging(UNKNOWN, LOG_ERROR, "%s not implemented", __func__);
+        _ = logging(UNKNOWN, LOG_ERROR, "%s not implemented", __func__);
         state->playing = false;
         return;
     }
