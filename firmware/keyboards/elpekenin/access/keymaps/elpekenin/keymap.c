@@ -83,15 +83,15 @@ static uint32_t read_touch_callback(uint32_t trigger_time, void *cb_arg) {
 void keyboard_post_init_keymap(void) {
 #if defined(QUANTUM_PAINTER_ENABLE)
 #    if IS_LEFT_HAND
-    load_display(il91874, "il91874");
+    qp_set_device_by_name("il91874", il91874);
 #    endif
 
 #    if IS_RIGHT_HAND
-    load_display(ili9163, "ili9163");
-    load_display(ili9341, "ili9341");
+    qp_set_device_by_name("ili9163", ili9163);
+    qp_set_device_by_name("ili9341", ili9341);
 
     // set_uptime_device(ili9341);
-    // set_logging_device(ili9341);
+    set_logging_device(ili9341);
     // set_heap_stats_device(ili9341);
     set_layer_device(ili9341);
 #        if defined(KEYLOG_ENABLE)

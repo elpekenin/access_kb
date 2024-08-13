@@ -28,13 +28,14 @@
 #define INIT_QP_LOG     1020
 #define INIT_SENDCHAR   1021 /* after QP logging has been init */
 #define INIT_LOG_FORMAT 1022
+#define INIT_ZIG        1023 /* early on, but with logging available */
 
 #define INIT_CRASH 1030
 #define INIT_BUILD 1030 /* before split, so that we send the right thing over wire */
 
-#define INIT_QP_MAPS_AND_TASKS 1040
-#define INIT_KEYLOG_MAP        1040
-#define INIT_INDICATORS_MAP    1040
+#define INIT_QP_TASKS_ARGS  1040
+#define INIT_KEYLOG_MAP     1040
+#define INIT_INDICATORS_MAP 1040
 
 #define INIT_SPLIT       1050
 #define INIT_TRI_LAYER   1050
@@ -56,6 +57,7 @@
 #define DEINIT_XAP 1010
 
 #define DEINIT_QP  1020
+#define DEINIT_ZIG 1020
 #define DEINIT_RGB 1020
 
 

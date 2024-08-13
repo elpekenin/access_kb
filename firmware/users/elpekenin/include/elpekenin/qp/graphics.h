@@ -17,13 +17,13 @@
 #endif // QUANTUM_PAINTER_NUM_DISPLAYS
 
 // *** Asset handling ***
-NON_NULL(2) READ_ONLY(1) void load_display(painter_device_t display, const char *name);
-NON_NULL(2) READ_ONLY(1) void load_font(const uint8_t *font, const char *name);
-NON_NULL(2) READ_ONLY(1) void load_image(const uint8_t *img, const char *name);
+NON_NULL(2) READ_ONLY(1) void qp_set_device_by_name(const char *name, painter_device_t display);
+NON_NULL(2) READ_ONLY(1) void qp_set_font_by_name(const char *name, const uint8_t *font);
+NON_NULL(2) READ_ONLY(1) void qp_set_image_by_name(const char *name, const uint8_t *img);
 
-NON_NULL(1) PURE READ_ONLY(1) painter_device_t       qp_get_device_by_name(const char *name);
-NON_NULL(1) PURE READ_ONLY(1) painter_font_handle_t  qp_get_font_by_name(const char *name);
-NON_NULL(1) PURE READ_ONLY(1) painter_image_handle_t qp_get_img_by_name(const char *name);
+NON_NULL(1) READ_ONLY(1) painter_device_t       qp_get_device_by_name(const char *name);
+NON_NULL(1) READ_ONLY(1) painter_font_handle_t  qp_get_font_by_name(const char *name);
+NON_NULL(1) READ_ONLY(1) painter_image_handle_t qp_get_image_by_name(const char *name);
 
 
 // *** Show build info ***

@@ -15,6 +15,10 @@ const KnownMcus = [_]MCU{
             .abi = .eabi,
         },
     },
+    .{  // to run tests on computer
+        .name = "native",
+        .target = .{}, // default to native
+    }
 };
 
 fn getTarget(mcu: []const u8) std.Target.Query {
@@ -25,6 +29,37 @@ fn getTarget(mcu: []const u8) std.Target.Query {
     }
 
     std.debug.panic("Unknown MCU: {s}", .{mcu});
+}
+
+fn getFiles(b: *std.Build, options: *std.Build.Step.Options, path: []const u8, needle: []const u8) !void {
+    var dir = try std.fs.openDirAbsolute(path, .{ .iterate = true });
+    defer dir.close();
+
+    var walker = try dir.walk(b.allocator);
+    while (try walker.next()) |file| {
+        if (file.kind == .file) {
+            if (std.mem.endsWith(u8, file.basename, needle)) {
+                const fd = try dir.openFile(file.path, .{});
+                defer fd.close();
+
+                const stat = try fd.stat();
+
+                const buff = try b.allocator.alloc(u8, stat.size);
+                defer b.allocator.free(buff);
+
+                _ = try fd.read(buff);
+
+                options.addOption([]const u8, file.basename, buff);
+            }
+        }
+    }
+}
+
+fn getAssets(b: *std.Build) !*std.Build.Step.Options {
+    const options = b.addOptions();
+    try getFiles(b, options, b.pathJoin(&.{b.build_root.path orelse @panic("No root"), "painter", "images"}), "qgf.c");
+    try getFiles(b, options, b.pathJoin(&.{b.build_root.path orelse @panic("No root"), "painter", "fonts"}), "qff");
+    return options;
 }
 
 pub fn build(b: *std.Build) !void {
@@ -49,6 +84,9 @@ pub fn build(b: *std.Build) !void {
 
     elpekenin_lib.is_linking_libc = true;
 
+    // needed on native, not on MCU (?)
+    elpekenin_lib.bundle_compiler_rt = target.result.os.tag == .linux;
+
     // // ideally, we would only need these two paths
     // elpekenin_lib.addSystemIncludePath(.{.cwd_relative = qmk});
     // elpekenin_lib.addSystemIncludePath(.{.cwd_relative = elpekenin ++ "/include"});
@@ -69,6 +107,9 @@ pub fn build(b: *std.Build) !void {
 
     // // hack newlib include path too...
     // elpekenin_lib.addSystemIncludePath(.{.cwd_relative = "/usr/include/newlib/"});
+
+    const assets = try getAssets(b);
+    elpekenin_lib.root_module.addImport("assets", assets.createModule());
 
     // generate the .a file
     b.installArtifact(elpekenin_lib);

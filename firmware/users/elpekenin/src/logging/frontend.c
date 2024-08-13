@@ -151,7 +151,7 @@ uint8_t get_logging_fmt_len(void) {
 }
 
 void get_logging_fmt(char *dest) {
-    strcpy(dest, fmt);
+    strlcpy(dest, fmt, sizeof(fmt));
 }
 
 int set_logging_fmt(const char *new_fmt) {
@@ -165,7 +165,7 @@ int set_logging_fmt(const char *new_fmt) {
         token_t spec = get_token(&copy);
 
         if (spec == STR_END) {
-            strcpy(fmt, new_fmt);
+            strlcpy(fmt, new_fmt, sizeof(fmt));
             return 0;
         }
 

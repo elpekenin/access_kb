@@ -20,25 +20,27 @@ TEXT_COLOR = "HSV_BLACK"
 BACKGROUND_COLOR = "HSV_WHITE"
 
 # Capitalization here doesnt matter, code will format it
-FEATURES = sorted({
-    "AUDIO",
-    "AUTOCORRECT",
-    "BOOTMAGIC",
-    "COMBO",
-    "EXTRAKEY",
-    "KEY_OVERRIDE",
-    "MOUSEKEY",
-    "NKRO",
-    "RGB_MATRIX",
-    "SIPO_PINS",
-    "TAP_DANCE",
-    "TOUCH_SCREEN",
-    "QP_XAP",
-    "QUANTUM_PAINTER",
-    "UNICODE_COMMON",
-    "WPM",
-    "XAP",
-})
+FEATURES = sorted(
+    {
+        "AUDIO",
+        "AUTOCORRECT",
+        "BOOTMAGIC",
+        "COMBO",
+        "EXTRAKEY",
+        "KEY_OVERRIDE",
+        "MOUSEKEY",
+        "NKRO",
+        "RGB_MATRIX",
+        "SIPO_PINS",
+        "TAP_DANCE",
+        "TOUCH_SCREEN",
+        "QP_XAP",
+        "QUANTUM_PAINTER",
+        "UNICODE_COMMON",
+        "WPM",
+        "XAP",
+    }
+)
 SHORT_NAMES = {
     "QUANTUM_PAINTER": "PAINTER",
     "UNICODE_COMMON": "UNICODE",
@@ -58,12 +60,12 @@ H_FILE = lines(
     "typedef union {{",
     "    {type} raw;",
     "    struct {{",
-            "{generated_code}",
+    "{generated_code}",
     "    }};",
     "}} enabled_features_t;",
     "",
     "enabled_features_t get_enabled_features(void);",
-    ""
+    "",
 )
 
 C_FILE = lines(
@@ -76,16 +78,16 @@ C_FILE = lines(
     "",
     "    features.raw = 0;",
     "",
-        "{generated_code}",
+    "{generated_code}",
     "    return features;",
     "}}",
-    ""
+    "",
 )
 
 DRAW_FILE = lines(
     C_HEADER,
     "",
-    '#include <quantum/color.h>',
+    "#include <quantum/color.h>",
     "",
     f'#include "{OUTPUT_NAME}.h"',
     '#include "elpekenin/qp/graphics.h"',
@@ -97,7 +99,7 @@ DRAW_FILE = lines(
     "    if (font == NULL) {{",
     '        _ = logging(QP, LOG_ERROR, "Font was NULL");',
     "        return;",
-    "    }}"
+    "    }}",
     "",
     "    enabled_features_t features    = get_build_info().features;",
     "    uint8_t            font_height = font->line_height;",
@@ -109,8 +111,8 @@ DRAW_FILE = lines(
     "",
     "    bool shifted = false;",
     "",
-        "{generated_code}"  # no comma here intentionally
-    "}}"
+    "{generated_code}"  # no comma here intentionally
+    "}}",
 )
 
 
@@ -124,10 +126,7 @@ def _get_type() -> str:
 
 
 def _for_all_features(func: Callable) -> str:
-    return "\n".join(
-        func(feature)
-        for feature in FEATURES
-    )
+    return "\n".join(func(feature) for feature in FEATURES)
 
 
 def _h_generator(feature: str) -> str:
@@ -138,8 +137,8 @@ def _c_generator(feature: str) -> str:
     return lines(
         f"    #if defined({feature.upper()}_ENABLE)",
         f"        features.{feature.lower()} = true;",
-        f"    #endif",
-        ""
+        "    #endif",
+        "",
     )
 
 
@@ -184,7 +183,6 @@ if __name__ == "__main__":
     gen_h = _for_all_features(_h_generator)
     with open(output_dir / f"{OUTPUT_NAME}.h", "w") as f:
         f.write(H_FILE.format(type=type_, generated_code=gen_h))
-
 
     gen_c = _for_all_features(_c_generator)
     with open(output_dir / f"{OUTPUT_NAME}.c", "w") as f:

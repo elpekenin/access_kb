@@ -16,5 +16,10 @@ __pycache__/
 
 TODO.md
 
+# zig artifacts
 .zig-cache
 zig-out
+
+# linting
+lint
+Makefile

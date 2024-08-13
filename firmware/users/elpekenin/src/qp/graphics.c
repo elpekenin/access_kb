@@ -204,7 +204,9 @@ deferred_token draw_scrolling_text_recolor(painter_device_t device, uint16_t x, 
         _ = logging(SCROLL, LOG_ERROR, "%s: fail (allocation)", __func__);
         return INVALID_DEFERRED_TOKEN;
     }
-    strcpy(scrolling_state->str, str);
+
+    // note, len is the buffer size we allocated right above (strlen(str) + 1)
+    strlcpy(scrolling_state->str, str, len);
 
     // Prepare the scrolling state
     scrolling_state->device      = device;
@@ -246,7 +248,8 @@ void extend_scrolling_text(deferred_token scrolling_token, const char *str) {
         if (state->defer_token == scrolling_token) {
             uint8_t cur_len = strlen(state->str);
             uint8_t new_len = strlen(str);
-            char *  new_pos = realloc_with(scrolling_allocator, state->str, cur_len + new_len);
+            uint8_t len     = cur_len + new_len + 1;
+            char *  new_pos = realloc_with(scrolling_allocator, state->str, len);
 
             if (new_pos == NULL) {
                 _ = logging(SCROLL, LOG_ERROR, "%s: fail (realloc)", __func__);
@@ -254,7 +257,7 @@ void extend_scrolling_text(deferred_token scrolling_token, const char *str) {
             }
             state->str = new_pos;
 
-            strcat(state->str, str);
+            strlcat(state->str, str, len);
 
             return;
         }
@@ -332,14 +335,14 @@ static uint32_t uptime_task_callback(uint32_t trigger_time, void *cb_arg) {
 }
 
 static uint16_t gen_random_pos(uint16_t max, uint64_t *mask) {
-    uint16_t random;
+    uint16_t pos;
 
     do { // dont mess already-done char
-        random = rng_min_max(0, max);
-    } while ((*mask & (1 << random)));
+        pos = rng_min_max(0, max);
+    } while ((*mask & (1 << pos)));
 
-    *mask |= (1 << random);
-    return random;
+    *mask |= (1 << pos);
+    return pos;
 }
 
 static void draw_heap(void *cb_arg) {
@@ -379,7 +382,7 @@ static uint32_t glitch_text_callback(uint32_t trigger_time, void *cb_arg) {
     if (state->state == DONE) {
         state->running = false;
 
-        strcpy(state->curr, state->dest);
+        strlcpy(state->curr, state->dest, sizeof(state->curr));
         // keep terminator untouched
         memset(state->dest, ' ', ARRAY_SIZE(state->dest) - 1);
 
@@ -458,7 +461,7 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
     if (!flash) {
         flash = true;
 
-        strcpy(buff, "Flash: ");
+        strlcpy(buff, "Flash: ", sizeof(buff));
 
         size_t offset = strlen(buff);
         pretty_bytes(
@@ -467,7 +470,7 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
             buff_size - offset
         );
 
-        strcat(buff, "/");
+        strlcat(buff, "/", sizeof(buff));
 
         offset = strlen(buff);
         pretty_bytes(
@@ -491,7 +494,7 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
     size_t offset = 0;
     pretty_bytes(used, buff + offset, buff_size - offset);
 
-    strcat(buff, "/");
+    strlcat(buff, "/", sizeof(buff));
 
     offset = strlen(buff);
     pretty_bytes(
@@ -501,7 +504,7 @@ static uint32_t heap_stats_task_callback(uint32_t trigger_time, void *cb_arg) {
     );
 
     // start the animation
-    strcpy(state->dest, buff);
+    strlcpy(state->dest, buff, sizeof(state->dest));
     state->mask  = 0;
     state->state = FILLING;
     defer_exec(10, glitch_text_callback, args);
@@ -602,7 +605,7 @@ static uint32_t layer_task_callback(uint32_t trigger_time, void *cb_arg) {
     state->running = true;
 
     // start the animation
-    strcpy(state->dest, get_layer_name(layer));
+    strlcpy(state->dest, get_layer_name(layer), sizeof(state->dest));
     state->mask  = 0;
     state->state = FILLING;
     defer_exec(10, glitch_text_callback, args);
@@ -613,33 +616,33 @@ static uint32_t layer_task_callback(uint32_t trigger_time, void *cb_arg) {
 static void elpekenin_qp_init(void) {
     load_qp_resources();
 
-    painter_font_handle_t fira_code = qp_get_font_by_name("font_fira_code");
-    if (fira_code == NULL) {
+    painter_font_handle_t font = qp_get_font_by_name("font_fira_code");
+    if (font == NULL) {
         _ = logging(QP, LOG_ERROR, "Font was NULL");
         return;
     }
 
     // positions are hard-coded for ILI9341 on access
 
-    size_t spacing = fira_code->line_height + 2;
+    size_t spacing = font->line_height + 2;
 
-    logging_args.font = fira_code;
+    logging_args.font = font;
     logging_args.x = 160;
     logging_args.y = 100;
     logging_args.scrolling_args.n_chars = 18;
     logging_args.scrolling_args.delay = 500;
 
-    uptime_args.font = fira_code;
+    uptime_args.font = font;
     uptime_args.x = 50;
     uptime_args.y = 55;
 
-    heap_stats_args.font = fira_code;
+    heap_stats_args.font = font;
     heap_stats_args.x = 50;
     heap_stats_args.y = uptime_args.y + 2 * spacing;
     heap_stats_extra.callback = draw_heap;
     heap_stats_args.extra = &heap_stats_extra;
 
-    layer_args.font = fira_code;
+    layer_args.font = font;
     layer_args.x = 70;
     layer_args.y = heap_stats_args.y + spacing;
     layer_extra.callback = draw_layer;
@@ -651,7 +654,4 @@ static void elpekenin_qp_init(void) {
 
     defer_exec(10, scrolling_text_tick_callback, NULL);
 }
-PEKE_PRE_INIT(elpekenin_qp_init, INIT_QP_MAPS_AND_TASKS);
-
-extern void elpekenin_qp_deinit(bool);
-PEKE_DEINIT(elpekenin_qp_deinit, DEINIT_QP);
+PEKE_PRE_INIT(elpekenin_qp_init, INIT_QP_TASKS_ARGS);

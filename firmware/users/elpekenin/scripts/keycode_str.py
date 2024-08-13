@@ -27,6 +27,7 @@ QMK = Path(__file__).parent
 
 sys.path.append(str(QMK / "users" / "elpekenin" / "scripts"))
 from scripts import *
+
 sys.path.append(str(QMK / "lib" / "python"))
 from qmk import keycodes
 
@@ -37,23 +38,18 @@ LAYOUT = re.compile(r"\[(.*)\]( *)=( *)LAYOUT(.*)\(")
 
 OUTPUT_NAME = "keycode_str"
 
-H_FILE = lines(
-    H_HEADER,
-    "",
-    "const char *get_keycode_name(uint16_t keycode);",
-    ""
-)
+H_FILE = lines(H_HEADER, "", "const char *get_keycode_name(uint16_t keycode);", "")
 
 C_FILE = lines(
     C_HEADER,
     "",
-    '#include <quantum/quantum.h>',
+    "#include <quantum/quantum.h>",
     "",
     '#include "elpekenin.h" // keycodes and layers',
     "",
     "static const char *keycode_names[] = {{",
-        "{qmk_data}"  # intentional lack of comma
-        "{keymap_data}"
+    "{qmk_data}"  # intentional lack of comma
+    "{keymap_data}"
     "}};",
     "",
     "const char *get_keycode_name(uint16_t keycode) {{",
@@ -71,15 +67,12 @@ C_FILE = lines(
     # out of bounds -> nothing
     "    return NULL;",
     "}}",
-    ""
+    "",
 )
 
 
 def _read_file(keymap_path: Path) -> str:
-    with open(
-        keymap_path,
-        "r"
-    ) as f:
+    with open(keymap_path, "r") as f:
         return f.read()
 
 
@@ -116,11 +109,13 @@ def _extract_keycodes(clean_file: str) -> list[str]:
             accumulated += char
 
         if parens == 0:  # outsize of layout macro
-            if char == "}": # keymap array end
+            if char == "}":  # keymap array end
                 break
 
             if accumulated:  # if gathered a layer of keycodes, store it
-                accumulated = ", ".join([i.strip() for i in accumulated.replace("\n", "").split(", ")])
+                accumulated = ", ".join(
+                    [i.strip() for i in accumulated.replace("\n", "").split(", ")]
+                )
                 layers.append(accumulated)
                 accumulated = ""
 
@@ -142,7 +137,7 @@ def _keymap_data(layers: list[str]) -> str:
 
 if __name__ == "__main__":
     # -- Handle args
-    if len(sys.argv) < 3: # executable, output path, keymap path
+    if len(sys.argv) < 3:  # executable, output path, keymap path
         print(f"{CLI_ERROR} {current_filename(__file__)} <output_path> <keymap_path>")
         exit(1)
 

@@ -19,29 +19,22 @@ from scripts import *
 OUTPUT_NAME = "qp_resources"
 MSYS_PREFIX = "D:/msys2"
 
-H_FILE = lines(
-    H_HEADER,
-    "",
-    "{generated_code}"
-)
+H_FILE = lines(H_HEADER, "", "{generated_code}")
 
 C_FILE = lines(
     C_HEADER,
     "",
-    f'#include "elpekenin/qp/graphics.h"',
+    '#include "elpekenin/qp/graphics.h"',
     "",
     "void load_qp_resources(void) {{",
-        "{generated_code}"  # no comma here intentionally
-    "}}"
+    "{generated_code}"  # no comma here intentionally
+    "}}",
 )
 
-MK_FILE = lines(
-    MK_HEADER,
-    "",
-    "{generated_code}"
-)
+MK_FILE = lines(MK_HEADER, "", "{generated_code}")
 
 AssetsDictT = dict[str, list[Path]]
+
 
 def _find_assets_impl(assets: AssetsDictT, path: str):
     folder = Path(path).absolute() / "painter"
@@ -82,48 +75,38 @@ def __for_all_assets(func: Callable, assets: AssetsDictT) -> str:
 
 def _h_generator(key: str, paths: list[Path]) -> str:
     return lines(
-        f"// {key}",
-        "\n".join(
-            f'#include "{path.name}"'
-            for path in paths
-        ),
-        ""
+        f"// {key}", "\n".join(f'#include "{path.name}"' for path in paths), ""
     )
 
 
 def _c_generator(key: str, paths: list[Path]) -> str:
-    function = "load_font" if key == "fonts" else "load_image"
+    function = "qp_set_font_by_name" if key == "fonts" else "qp_set_image_by_name"
 
     def _name_generator(key: str, path: Path) -> str:
         key = "font" if key == "fonts" else "gfx"
-        name = (path.name
-                .replace('-', '_')
-                .replace('.qff.h', '')
-                .replace('.qgf.h', ''))
+        name = path.name.replace("-", "_").replace(".qff.h", "").replace(".qgf.h", "")
 
         return f"{key}_{name}"
 
     _lines = [f"    // {key}"]
     for path in paths:
         name = _name_generator(key, path)
-        _lines.append(f'    {function}({name}, "{name}");')
+        _lines.append(f'    {function}("{name}", {name});')
 
     return lines(*_lines)
+
 
 def _mk_generator(key: str, paths: list[Path]) -> str:
     return lines(
         f"# {key}",
-        "\n".join(
-            f"SRC += {path}".replace(".h", ".c")
-            for path in paths
-        ),
-        ""
+        "\n".join(f"SRC += {path}".replace(".h", ".c") for path in paths),
+        "",
     )
 
 
 if __name__ == "__main__":
     # -- Handle args
-    if len(sys.argv) < 3: # executable, output path, paths
+    if len(sys.argv) < 3:  # executable, output path, paths
         print(f"{CLI_ERROR} {current_filename(__file__)} <paths...>")
         exit(1)
 
@@ -138,11 +121,7 @@ if __name__ == "__main__":
     # Gen files
     _for_all_assets = partial(__for_all_assets, assets=assets)
 
-    gen_h = lines(
-        _for_all_assets(_h_generator),
-        "",
-        "void load_qp_resources(void);"
-    )
+    gen_h = lines(_for_all_assets(_h_generator), "", "void load_qp_resources(void);")
     with open(output_dir / f"{OUTPUT_NAME}.h", "w") as f:
         f.write(H_FILE.format(generated_code=gen_h))
 

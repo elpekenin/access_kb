@@ -11,6 +11,12 @@
 
 #include "generated/features.h"
 
+extern void elpekenin_zig_init(void);
+PEKE_PRE_INIT(elpekenin_zig_init, INIT_ZIG);
+
+extern void elpekenin_zig_deinit(bool);
+PEKE_DEINIT(elpekenin_zig_deinit, DEINIT_ZIG);
+
 void housekeeping_task_user(void) {
     housekeeping_task_keymap();
 }

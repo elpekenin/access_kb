@@ -91,18 +91,6 @@ PEKE_PRE_INIT(autocorrect_enable, INIT_AUTOCORRECT);
 bool keylog_enabled = true;
 #endif
 
-#if defined(KEY_OVERRIDE_ENABLE)
-const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, BSPC,    DEL);
-const key_override_t volume_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_VOLU, KC_VOLD);
-const key_override_t alt_f4_key_override = ko_make_basic(MOD_MASK_ALT,   N4,      LALT(F4));
-const key_override_t **key_overrides = (const key_override_t *[]){
-    &delete_key_override,
-    &volume_key_override,
-    &alt_f4_key_override,
-    NULL
-};
-#endif
-
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     char buff[15];

@@ -12,7 +12,7 @@
 static build_info_t build_info = {0};
 
 static void fill_build_info(void) {
-    strcpy(build_info.commit, QMK_GIT_HASH);
+    strlcpy(build_info.commit, QMK_GIT_HASH, sizeof(build_info.commit));
     build_info.features = get_enabled_features();
 }
 PEKE_PRE_INIT(fill_build_info, INIT_BUILD);

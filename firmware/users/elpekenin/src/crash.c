@@ -37,7 +37,7 @@ bool program_crashed(void) {
 void set_crash_info(const char *msg) {
     crash_info.magic = MAGIC_VALUE;
     crash_info.stack_depth = backtrace_unwind(crash_info.call_stack, DEPTH);
-    strcpy(crash_info.msg, msg);
+    strlcpy(crash_info.msg, msg, sizeof(crash_info.msg));
 }
 
 backtrace_t *get_crash_call_stack(uint8_t *depth) {
