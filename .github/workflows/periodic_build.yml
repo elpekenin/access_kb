@@ -2,7 +2,6 @@ name: Periodic build against latest QMK
 
 on:
   schedule:
-    - cron: "0 11 * * *"
     - cron: "0 23 * * *"
   workflow_dispatch:
 
