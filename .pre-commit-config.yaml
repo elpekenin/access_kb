@@ -1,0 +1,12 @@
+files: typst/
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/Enter-tainer/typstyle
+    rev: v0.11.35
+    hooks:
+      - id: typstyle

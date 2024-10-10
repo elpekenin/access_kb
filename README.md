@@ -16,23 +16,15 @@ File structure:
 ├─ 📂hardware/     - PCB files
 |  └─ 📂libraries/     * References to KiCAD symbols and footprints 
 ├─ 📂software      - Client running on the PC to control the keyboard
-├─ 📂latex/        - Sources used to create the PDF report
-|  ├─ 📂images/        * Various visual resources 
-|  ├─ 📂snippets/      * Relevant pieces of code and configuration
-|  ├─ 📂tex/           * Fragments of the complete writing
-|  ├─ 🔨conf.tex       * LaTeX configuration
-|  ├─ 📋main.tex       * Wrapper file which joins everything together 
-|  ├─ 📚references.bib * Bibliography
-|  └─ 📖report.pdf     * Output file 
-└─ 📂helpers/      - Some scripts for repetitive tasks
+└─ 📂typst        - Sources used to create the PDF report
 ```
 
 
 Firmware
 ========
-Firmware made using [QMK](https://github.com/qmk/qmk_firmware)(C).
+Firmware made using [QMK](https://github.com/qmk/qmk_firmware).
 
-All the extra code/patches needed to build the firmware can be found on the folder, it it built using [qmk_build](https://github.com/elpekenin/qmk_build)
+Code and patches can be seen on [qmk_userspace](https://github.com/elpekenin/qmk_userspace), it is built using [qmk_build](https://github.com/elpekenin/qmk_build)
 
 
 Hardware
@@ -54,18 +46,6 @@ Features:
 - e-Ink display to show the current configuration
 
 
-Utils
-=====
-This folder contains some bash scripts to make life easier:
-- download.sh -- Pulls the code from the RP2040's flash memory into a folder, and backups the code that was there before pulling 
-- pdf.sh      -- Compiles the latex file and opens the resulting file
-- rmswap.sh   -- Removes all .swp files in nvim's cache folder, as a bunch will be created upon SSH disconnecting 
-- upload.sh   -- Pushes a folder's content to the computer into the MCU's flash
-
-*Note*: `download` and `upload` are only useful when working with MicroPython
-
-
 Software 
 ========
 Program using [Vue](https://vuejs.org/) and [Tauri](https://tauri.app/) on your computer, that can control some features of the keyboard and send information. Based on [KarlK90's work](https://github.com/qmk/qmk_xap)
-
