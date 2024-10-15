@@ -154,4 +154,3 @@ xap-specs:
   type: misc
   title: Especificación del protocolo XAP
   note: \\url\{https://github.com/qmk/qmk_firmware/blob/xap/docs/xap_protocol.md\}
-

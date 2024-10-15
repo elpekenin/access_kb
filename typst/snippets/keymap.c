@@ -7,7 +7,7 @@ void housekeeping_task_user(void) { // Se ejecuta en todas las iteraciones del b
     if (timer_elapsed32(touch_timer) < 200) // Con un timer controlamos la frecuencia de muestreo
         return;
     touch_timer = timer_read32();
-    
+
     touch_report_t touch_report = get_spi_touch_report(touch_device); // Leemos el sensor
 #    if defined(XAP_ENABLE) // Si XAP activo, enviamos las coordenadas al PC
     static bool release_notified = true;
