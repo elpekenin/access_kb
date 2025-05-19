@@ -1,0 +1,4 @@
+[package]
+name = "tfm"
+version = "0.1.0"
+entrypoint = "package.typ"

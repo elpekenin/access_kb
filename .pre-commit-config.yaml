@@ -6,7 +6,15 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
-  - repo: https://github.com/Enter-tainer/typstyle
-    rev: v0.13.2
+  # Local hook because the upstream one is broken
+  # https://github.com/Enter-tainer/typstyle/issues/197
+  - repo: local
     hooks:
       - id: typstyle
+        name: typstyle
+        description: Format files with typstyle
+        language: rust
+        entry: typstyle
+        args: [-i]
+        additional_dependencies: ["cli:typstyle:0.13.2"]
+        files: \.typ$

@@ -1,14 +1,17 @@
 //! Set everything up before including the actual content
 
-/// Packages
-#import "@preview/codly:1.0.0": codly, codly-init
-#import "@preview/glossarium:0.4.2": make-glossary, register-glossary
-#import "@preview/hydra:0.5.1": hydra
+// Packages
+#import "@preview/codly:1.3.0": codly, codly-init
+#import "@preview/glossarium:0.5.4": make-glossary, register-glossary
+#import "@preview/hydra:0.6.1": hydra
 
-/// Local files
-#import "glossary.typ": entry-list
+#import "@elpekenin/tfm:0.1.0": glossary, tools
 
-/// Set rules
+#let alignment(value) = {
+  return if calc.even(value) { left } else { right }
+}
+
+// Set rules
 #set heading(numbering: "1.")
 
 #set page(
@@ -19,47 +22,34 @@
 
     if location != none {
       let location = emph(location)
+      let page = here().page()
 
-      if calc.even(here().page()) {
-        align(left, location)
-      } else {
-        align(right, location)
-      }
+      align(alignment(page), location)
       line(length: 100%)
     }
   },
   footer: context {
-    let page_number = here().page()
-
-    // no numbering in front page
-    if page_number == 0 {
-      return
-    }
-
-    let position = if calc.even(page_number) {
-      left
-    } else {
-      right
-    }
-
     text(8pt)[
-      #align(position)[
-        #counter(page).display(
-          both: true,
-          (current, total) => {
-            let text = [Pág. #current / #total]
+      #counter(page).display(
+        both: true,
+        (current, total) => {
+          if current == 0 {
+            return
+          }
 
-            let width = measure(text).width * current / total
+          let text = [Pág. #current / #total]
+          let progress = measure(text).width * current / total
 
-            block[
+          align(alignment(current))[
+            #block[
               #text
               #align(left)[
-                #line(length: width, stroke: rgb(0, 150, 200))
+                #line(length: progress, stroke: rgb(0, 84, 160))
               ]
             ]
-          },
-        )
-      ]
+          ]
+        },
+      )
     ]
   },
 )
@@ -74,7 +64,9 @@
   slashed-zero: true,
 )
 
-/// Show rules
+#set outline.entry(fill: block(width: 100% - 1.5em)[ #repeat(" . ")])
+
+// Show rules
 #show bibliography: set heading(numbering: "1.")
 #show heading.where(level: 1): it => {
   pagebreak(weak: true) + it
@@ -82,8 +74,9 @@
 #show: make-glossary
 #show: codly-init.with()
 
-/// Set up packages
-#register-glossary(entry-list)
+// Set up packages
+#register-glossary(glossary)
+#register-glossary(tools)
 
 #codly(
   languages: (
@@ -96,5 +89,5 @@
   stroke: 0.5pt + black,
 )
 
-/// Actual content
+// Actual content
 #include "content/main.typ"

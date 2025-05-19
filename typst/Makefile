@@ -1,7 +1,10 @@
-FILE = bootstrap.typ
+# Tiny convenience aliases
+
+TYP = bootstrap.typ
+PDF = TFM_PabloMartinezBernal.pdf
 
 c compile:
-	typst c $(FILE) TFM_PabloMartinezBernal.pdf
+	@typst c $(TYP) $(PDF)
 
 w watch:
-	typst w $(FILE)
+	@typst w $(TYP) $(PDF)
