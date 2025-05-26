@@ -1,6 +1,6 @@
 # Tiny convenience aliases
 
-TYP = bootstrap.typ
+TYP = main.typ
 PDF = TFM_PabloMartinezBernal.pdf
 
 c compile:

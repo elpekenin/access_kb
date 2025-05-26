@@ -1,0 +1,3 @@
+To reproduce PDF build
+
+Output from `$ typst --version` is: `typst 0.13.1 (unknown hash)`

@@ -1,12 +1,10 @@
-#import "@elpekenin/tfm:0.1.0": images
+#import "@elpekenin/tfm:0.1.0": config, images
 
 #page[
-  #align(center + horizon)[
-    #(images.front)
-  ]
+  #align(center + horizon)[#images.front]
 
   #align(center)[
-    #text(size: 25pt, weight: "bold")[Revisitando el diseño del teclado]
+    #text(size: 25pt, weight: "bold")[#config.title]
   ]
 
   #align(bottom + right)[
@@ -17,10 +15,7 @@
 
       Máster Universitario en Ingeniería de Telecomunicación
 
-      #datetime.today().display("[year]") // [month repr:short]
+      #datetime.today().display(config.date_format)
     ]
   ]
-
-  // 0 to not render page number here
-  #counter(page).update(0)
 ]

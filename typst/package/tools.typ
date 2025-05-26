@@ -7,6 +7,11 @@
     long: "Sistema para compilado de código",
   ),
   (
+    key: "__hasst",
+    short: link("https://www.home-assistant.io")[Home Assistant],
+    long: "Gestor de domótica",
+  ),
+  (
     key: "__lvgl",
     short: link("https://lvgl.io")[LVGL],
     long: "Librería de gráficos para entornos embedidos",
@@ -34,7 +39,7 @@
   (
     key: "__typst",
     short: link("https://typst.app")[typst],
-    long: "Lenguaje de marcado para generación de documentos",
+    long: "Lenguaje de marcado para elaborar documentos",
   ),
   (
     key: "__uf2",

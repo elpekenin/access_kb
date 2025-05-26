@@ -7,47 +7,15 @@ ghoul:
   title: Teclado ghoul
   author: tzarc
   note: \\url\{https://github.com/tzarc/ghoul\}
-hid:
-  type: misc
-  title: Protocolo HID
-  note: \\url\{https://es.wikipedia.org/wiki/HID\}
-hidapi:
-  type: misc
-  title: Librería hidapi (C)
-  note: \\url\{https://github.com/libusb/hidapi\}
-hidapi-rs:
-  type: misc
-  title: Librería para usar hidapi en Rust
-  note: \\url\{https://docs.rs/hidapi/latest/hidapi/\}
-home-assistant:
-  type: misc
-  title: Home Assistant, gestor de domótica
-  note: \\url\{https://www.home-assistant.io/\}
-i2c:
-  type: misc
-  title: Protocolo I2C
-  note: \\url\{https://es.wikipedia.org/wiki/I%C2%B2C\}
-ili9486-pr:
-  type: misc
-  title: Mi código para ili9486
-  note: \\url\{https://github.com/qmk/qmk_firmware/pull/18521\}
 ili9488:
   type: misc
   title: Driver para ili9488
   note: \\url\{https://github.com/qmk/qmk_firmware/blob/master/drivers/painter/ili9xxx/qp_ili9488.c\}
-latex-rust:
-  type: misc
-  title: Formatear Rust en LaTeX
-  note: \\url\{https://github.com/denki/listings-rust\}
 lvgl-jpe:
   type: misc
   title: Añadir LVGL en QMK
   author: jpe230
   note: \\url\{https://github.com/Jpe230/qmk_firmware/commits/develop_lvgl\}
-mdi-qgf:
-  type: misc
-  title: Repositorio con iconos en QGF
-  note: \\url\{https://github.com/elpekenin/mdi-icons-qgf\}
 mod-usb-hid:
   type: misc
   title: Módulo para usar HID en MicroPython
@@ -60,10 +28,6 @@ paper:
   type: misc
   title: Estudios médicos sobre diseño de teclados
   note: \\url\{https://pubmed.ncbi.nlm.nih.gov/19308823/\}
-pointing:
-  type: misc
-  title: Pointing Device, sensores de movimiento
-  note: \\url\{https://docs.qmk.fm/#/feature_pointing_device\}
 qgf:
   type: misc
   title: Formato de imágenes para QMK
@@ -81,18 +45,6 @@ qp-xap-handlers:
   type: misc
   title: Handlers de los mensajes XAP personalizados
   note: \\url\{https://github.com/elpekenin/qmk_firmware/blob/pekelop/users/elpekenin/painter/qp_over_xap.c\}
-rules-mk:
-  type: misc
-  title: Añadir nuestro código a la compilación de QMK
-  note: \\url\{https://github.com/elpekenin/qmk_firmware/blob/pekelop/users/elpekenin/rules.mk\}
-spi:
-  type: misc
-  title: Protocolo SPI
-  note: \\url\{https://es.wikipedia.org/wiki/Serial_Peripheral_Interface\}
-templarian-mdi:
-  type: misc
-  title: Material Design Icons
-  note: \\url\{https://github.com/Templarian/MaterialDesign\}
 touch-driver:
   type: misc
   title: Driver para el sensor táctil XPT2046
@@ -102,10 +54,6 @@ tusb-rp2:
   title: Añadir HID a RP2040 en MicroPython
   author: noobee
   note: \\url\{https://github.com/noobee/micropython/tree/usb-hid\}
-user-rs:
-  type: misc
-  title: Código de usuario
-  note: \\url\{https://github.com/elpekenin/qmk_xap/blob/peke-devel/src-tauri/src/user.rs\}
 xap:
   type: misc
   title: XAP, protocolo extensible de QMK

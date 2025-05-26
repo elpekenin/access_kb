@@ -1,185 +1,201 @@
-#import "@elpekenin/tfm:0.1.0": snippet
+#import "@preview/big-todo:0.2.0": todo
 
-La idea principal del control de la pantalla es que el teclado no dibuje en ella nada, de forma que la controlemos exclusivamente desde el programa desarrollado. De esta manera, lo que haremos será leer el estado del sensor táctil cada 200ms y, en caso de estar pulsado, enviaremos las coordenadas de dicha pulsación. Adicionalmente enviamos otro mensaje como si se hubiera pulsado la posicion (0, 0), donde no hay ninguna lógica, para que se "limpie" la pantalla al acabar una pulsación.
+#import "@elpekenin/tfm:0.1.0": cli, snippet, config
 
-El código relevante es:
+La idea principal es que el ordenador actúe como el orquestador del sistema.
+- Por un lado, recibirá eventos del teclado, como una pulsación en la pantalla táctil, para ejecutar acciones tales como encender una luz.
+- Por otro, se podrán monitorizar valores como la temperatura o la previsión de precipitaciones y mostrarlos en pantalla.
 
-Al igual que hemos dicho antes con añadir o no añadir un archivo a nuestro código según la configuración, debemos hacer lo mismo con bloques de código, usando de forma que no intentemos usar la pantalla táctil o enviar un mensaje XAP si estas características no se han activado.
+Para comunicar el ordenador con el teclado utilizaremos @xap (⚠ aún en desarrollo). Este protocolo, definido por QMK, funciona sobre HID y permite el intercambio de información arbitraria. Lo más importante es que evita problemas con los drivers del sistema operativo utilizando un endpoint adicional; es decir, se dispone de un segundo flujo de datos independiente de la comunicación convencional de "el usuario ha pulsado esta tecla".
 
-== Software
-Para poder intercambiar información con el teclado de forma que podamos configurarlo o enviarle información en vez de simplemente escuchar las teclas que se han pulsado, vamos a desarrollar un programa en Tauri (librería escrita en Rust) ya que permite usar el mismo código en multitud de sistemas operativos gracias a que funciona internamente con un servidor HTML.
+En el cliente, extenderemos la funcionalidad de @qmk_xap. Este programa utiliza el framework Tauri, cuya filosofía es reutilizar el mismo código en diferentes sistemas. Esto se logra modelando la interfaz gráfica como una web e integrando dicha página en el binario, junto con un navegador para visualizarla.
+
+Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, evitamos tener que recompilar el backend (proceso lento) y obtenemos un lenguaje más sencillo de usar (TypeScript en vez de Rust), lo que agiliza el desarrollo de nuevas funcionalidades.
 
 === Instalación
-Para instalar Rust podemos usar pacman , sin embargo para desarrollar código es preferible usar un script que nos proporciona la comunidad del lenguaje, y que permite cambiar fácilmente la versión del lenguaje con la que compilamos, tan sólo necsitamos ejecutar
+Para el _backend_ podríamos instalar Rust directamente, pero se recomienda usar `rustup`, ya que permite gestionar las instalaciones. Con este instalador obtendremos la última versión del compilador para nuestro sistema y arquitectura.
 
-La comunicación con el teclado se realiza usando la librería hidapi @hidapi, a la que accedemos desde Rust gracias al wrapper @hidapi-rs que implementa una "pasarela" a la librería en C. Para instalarla tan solo necesitamos añadirla al archivo de nuestro proyecto
+Para el frontend, instalamos Node (intérprete de JavaScript) y lo usamos para instalar el gestor de paquetes `yarn`. Una vez hecho esto, podremos instalar las librerías necesarias.
+#cli(
+  ```bash
+  curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  rustup toolchain install stable
 
-Primero instalamos NodeJS con , después clonamos el repositorio @qmk_xap, usado de base (y en el que he colaborado) para desarrollar el software. Para instalar las dependencias de JavaScript ejecutamos . Ahora ya podemos correr para lanzar nuestro programa.
+  sudo apt update
+  sudo apt install nodejs
+  npm install --global yarn
 
-He tenido que desactivar la opción wgl(libreria de Windows para OpenGL) en VcXsrv para que funcionase
+  git clone https://github.com/qmk/qmk_xap
+  cd qmk_xap
+  yarn install
 
-=== Desarrollo
+  yarn run dev
+  ```,
+  caption: [Instalación de cliente XAP],
+)
 
-==== Escuchar nuestros mensajes
-Lo primero que vamo a añadir es la capacidad de poder recibir los mensajes que nos llegan desde el teclado, para ello definimos un struct que indique el formato del mensaje, podemos ver algo de código que no es necesario entender, lo importante son los dos `u16`
-
+=== Manejo de mensajes personalizados
+Lo primero que debemos hacer es definir, mediante un `enum`, cada tipo de mensaje que se puede recibir, identificado con un `u8`. El contenido de cada uno de dichos mensajes se define con un `struct`.
 #snippet(
   ```rust
+  // uno de los distintos mensajes que se van a recibir
   #[derive(BinRead, Debug)]
-  pub struct ReceivedUserBroadcast {
+  pub struct ScreenPressed {
       pub x: u16,
       pub y: u16,
   }
 
-  impl XAPBroadcast for ReceivedUserBroadcast {}
-  ```,
-  caption: [Definición de mensaje de usuario],
-)
+  //
+  // ... los demás mensajes ...
+  //
 
-Acto seguido, hacemos que el _eventloop_ de nuestra aplicación escuche los mensajes, ya que por defecto los ignora. Primero definimos un nuevo evento dentro del listado de tipos de evento
-
-#snippet(
-  ```rust
-  pub(crate) enum XAPEvent {
-      HandleUserBroadcast {
-          broadcast: BroadcastRaw,
-          id: Uuid,
-      },
-      // -- Otros eventos recortados --
+  // el tipo de mensaje recibido se indica en el primer byte de su contenido
+  // esta información la indicamos con el atributo `br(magic)`
+  // con el atributo `serde` seremos capaces de distinguir los mensajes en el frontend
+  #[derive(BinRead, Debug, Clone)]
+  #[serde(tag = "kind", content = "data")]
+  pub enum UserBroadcast {
+      #[br(magic = 0u8)]
+      ScreenPressed(ScreenPressed),
+      #[br(magic = 1u8)]
+      ScreenReleased(ScreenReleased),
+      #[br(magic = 2u8)]
+      LayerChanged(LayerChanged),
+      #[br(magic = 3u8)]
+      KeyEvent(KeyEvent),
   }
+
+  // necesario para conversión entre tipos
+  impl XapBroadcast for UserBroadcast {}
   ```,
-  caption: [Definición de nuevo evento],
+  caption: [Definición de los mensajes de usuario],
 )
 
-Añadimos el código necesario para publicar este nuevo tipo de evento al
-recibir los mensajes correspondientes
+A continuación, para que la aplicación pueda ejecutar lógica en base a estos mensajes, emitiremos un evento al recibirlos y tendremos código encargado de esperar y manejar dichos eventos en el frontend.
+#snippet(
+  ```diff
+  --- a/src-tauri/src/rpc/events.rs
+  +++ b/src-tauri/src/rpc/events.rs
+  @@ @@ pub enum XapEvent {
+       RemovedDevice {
+           id: Uuid,
+       },
+  +    UserBroadcast(xap_specs::broadcast::UserBroadcast),
+    }
+
+  --- a/src-tauri/src/xap/client.rs
+  +++ b/src-tauri/src/xap/client.rs
+  @@ @@ impl XapClient {
+            });
+        }
+        BroadcastType::Keyboard => error!("keyboard broadcasts are not implemented!"),
+  -     BroadcastType::User => error!("user broadcasts are not implemented!"),
+  +     BroadcastType::User => {
+  +         events.push(XapEvent::UserBroadcast(
+  +             broadcast.into_xap_broadcast()?,
+  +         ));
+  +     }
+    }
+  ```,
+  caption: [Evento de mensaje recibido],
+)
 
 #snippet(
-  ```rust
-  match broadcast.broadcast_type() {
-      BroadcastType::User => {
-          event_channel
-              .send(XAPEvent::ReceivedUserBroadcast { id, broadcast })
-              .expect("failed to send user broadcast event!");
-      }
-      // -- Otros tipos recortados --
+  ```ts
+  import mitt, { Emitter } from "mitt"
+
+  import { UserEvent } from "@generated/xap"
+
+  // de momento, un solo tipo de evento: mensaje recibido del teclado
+  type UserEvent = {
+      broadcast: UserBroadcast,
   }
-  ```,
-  caption: [Emitir evento al recibir mensaje],
-)
 
-Y por último hacemos la relación entre este evento la lógica de usuario
-que se debe ejecutar con ellos.
+  // nuestro bus de eventos
+  export const events: Emitter<UserEvent> = mitt<UserEvent>()
 
-#snippet(
-  ```rust
-  match broadcast.broadcast_type() {
-      // -- Otros eventos recortados --
-      Ok(XAPEvent::ReceivedUserBroadcast{broadcast, id}) => {
-          user::broadcast_callback(broadcast, id, &state);
+  // función que envía los eventos a la cola
+  async function xapHandler(event: XapEvent) {
+      if (event.kind == "UserBroadcast") {
+          events.emit("broadcast", event.data)
       }
   }
-  ```,
-  caption: [Manejo del evento],
-)
 
-Toda la lógica de usuario (personalizable), se puede encontrar en el archivo @user-rs
+  // registramos la función para que "escuche" en el bus de QMK
+  eventBus.on("xap", xapHandler)
 
-==== Correr aplicación en segundo plano
-Dado que todo el contenido de la pantalla, así como su funcionalidad al pulsarla dependen de nuestra aplicación, vamos a hacer todo lo posible para que se mantenga abierta. Para ello hacemos que al pulsar el boton de cerrar, la app se minimice en vez de terminar y le añadimos un _systray_ para tener un icono en la barra de tareas donde podamos volver a ponerla en pantalla
-
-#snippet(
-  ```rust
-  let tray_menu = SystemTrayMenu::new()
-      .add_item(CustomMenuItem::new("show".to_string(), "Show"))
-      .add_item(CustomMenuItem::new("hide".to_string(), "Hide"))
-      .add_native_item(SystemTrayMenuItem::Separator)
-      .add_item(CustomMenuItem::new("quit".to_string(), "Quit"));
-  ```,
-  caption: [Creación del _systray_],
-)
-
-#snippet(
-  ```rust
-  .system_tray(system_tray)
-  .on_system_tray_event(move |app, event|
-      match event {
-          // Al usar click izquierdo
-          SystemTrayEvent::MenuItemClick { id, .. } => {
-              // Segun boton usado
-              match id.as_str() {
-                  "hide" => app.get_window("main").unwrap().hide().unwrap(),
-                  "quit" => {
-                      user::on_close(_state.clone());
-                      std::process::exit(0);
-                  },
-                  "show" => app.get_window("main").unwrap().show().unwrap(),
-                  _ => {}
-              }
-          },
-          _ => {} // Otros eventos, no hacemos nada
-      }
+  // ahora podríamos suscribirnos a estos eventos
+  events.on("broadcast", (ev) => {
+    switch (ev.kind) {
+      // código
+    }
   )
   ```,
-  caption: [Añadir _systray_ al programa, con su logica],
+  caption: [Manejo del evento en frontend],
 )
 
+=== Variables de entorno
+Para proteger información sensible (contraseñas, IP, tokens, ...) y evitar que aparezca en el código, almacenaremos estos parámetros como variables de entorno. Este método es bastante común y robusto, pero supone un problema en nuestra aplicación ya que el frontend no tiene acceso al sistema. La solución consiste en desarrollar un pequeño plugin para Tauri (en el directorio `tauri-plugin-env/` del repositorio), gracias al cual podremos solicitar la información al backend. Obviando pequeños detalles, el código se reduce a:
 #snippet(
-  ```rust
-  .on_window_event(
-      |event| match event.event() {
-          tauri::WindowEvent::CloseRequested { api, .. } => {
-              event.window().hide().unwrap();
-              api.prevent_close()
-          },
-          _ => {} // Otros eventos, no hacemos nada
-      }
-  )
-  ```,
-  caption: [Interceptar señal de cierre de ventana],
-)
+  ```rs
+  // función invocada para obtener una variable
+  #[tauri::command]
+  async fn get<R: Runtime>(key: String, _app: AppHandle<R>) -> Result<String, String> {
+      let ret = std::env::var(key).map_err(|e| e.to_string())?;
 
-==== Indicador de conexión
-Vamos a añadir también un indicador en la pantalla, de forma que Tauri nos haga saber cuando se conecta o desconecta del teclado, evitando que intentemos usar la pantalla cuando no va a funcionar. Editamos el eventlooop y definimos las nuevas funciones
+      Ok(ret)
+  }
+
+  // configurar plugin, cargando opcionalmente un archivo `.env`
+  pub fn init<R: Runtime>() -> TauriPlugin<R> {
+    #[cfg(feature = "dotenv")]
+    let _ = dotenvy::dotenv();
+
+    Builder::new("env")
+        .invoke_handler(tauri::generate_handler![get])
+        .setup(|app, _| {
+            app.manage(EnvState::default());
+            Ok(())
+        })
+        .build()
+  }
+  ```,
+  caption: [Plugin para leer variables de entorno],
+)
 
 #snippet(
   ```diff
-  match msg {
-      Ok(XAPEvent::Exit) => {
-          info!("received shutdown signal, exiting!");
-  +       user::on_close(state);
-          break 'event_loop;
-      },
-      Ok(XAPEvent::NewDevice(id)) => {
-          if let Ok(device) = state.lock().get_device(&id){
-              info!("detected new device - notifying frontend!");
-  +           user::on_device_connection(device);
-          }
-      }
-
+  --- a/src-tauri/src/main.rs
+  +++ b/src-tauri/src/main.rs
+  @@ @@
+      tauri::Builder::default()
+          .invoke_handler(specta_builder.invoke_handler())
+          .plugin(shutdown_event_loop());
+  +       .plugin(tauri_plugin_env::init())
+          .setup(move |app| {
   ```,
-  caption: [Hooks de usuario],
+  caption: [Instalar plugin en Tauri],
 )
 
-
-==== Arrancar HomeAssistant
-Dado que nuestro programa se tiene que comunicar con la domótica de casa, vamos a asegurarnos de que esté ejecutándose, iniciándolo al abrir el programa.
-
-Al arrancar la aplicación ejecutamos:
 #snippet(
-  ```rust
-  pub(crate)fn on_init() {
-      match std::process::Command::new("sh")
-          .arg("-c")
-          .arg(r#"sudo systemctl start docker
-                  && cd $HOME/docker
-                  && docker compose up -d"#)
-          .output()
-      {
-          Ok(_) => error!("on_init went correctly"),
-          Err(out) => error!("on_init failed due to: {out}")
+  ```ts
+  import { invoke } from "@tauri-apps/api/core"
+
+  type Result<T, E> =
+      | {status: "ok", data: T}
+      | {status: "error", error: E}
+
+  export async function get(key: string): Promise<Result<string, string>> {
+      try {
+        return {status: "ok", data: await invoke("plugin:env|get", { key }) }
+      } catch (e) {
+        return {status: "error", error: e as any}
       }
   }
   ```,
-  caption: [Hook de inicio],
+  caption: [TypeScript para invocar el comando del plugin],
 )
+
+#if (config.render_todos) {
+  todo("Añadir imagen/video IRL")
+}
