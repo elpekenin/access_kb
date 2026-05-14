@@ -1,4 +1,4 @@
-#import "config.typ"
+#import "vars.typ"
 #import "glossary.typ": glossary
 #import "images.typ": images
 #import "tools.typ": tools
@@ -32,4 +32,20 @@
   )
 
   return __code(_source, caption, "cmd", "Comando")
+}
+
+#let alignment(value) = {
+  return if calc.even(value) { left } else { right }
+}
+
+#let nest-level = state("nest-level", 0)
+
+#let h(title, body) = context {
+  nest-level.update(level => level + 1)
+  let level = nest-level.get() + 1
+
+  heading(level: level)[#title]
+  body
+
+  nest-level.update(level => level - 1)
 }

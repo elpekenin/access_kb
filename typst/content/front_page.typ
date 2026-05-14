@@ -1,10 +1,10 @@
-#import "@elpekenin/tfm:0.1.0": config, images
+#import "@elpekenin/tfm:0.1.0": images, vars
 
 #page[
   #align(center + horizon)[#images.front]
 
   #align(center)[
-    #text(size: 25pt, weight: "bold")[#config.title]
+    #text(size: 19pt, weight: "bold")[#vars.title]
   ]
 
   #align(bottom + right)[
@@ -15,7 +15,7 @@
 
       Máster Universitario en Ingeniería de Telecomunicación
 
-      #datetime.today().display(config.date_format)
+      #datetime.today().display(vars.date_format)
     ]
   ]
 ]

@@ -4,6 +4,7 @@
   colemak: image("images/colemak.png"),
   dvorak: image("images/dvorak.jpg"),
   dygma_raise: image("images/dygma.jpg"),
+  elgato: image("images/elgato.jpg", width: 30%),
   ergodox: image("images/ergodox.jpg"),
   front: image("images/UPCT-front.jpg"),
   ghosting: image("images/ghosting.png", width: 45%),

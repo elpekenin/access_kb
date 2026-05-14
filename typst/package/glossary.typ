@@ -2,6 +2,11 @@
 
 #let glossary = (
   (
+    key: "__ble",
+    short: "BLE",
+    long: "Bluetooth Low Energy",
+  ),
+  (
     key: "__cli",
     short: "CLI",
     long: "Command Line Interface",
@@ -35,16 +40,6 @@
     key: "__pcb",
     short: "PCB",
     long: "Printed Circuit Board",
-  ),
-  (
-    key: "__piso",
-    short: "PISO",
-    long: "Parallel In - Serial Out",
-  ),
-  (
-    key: "__sipo",
-    short: "SIPO",
-    long: "Serial In - Parallel Out",
   ),
   (
     key: "__spi",

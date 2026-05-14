@@ -1,20 +1,8 @@
 #import "@preview/big-todo:0.2.0": todo, todo_outline
 #import "@preview/codly:1.3.0": codly, codly-init
-#import "@preview/glossarium:0.5.4": (
-  make-glossary,
-  register-glossary,
-  print-glossary,
-)
-#import "@preview/hydra:0.6.1": hydra
+#import "@preview/glossarium:0.5.4": make-glossary, print-glossary, register-glossary
 
-#import "@elpekenin/tfm:0.1.0": cli, config, snippet, glossary, images, tools
-
-//
-// functions
-//
-#let alignment(value) = {
-  return if calc.even(value) { left } else { right }
-}
+#import "@elpekenin/tfm:0.1.0": alignment, cli, glossary, h, images, snippet, tools, vars
 
 //
 // rendering config
@@ -24,11 +12,20 @@
   paper: "a4",
   margin: (y: 6em),
   header: context {
-    let page = here().page()
-    let location = hydra(use-last: true)
+    let here = here()
+    let page = here.page()
 
-    if location != none {
-      align(alignment(page), emph(location))
+    let prev = query(selector(heading).before(here)).last(default: none)
+    let next = query(selector(heading).after(here)).first(default: none)
+
+    // if we have a previous heading to shown as "current section"
+    // ... and the next section does not start on the current page
+    // -> show current section (prev heading) at the top of the page
+    if prev != none and (next == none or next.location().page() != page) {
+      align(alignment(page))[
+        #counter(heading).display(prev.numbering)
+        #prev.body
+      ]
       line(length: 100%)
     }
   },
@@ -68,8 +65,13 @@
 #set outline.entry(fill: block(width: 100% - 1.5em)[ #repeat(" . ")])
 
 #show bibliography: set heading(numbering: "1.")
+
+// https://forum.typst.app/t/how-to-pagebreak-before-an-heading-only-if-a-certain-condition-is-achieved/1691/17
 #show heading.where(level: 1): it => {
-  pagebreak(weak: true) + it
+  let threshold = 80%
+  block(breakable: false, height: threshold)
+  v(-threshold, weak: true)
+  it
 }
 #show: make-glossary
 #show: codly-init.with()
@@ -98,7 +100,11 @@
 
 #page([])
 
-#if (config.render_todos) {
+#h[Agradecimientos][
+  #include "content/acknowledgements.typ"
+]
+
+#if (vars.render_todos) {
   todo_outline
 }
 
@@ -106,7 +112,7 @@
 #outline(depth: 2)
 
 // list images
-#if (config.render_images) {
+#if (vars.render_images) {
   outline(
     target: figure.where(kind: image),
     title: [Listado de imágenes],
@@ -114,7 +120,7 @@
 }
 
 // list code blocks
-#if (config.render_code) {
+#if (vars.render_code) {
   outline(
     target: figure.where(kind: "snippet"),
     title: [Listado de código],
@@ -122,7 +128,7 @@
 }
 
 // list command blocks
-#if (config.render_commands) {
+#if (vars.render_commands) {
   outline(
     target: figure.where(kind: "cmd"),
     title: [Listado de comandos],
@@ -148,60 +154,65 @@
 
 <__start__>
 
-= Resumen
-#include "content/summary.typ"
-
-= Estado del arte
-#include "content/state_of_the_art.typ"
-
-= Diseño hardware
-#include "content/hardware.typ"
-
-= Implementación firmware
-#include "content/firmware.typ"
-
-= Software en ordenador
-#include "content/software.typ"
-
-= Lineas futuras
-#if (config.render_todos) {
-  todo("Desarrollar")
-}
-
-He detectado varios fallos a mejorar en revisiones de la PCB:
-- Añadir test points
-- Mount points para los tornillos, mayor diámetro
-- Exponer los pines usados para buses SPI
-- Usar pantalla capacitiva
-- Reubicar las pantallas zona central (no debajo muñecas)
-- Posicion jack TRRS
-- Usar LVGL para interfaces mas complejas
-- Usar pines para backlight, en vez de conectar a VCC
-
-= Anexo I: Instalación de MicroPython
-#include "content/micropython.typ"
-
-= Anexo II. Código fuente del informe.
-Aquín se puede ver las primeras líneas del código fuente con el que he generado este documento. He utilizado un lenguaje llamado Typst, que es un proyecto en desarrollo que intenta ser un reemplazo moderno para LaTeX.
-
-#text(size: 8pt)[
-  #raw(
-    read("main.typ")
-      .split("\n")
-      .slice(0, count: config.source_lines)
-      .join("\n"),
-    lang: "typst",
-  )
+#h[Resumen][
+  #include "content/summary.typ"
 ]
 
-#align(right)[
-  #text(weight: "bold", style: "italic")[
-    Compilado con Typst #sys.version
+#h[Estado del arte][
+  #include "content/state_of_the_art.typ"
+]
+
+#h[Diseño hardware][
+  #include "content/hardware.typ"
+]
+
+#h[Implementación firmware][
+  #include "content/firmware.typ"
+]
+
+#h[Software en ordenador][
+  #include "content/software.typ"
+]
+
+#h[Lineas futuras][
+  #if (vars.render_todos) {
+    todo("Desarrollar")
+  }
+
+  He detectado varios fallos a mejorar en revisiones de la PCB:
+  - Añadir test points
+  - Mount points para los tornillos, mayor diámetro
+  - Exponer los pines usados para buses SPI
+  - Usar pantalla capacitiva
+  - Reubicar las pantallas zona central (no debajo muñecas)
+  - Posicion jack TRRS
+  - Usar LVGL para interfaces mas complejas
+  - Usar pines para backlight, en vez de conectar a VCC
+]
+
+// = Anexo I: Instalación de MicroPython
+// #include "content/micropython.typ"
+
+#h[Anexo I. Código fuente del informe][
+  Aquí se pueden ver las primeras líneas del código fuente con el que he generado este documento. He utilizado un lenguaje llamado Typst, que es un proyecto en desarrollo que intenta ser un reemplazo moderno para LaTeX.
+
+  #text(size: 8pt)[
+    #raw(
+      read("main.typ").split("\n").slice(0, count: vars.source_lines).join("\n"),
+      lang: "typst",
+    )
+  ]
+
+  #align(right)[
+    #text(weight: "bold", style: "italic")[
+      Compilado con Typst #sys.version
+    ]
   ]
 ]
 
 // Bibliography
 #bibliography(
   "bibliography.yml",
-  title: "Bibliografía",
+  title: "Enlaces",
+  style: "american-physics-society",
 )

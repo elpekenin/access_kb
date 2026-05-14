@@ -1,5 +1,9 @@
 //! underscores to prevent collisions with bibliography ids
 
+#import "@preview/big-todo:0.2.0": todo
+
+#todo[Migrar tools a bibliografía]
+
 #let tools = (
   (
     key: "__cmake",

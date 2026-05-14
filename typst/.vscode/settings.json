@@ -1,0 +1,8 @@
+{
+    "[typst]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "myriad-dreamin.tinymist"
+    },
+    "tinymist.lint.enabled": true,
+    "tinymist.lint.when": "onSave",
+}
