@@ -7,7 +7,7 @@ MicroPython es una implementación en C del lenguaje Python diseñada para su us
 == Compilar para RP2040
 Primero instalamos la toolchain para la arquitectura del procesador, en este caso `arm-none-eabi-gcc`, el comando para hacer esto varía según el gestor de paquetes de la distribución utilizada.
 
-Cabe destacar que podemos añadir más código al firmware. Por ejemplo, en las pruebas realizadas, añadí configuración para reportar y usar un endpoint HID -es decir: funcionar como un teclado- siguiendo y adaptando la información encontrada en @tusb-rp2:
+Cabe destacar que podemos añadir más código al firmware. Por ejemplo, en las pruebas realizadas, añadí configuración para reportar y usar un endpoint @hid -es decir: funcionar como un teclado- siguiendo y adaptando la información encontrada en @tusb-rp2:
 - Definimos en C el módulo @mod-usb-hid, lo más importante del código es el uso de `MP_REGISTER_MODULE` para que podamos hacer `import` sobre él.
 - Editar configuración del sistema de compilación (CMake), para que añada el nuevo archivo
 #snippet(
@@ -35,12 +35,12 @@ Por último, compilamos el binario
 
 Y ya podremos flashear este binario en nuestra placa de desarrollo, para RP2040 esto es tan simple como copiar el archivo UF2.
 
-A partir de aquí podemos usar algún IDE para modificar el código en el sistema de archivos interno del dispositivo, sin necesidad de compilar otra vez.
+A partir de aquí podemos usar algún @ide para modificar el código en el sistema de archivos interno del dispositivo, sin necesidad de compilar otra vez.
 
 == Probar en Linux
 Si queremos hacer pruebas en un ordenador, podemos compilarlo de forma similar, pero haciendo `cd` a `ports/unix`.
 
-Esto sería útil para comprobar si el código que queremos emplear (por ejemplo, alguna librería) funcionará en nuestra MCU, ya que MicroPython implementa un *sub*-conjunto de CPython (implementación estándar del lenguaje)
+Esto sería útil para comprobar si el código que queremos emplear (por ejemplo, alguna librería) funcionará en nuestra @mcu, ya que MicroPython implementa un *sub*-conjunto de CPython (implementación estándar del lenguaje)
 
 Una vez compilado, podremos ejecutarlo como haríamos con la versión "normal".
 #cli(

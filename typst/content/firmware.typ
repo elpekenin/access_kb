@@ -4,8 +4,8 @@
 
 Gracias al uso de un framework que proporciona las bases para crear el firmware del teclado, solo tendremos que desarrollar los aspectos específicos para nuestro hardware, detallados en esta sección. Para que este código adicional se incluya en el binario final, será necesario modificar la configuración de `make` para indicar la ubicación de nuestros archivos o añadir opciones extra al compilador, lo cual se explicará en las siguientes secciones.
 
-#h[Instalacion][
-  Para poder usar QMK, instalamos su CLI y la utilizamos para clonar el repositorio de código fuente e instalar los compiladores y herramientas necesarios. Después, también podemos comprobar la instalación:
+#h[Instalación][
+  Para poder usar QMK, instalamos su @cli y la utilizamos para clonar el repositorio de código fuente e instalar los compiladores y herramientas necesarios. Después, también podemos comprobar la instalación:
   #cli(
     ```bash
     $ pip install --user qmk
@@ -24,14 +24,14 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
   )
 ]
 
-#h[Multi-bus SPI][
-  Dado que QMK no proporciona soporte para configurar varios buses SPI al mismo tiempo, es necesario adaptar el código para ello. Se realiza una copia del archivo `platforms/chibios/drivers/spi_master.c`, modificando las variables existentes para convertirlas en arrays, de forma que puedan almacenar el estado de los distintos buses en vez de una sola configuración.
+#h[Multi-bus @spi][
+  Dado que QMK no proporciona soporte para configurar varios buses @spi al mismo tiempo, es necesario adaptar el código para ello. Se realiza una copia del archivo `platforms/chibios/drivers/spi_master.c`, modificando las variables existentes para convertirlas en arrays, de forma que puedan almacenar el estado de los distintos buses en vez de una sola configuración.
 
   Para compilar este nuevo archivo, añadimos `SRC += spi_custom.c` a `rules.mk` y creamos una cabecera `spi_custom.h` para que los módulos que utilicen esta funcionalidad conozcan las funciones disponibles en nuestro código.
 ]
 
 #h[Escaneo de teclas][
-  Como hemos visto anteriormente, usaremos registros de desplazamiento para la lectura de teclas. Dado que QMK no provee soporte para esta configuración, escribimos un poco de código para configurar el bus SPI y usarlo para escanear las teclas.
+  Como hemos visto anteriormente, usaremos registros de desplazamiento para la lectura de teclas. Dado que QMK no provee soporte para esta configuración, escribimos un poco de código para configurar el bus @spi y usarlo para escanear las teclas.
   #snippet(
     ```c
     #include "spi_custom.h"
@@ -270,7 +270,7 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
     caption: [Lectura de coordenadas del XPT2046],
   )
 
-  Otro factor importante es que es posible cambiar la configuración del sensor a la vez que lo leemos. Debido a esto, no podemos usar la función `spi_read()` para obtener el dato del sensor porque internamente envía un mensaje con todos los bits a 1 y lo desconfigura. En su lugar, escribimos un `0` para mantener el sensor en servible y el valor que nos llega la vez es nuestra lectura.
+  Otro factor importante es que es posible cambiar la configuración del sensor a la vez que lo leemos. Debido a esto, no podemos usar la función `spi_read()` para obtener el dato del sensor porque internamente envía un mensaje con todos los bits a 1 y lo desconfigura. En su lugar, escribimos un `0` para mantener el sensor en servicio y el valor que nos llega la vez es nuestra lectura.
   #snippet(
     ```c
     static int16_t read_coord(uint8_t cmd, spi_touch_comms_config_t comms_config) {
@@ -297,25 +297,115 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
 ]
 
 #h[Comunicación con ordenador][
+  Para intercambiar mensajes entre dispositivos utilizaremos @xap (⚠ aún en desarrollo). Este protocolo, definido por QMK, funciona encima de @hid y permite el intercambio de información. Lo más importante es que evita problemas con los drivers del sistema operativo porque usa un endpoint adicional; es decir, utiliza un flujo de datos *independiente* de la comunicación convencional del teclado para reportar el estado de las teclas
+
+  Los mensajes que se reciben en el teclado, para lanzar acciones o leer información se definen en el archivo `xap.hjson` #footnote[Hjson @hjson es un super-set de JSON más fácil de usar]. Por ejemplo, un mensaje para que el programa pueda descubrir el tamaño de una pantalla:
   #snippet(
     ```json
-    {
-      "routes": {
-        "0x01": {
-          "type": "command",
-          "name": "Capabilities Query",
-          "define": "CAPABILITIES_QUERY_USER",
-          "description": "User subsystem capabilities query. Each bit should be considered as a 'usable' route within this subsystem.",
-          "return_type": "u32",
-          "return_purpose": "capabilities",
-          "return_constant": "XAP_ROUTE_USER_CAPABILITIES"
-        },
-
-        // ... otros mensajes
+    // identificador del mensaje
+    "0x0D": {
+      // información varia como un nombre y descripción
+      "type": "command",
+      "name": "get_geometry",
+      "define": "GET_GEOMETRY",
+      "description": "Expose `qp_get_geometry`",
+      // definimos el contenido del mensaje enviado por el ordenador
+      // desglosando los parametros que lo componen
+      "request_type": "struct",
+      "request_struct_length": 10,
+      "request_struct_members": [
+          {
+            // nombre (identificador) de la pantalla en la que se quiere operar, máximo 9 letras
+            "type": "u8[9]",
+            "name": "device_name",
+          },
+          {
+            // siempre será '\0` - convenio en C delimitar el fin de un texto
+            "type": "u8",
+            "name": "dev_terminator",
+          },
+      ],
+      // función que se ejecuta en el teclado al recibir este mensaje
+      "return_execute": "qp_get_geometry",
+    }
     ```,
     caption: [
-      Definición de mensajes XAP
-      #footnote[NOTA: QMK utiliza Hjson @hjson para este archivo. Lo he convertido a JSON para mostrarlo en el informe]
+      Definición de mensaje XAP enviado por el ordenador
+      #footnote[Equivalente en JSON, para tener marcado de sintaxis en el informe]
     ],
   )
+
+  Lógica para responder a un mensaje
+  #snippet(
+    ```c
+    bool xap_execute_qp_get_geometry(
+      xap_token_t token,
+      // como podemos ver, QMK genera un `struct` a partir de nuestras definiciones
+      // recibimos la información lista para usar, en vez de leer byte a byte el mensaje
+      xap_route_user_quantum_painter_get_geometry_arg_t *arg
+    ) {
+      // función común a todos los mensajes, hace 2 cosas:
+      //   - manda mensaje ACK al ordenador
+      //   - almacena el tiempo actual (para saber cuándo se recibió el último mensaje)
+      xap_preprocess(token);
+
+      // preparamos las variables donde se almacenarán los datos
+      painter_rotation_t rotation;
+      uint16_t           width;
+      uint16_t           height;
+      uint16_t           offset_x;
+      uint16_t           offset_y;
+
+      // nuestro código que permite identificar pantallas con un nombre que configuramos
+      const painter_device_t device = get_device_by_name((const char *)arg->device_name);
+      if (device != NULL) {
+        // pedimos a QMK la información de la pantalla
+        qp_get_geometry(device, &width, &height, &rotation, &offset_x, &offset_y);
+
+        // la enviamos al ordenador, los u16 representados en little-endian
+        uint8_t ret[9] = {
+          lsb(width), msb(width),
+          lsb(height), msb(height),
+          rotation,
+          lsb(offset_x), msb(offset_x),
+          lsb(offset_y), msb(offset_y)
+        };
+        xap_send(token, XAP_RESPONSE_FLAG_SUCCESS, (const void *)ret, sizeof(ret));
+      }
+
+      return true;
+    }
+    ```,
+    caption: [Manejo de un mensaje XAP],
+  )
+
+  Además, podemos enviar mensajes en cualquier momento usando la función `xap_broadcast_user`. Este es el mecanismo que utilizamos para informar del estado de la pantalla táctil, en vez de que el programa esté constantemente preguntando, el teclado se encarga de enviar un mensaje cada vez que haya un cambio
+  #snippet(
+    ```c
+    // enviar un identificador del sensor permite diseños multi-sensor en un futuro
+
+    void xap_screen_pressed(uint8_t screen_id, touch_report_t report) {
+      const screen_pressed_msg_t msg = {
+        .msg_id    = SCREEN_PRESSED,
+        .screen_id = screen_id,
+        .x         = report.x,
+        .y         = report.y,
+      };
+
+      xap_broadcast_user(&msg, sizeof(msg));
+    }
+
+    void xap_screen_released(uint8_t screen_id) {
+      const screen_released_msg_t msg = {
+        .msg_id    = SCREEN_RELEASED,
+        .screen_id = screen_id,
+      };
+
+      xap_broadcast_user(&msg, sizeof(msg));
+    }
+    ```,
+    caption: [Envío de mensaje XAP desde teclado],
+  )
 ]
+
+#todo[UI code]

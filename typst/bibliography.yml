@@ -2,6 +2,15 @@ ahk:
   type: blog
   title: AutoHotkey
   url: https://www.autohotkey.com
+chibios:
+  type: blog
+  title: ChibiOS
+  url: https://www.chibios.org/dokuwiki/doku.php
+cmake:
+  type: blog
+  title: CMake
+  url: https://cmake.org
+  note: Sistema para compilado de código
 ellipse-pr:
   type: blog
   title: Nuevo algoritmo para dibujar elipses
@@ -15,22 +24,58 @@ ghoul:
   title: Teclado ghoul
   author: tzarc
   url: https://github.com/tzarc/ghoul
+hasst:
+  type: blog
+  title: Home Assistant
+  url: https://www.home-assistant.io
+  note: Gestor de domótica
 hjson:
   type: blog
   title: Hjson
   url: https://hjson.github.io
+hw-qmk:
+  type: blog
+  title: Hardware soportado por QMK
+  url: https://docs.qmk.fm/compatible_microcontrollers
+hw-zmk:
+  type: blog
+  title: Hardware soportado por ZMK
+  url: https://zmk.dev/docs/hardware
 ili9488:
   type: blog
   title: Driver para ili9488
   url: https://github.com/qmk/qmk_firmware/blob/master/drivers/painter/ili9xxx/qp_ili9488.c
+kicad:
+  type: blog
+  title: KiCad
+  url: https://www.kicad.org
 kmk:
   type: blog
   title: KMK
   url: https://github.com/KMKfw/kmk_firmware
+lufa:
+  type: blog
+  title: LUFA
+  url: https://github.com/abcminiuser/lufa
+lvgl:
+  type: blog
+  title: LVGL
+  url: https://lvgl.io
+  note: Librería de gráficos para entornos embedidos
 macro-deck:
   type: blog
   title: Macro Deck
   url: https://macro-deck.app
+marbastlib:
+  type: blog
+  title: marbastlib
+  url: https://github.com/ebastler/marbastlib
+  note: Librería de componentes para teclados en KiCad
+micropython:
+  type: blog
+  title: MicroPython
+  url: https://micropython.org
+  note: Implementacion de Python para sistemas embedidos
 mod-usb-hid:
   type: blog
   title: Módulo para usar HID en MicroPython
@@ -46,7 +91,7 @@ qgf:
 qmk:
   type: blog
   title: Quantum Mechanical Keyboard (QMK)
-  url: https:///qmk.fm
+  url: https://qmk.fm
 qmk_xap:
   type: blog
   title: qmk_xap
@@ -60,15 +105,44 @@ rmk:
   type: blog
   title: RMK
   url: https://rmk.rs
+rp2040:
+  type: blog
+  title: RP2040
+  url: https://www.raspberrypi.com/products/rp2040
+rust:
+  type: blog
+  title: Rust
+  url: https://www.rust-lang.org
+  note: Lenguaje de programación
 smart-keymap:
   type: blog
   title: smart-keymap
   url: https://github.com/rgoulter/smart-keymap
+tauri:
+  type: blog
+  title: Tauri
+  url: https://tauri.app
+  note: Librería para aplicaciones multi-plataforma
 tusb-rp2:
   type: blog
   title: Añadir HID a RP2040 en MicroPython
   author: noobee
   url: https://github.com/noobee/micropython/tree/usb-hid
+typst:
+  type: blog
+  title: typst
+  url: https://typst.app
+  note: Lenguaje de marcado para elaborar documentos
+uf2:
+  type: blog
+  title: UF2
+  url: https://github.com/microsoft/uf2
+  note: Formato de archivos usado para bootloaders
+wsl:
+  type: blog
+  title: WSL
+  url: https://learn.microsoft.com/windows/wsl/about
+  note: Herramienta de Microsoft para virtualizar Linux en Windows
 xap:
   type: blog
   title: XAP, protocolo extensible de QMK
@@ -77,6 +151,10 @@ xap-specs:
   type: blog
   title: Especificación del protocolo XAP
   url: https://github.com/qmk/qmk_firmware/blob/xap/docs/xap_protocol.md
+zephyr:
+  type: blog
+  title: Zephyr RTOS
+  url: https://www.zephyrproject.org/
 zmk:
   type: blog
   title: ZMK

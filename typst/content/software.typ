@@ -6,9 +6,7 @@ La idea principal es que el ordenador actúe como el orquestador del sistema.
 - Por un lado, recibirá eventos del teclado, como una pulsación en la pantalla táctil, para ejecutar acciones tales como encender una luz.
 - Por otro, se podrán monitorizar valores como la temperatura o la previsión de precipitaciones y mostrarlos en pantalla.
 
-Para comunicar el ordenador con el teclado utilizaremos @xap (⚠ aún en desarrollo). Este protocolo, definido por QMK, funciona sobre HID y permite el intercambio de información arbitraria. Lo más importante es que evita problemas con los drivers del sistema operativo utilizando un endpoint adicional; es decir, se dispone de un segundo flujo de datos independiente de la comunicación convencional de "el usuario ha pulsado esta tecla".
-
-En el cliente, extenderemos la funcionalidad de @qmk_xap. Este programa utiliza el framework Tauri, cuya filosofía es reutilizar el mismo código en diferentes sistemas. Esto se logra modelando la interfaz gráfica como una web e integrando dicha página en el binario, junto con un navegador para visualizarla.
+Como hemos comentado anteriormente, usaremos XAP @xap la comunicación entre teclado y ordenador, entendiendo el cliente oficial de QMK: `qmk_xap` @qmk_xap. Este programa utiliza el framework Tauri @tauri, para reutilizar el mismo código en diferentes sistemas (Mac, Windows, Android, etc). Esto se logra modelando la interfaz gráfica como una web e integrando dicha página en el binario, junto con un navegador para visualizarla.
 
 Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, evitamos tener que recompilar el backend (proceso lento) y obtenemos un lenguaje más sencillo de usar (TypeScript en vez de Rust), lo que agiliza el desarrollo de nuevas funcionalidades.
 
@@ -137,10 +135,11 @@ Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, e
 ]
 
 #h[Variables de entorno][
-  Para proteger información sensible (contraseñas, IP, tokens, ...) y evitar que aparezca en el código, almacenaremos estos parámetros como variables de entorno. Este método es bastante común y robusto, pero supone un problema en nuestra aplicación ya que el frontend no tiene acceso al sistema. La solución consiste en desarrollar un pequeño plugin para Tauri (en el directorio `tauri-plugin-env/` del repositorio), gracias al cual podremos solicitar la información al backend. Obviando pequeños detalles, el código se reduce a:
+  Para proteger información sensible (contraseñas, IP, tokens, ...), la almacenamos como variables de entorno que leeremos desde el frontend a través de un plugin.
+
+  Implementamos el plugin
   #snippet(
     ```rs
-    // función invocada para obtener una variable
     #[tauri::command]
     async fn get<R: Runtime>(key: String, _app: AppHandle<R>) -> Result<String, String> {
       let ret = std::env::var(key).map_err(|e| e.to_string())?;
@@ -148,8 +147,9 @@ Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, e
       Ok(ret)
     }
 
-    // configurar plugin, cargando opcionalmente un archivo `.env`
+    // inicialización del plugin
     pub fn init<R: Runtime>() -> TauriPlugin<R> {
+      // funcionalidad opcional para leer un archivo `.env`
       #[cfg(feature = "dotenv")]
       let _ = dotenvy::dotenv();
 
@@ -165,6 +165,7 @@ Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, e
     caption: [Plugin para leer variables de entorno],
   )
 
+  Y lo añadimos a nuestra aplicación
   #snippet(
     ```diff
     --- a/src-tauri/src/main.rs
@@ -176,9 +177,10 @@ Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, e
     +       .plugin(tauri_plugin_env::init())
             .setup(move |app| {
     ```,
-    caption: [Instalar plugin en Tauri],
+    caption: [Añadir plugin],
   )
 
+  Por último, lo usamos en el frontend con la siguiente función
   #snippet(
     ```ts
     import { invoke } from "@tauri-apps/api/core"
@@ -195,7 +197,7 @@ Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, e
       }
     }
     ```,
-    caption: [TypeScript para invocar el comando del plugin],
+    caption: [Ejecutar plugin desde frontend],
   )
 
   #todo[Añadir imagen/video IRL]

@@ -1,7 +1,6 @@
 #import "vars.typ"
 #import "glossary.typ": glossary
 #import "images.typ": images
-#import "tools.typ": tools
 
 #let __code(
   source,

@@ -1,16 +1,14 @@
 #import "@preview/big-todo:0.2.0": todo, todo_outline
 #import "@preview/codly:1.3.0": codly, codly-init
-#import "@preview/glossarium:0.5.4": make-glossary, print-glossary, register-glossary
+#import "@preview/glossarium:0.5.10": make-glossary, print-glossary, register-glossary
 
-#import "@elpekenin/tfm:0.1.0": alignment, cli, glossary, h, images, snippet, tools, vars
+#import "@elpekenin/tfm:0.1.0": alignment, cli, glossary, h, images, snippet, vars
 
-//
-// rendering config
-//
 #set heading(numbering: "1.")
 #set page(
   paper: "a4",
   margin: (y: 6em),
+  // show current section's title
   header: context {
     let here = here()
     let page = here.page()
@@ -29,12 +27,13 @@
       line(length: 100%)
     }
   },
+  // page counter with a progress bar
   footer: context {
     text(8pt)[
       #counter(page).display(
         both: true,
         (current, total) => {
-          if (current <= locate(<__start__>).page()) {
+          if (current <= locate(<__content_start>).page()) {
             return
           }
 
@@ -80,7 +79,6 @@
 // configure packages
 //
 #register-glossary(glossary)
-#register-glossary(tools)
 #codly(
   languages: (
     bash: (name: "Bash", icon: "🐧", color: rgb("#CACACA")),
@@ -136,7 +134,7 @@
 }
 
 // acronyms
-#heading("Listado de acronimos", outlined: false, numbering: none)
+#heading("Listado de acrónimos", outlined: false, numbering: none)
 // TODO: avoid centered text
 #print-glossary(
   glossary,
@@ -144,15 +142,7 @@
   disable-back-references: true,
 )
 
-// list languages and tools
-#heading("Lenguajes y herramientas", outlined: false, numbering: none)
-#print-glossary(
-  tools,
-  show-all: true,
-  disable-back-references: true,
-)
-
-<__start__>
+<__content_start>
 
 #h[Resumen][
   #include "content/summary.typ"
@@ -162,32 +152,31 @@
   #include "content/state_of_the_art.typ"
 ]
 
-#h[Diseño hardware][
+#h[Hardware][
   #include "content/hardware.typ"
 ]
 
-#h[Implementación firmware][
+#h[Firmware][
   #include "content/firmware.typ"
 ]
 
-#h[Software en ordenador][
+#h[Software integración][
   #include "content/software.typ"
 ]
 
-#h[Lineas futuras][
-  #if (vars.render_todos) {
-    todo("Desarrollar")
-  }
-
-  He detectado varios fallos a mejorar en revisiones de la PCB:
-  - Añadir test points
-  - Mount points para los tornillos, mayor diámetro
-  - Exponer los pines usados para buses SPI
-  - Usar pantalla capacitiva
+#h[Líneas futuras][
+  Ha habido varios fallos a tener en cuenta para no repetir en próximos diseños
+  - No se añadieron test points puesto que el diseño es relativamente sencillo. Por suerte no hubo problemas que solventar y no hicieron falta, pero definitivamente deben incorporarse
+  - Otro pequeño problema fue la elección de mount points de 2mm para anclar la placa a la caja, ya que encontrar tornillos M2 es más complicado que M3
+  - A la hora de exponer los @gpio y alimentación, por un descuido, no se hizo lo mismo con los pines @sck, @miso y @mosi. Esto implica que si se quiere usar la extensibilidad de la placa para conectar un dispositivo @spi... No se puede
   - Reubicar las pantallas zona central (no debajo muñecas)
-  - Posicion jack TRRS
-  - Usar LVGL para interfaces mas complejas
-  - Usar pines para backlight, en vez de conectar a VCC
+  - Posición jack TRRS
+
+  Por otro lado, hay cosas que no se han hecho en este prototipo, para simplificar el proyecto, pero que se pueden mejorar
+  - Pin(es) para backlight, en vez de VCC
+  - Pantalla capacitiva
+  - LVGL
+  - Wireless (ESP/NRF, batería, zmk)
 ]
 
 // = Anexo I: Instalación de MicroPython
@@ -205,7 +194,7 @@
 
   #align(right)[
     #text(weight: "bold", style: "italic")[
-      Compilado con Typst #sys.version
+      Informe generado con Typst #sys.version
     ]
   ]
 ]
