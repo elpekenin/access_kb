@@ -171,9 +171,6 @@
   #include "content/future.typ"
 ]
 
-// = Anexo I: Instalación de MicroPython
-// #include "content/micropython.typ"
-
 #h[Anexo. Código fuente del informe][
   Aquí se pueden ver las primeras líneas del archivo en el que se ha escrito este documento, usando un lenguaje llamado Typst, es un proyecto en desarrollo que intenta ser un reemplazo moderno para LaTeX.
 

@@ -3,49 +3,46 @@
     key: "ack",
     short: "ACK",
     long: "Acknowledgement",
-    // description: "Mensaje enviado para confirmar la recepción de uno anterior",
+  ),
+  (
+    key: "api",
+    short: "API",
+    long: "Application Programming Interface",
   ),
   (
     key: "ble",
     short: "BLE",
     long: "Bluetooth Low Energy",
-    // description: "Protocolo de comunicaciones inalámbricas",
   ),
   (
     key: "cli",
     short: "CLI",
     long: "Command Line Interface",
-    // description: "Programa diseñado para ser usado en una terminal",
   ),
   (
     key: "cs",
     short: "CS",
     long: "Chip select",
-    // description: "Señal de control en SPI",
   ),
   (
     key: "dc",
     short: "DC",
     long: "Data/Command",
-    // description: "Señal de gestión en pantallas SPI",
   ),
   (
     key: "gpio",
     short: "GPIO",
     long: "General Purpose Input/Output",
-    // description: "Pin de entrada/salida",
   ),
   (
     key: "hid",
     short: "HID",
     long: "Human Interface Device",
-    // description: "Especificación USB para dispositivos de interfaz humana",
   ),
   (
     key: "i2c",
     short: "I2C",
     long: "Inter Integrated Circuit",
-    // description: "Protocolo de comunicaciones",
   ),
   (
     key: "ide",
@@ -71,13 +68,11 @@
     key: "miso",
     short: "MISO",
     long: "Master-In Slave-Out",
-    // description: "Señal de datos SPI",
   ),
   (
     key: "mosi",
     short: "MOSI",
     long: "Master-Out Slave-In",
-    // description: "Señal de datos SPI",
   ),
   (
     key: "msb",
@@ -98,13 +93,11 @@
     key: "rgb",
     short: "RGB",
     long: "Red Green Blue",
-    // description: "Espacio de colores",
   ),
   (
     key: "rst",
     short: "RST",
     long: "Reset",
-    // description: "Señal de gestión de las pantallas",
   ),
   (
     key: "rtos",
@@ -125,18 +118,15 @@
     key: "spi",
     short: "SPI",
     long: "Serial Peripheral Interface",
-    // description: "Protocolo de comunicaciones",
   ),
   (
     key: "uart",
     short: "UART",
     long: "Universal Asynchronous Receiver/Transmitter",
-    // description: "Protocolo de comunicaciones",
   ),
   (
     key: "usb",
     short: "USB",
     long: "Universal Serial Bus",
-    // description: "Protocolo de comunicaciones",
   ),
 )

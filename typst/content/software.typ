@@ -239,7 +239,7 @@ Siempre que sea posible ejecutaremos la lógica en el frontend de modo que evite
   - Ver cámara de la mirilla en la pantalla y abrir la puerta pulsando pantalla táctil/tecla
   - Mostar nombre y/o carátula de la canción que está sonando, junto con controles multimedia
 
-  Como ejemplo se adjunta un código que permite usar la pantalla táctil para controlar una luz. Cuando se pulsa la pantalla en un rango de coordenadas definido se encenderá la luz, al soltarla se apagará.
+  Como ejemplo se adjunta un código que permite usar la pantalla táctil para controlar una luz conectándonos a la API de Home Assistant @hasst. Cuando se pulsa la pantalla en un rango de coordenadas definido se encenderá la bombilla y al soltarla se apagará.
   #snippet(
     ```ts
     // credencial de acceso a home assistant

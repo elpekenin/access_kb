@@ -109,8 +109,8 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
   )
 
   La lectura de teclas se realiza configurando un PISO para cada una de las 5 filas, se conectan en serie entre sí, y finalmente al pin MISO del controlador. Las conexiones son las siguientes:
-  - Las entradas que no están conectadas a una tecla se llevan a tierra para que se lean como '0' de forma predecible.
-  - Las teclas se conectan a 3V3 en un extremo y a la entrada del registro (con una resistencia _pulldown_ en medio) en el otro; leyendo '1' cuando están pulsadas y '0' cuando no lo están.
+  - Las entradas que no están conectadas a una tecla se llevan a tierra para que se lean como "0" de forma predecible.
+  - Las teclas se conectan a 3V3 en un extremo y a la entrada del registro (con una resistencia _pulldown_ en medio) en el otro; leyendo "1" cuando están pulsadas y "0" cuando no lo están.
   - La salida en serie de cada registro de desplazamiento se conecta a la entrada en serie del siguiente.
     - En el último, se conecta al pin MISO de la MCU para leer el estado.
   - Las señales CS, _latch_ y SCK son comunes a todos los integrados.

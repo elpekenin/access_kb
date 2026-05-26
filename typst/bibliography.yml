@@ -6,15 +6,6 @@ chibios:
   type: blog
   title: ChibiOS
   url: https://www.chibios.org/dokuwiki/doku.php
-cmake:
-  type: blog
-  title: CMake
-  url: https://cmake.org
-  note: Sistema para compilado de código
-ellipse-pr:
-  type: blog
-  title: Nuevo algoritmo para dibujar elipses
-  url: https://github.com/qmk/qmk_firmware/pull/19005
 fak:
   type: blog
   title: F.A. Keyboard Firmware (FAK)
@@ -22,13 +13,12 @@ fak:
 ghoul:
   type: blog
   title: Teclado ghoul
-  author: tzarc
-  url: https://github.com/tzarc/ghoul
+  author: Nick Brassel (@tzarc)
+  url: https://github.com/tzarc/keyboards/tree/main/Ghoul
 hasst:
   type: blog
-  title: Home Assistant
+  title: Home Assistant, plataforma para hogar inteligente
   url: https://www.home-assistant.io
-  note: Gestor de domótica
 hjson:
   type: blog
   title: Hjson
@@ -41,13 +31,9 @@ hw-zmk:
   type: blog
   title: Hardware soportado por ZMK
   url: https://zmk.dev/docs/hardware
-ili9488:
-  type: blog
-  title: Driver para ili9488
-  url: https://github.com/qmk/qmk_firmware/blob/master/drivers/painter/ili9xxx/qp_ili9488.c
 kicad:
   type: blog
-  title: KiCad
+  title: KiCad, software para diseño de PCB
   url: https://www.kicad.org
 kmk:
   type: blog
@@ -55,44 +41,29 @@ kmk:
   url: https://github.com/KMKfw/kmk_firmware
 lufa:
   type: blog
-  title: LUFA
+  title: LUFA, librería para USB en AVR
   url: https://github.com/abcminiuser/lufa
 lvgl:
   type: blog
-  title: LVGL
+  title: LVGL, librería gráfica para software embedido
   url: https://lvgl.io
-  note: Librería de gráficos para entornos embedidos
 macro-deck:
   type: blog
   title: Macro Deck
   url: https://macro-deck.app
 marbastlib:
   type: blog
-  title: marbastlib
+  title: marbastlib, librería de componentes para KiCad
   url: https://github.com/ebastler/marbastlib
-  note: Librería de componentes para teclados en KiCad
-micropython:
-  type: blog
-  title: MicroPython
-  url: https://micropython.org
-  note: Implementacion de Python para sistemas embedidos
-mod-usb-hid:
-  type: blog
-  title: Módulo para usar HID en MicroPython
-  url: https://github.com/elpekenin/circuitpython/blob/peke-devel/ports/rp2/modusb_hid.c
+  author: Moritz Plattner (@ebastler)
 node:
   type: blog
-  title: Node.js
+  title: Node.js, intérprete de JavaScript
   url: https://nodejs.org
-  note: Intérprete de JavaScript
 paper:
   type: blog
   title: Estudios médicos sobre diseño de teclados
   url: https://pubmed.ncbi.nlm.nih.gov/19308823
-qgf:
-  type: blog
-  title: Formato de imágenes para QMK
-  url: https://docs.qmk.fm/#/quantum_painter_qgf
 qmk:
   type: blog
   title: Quantum Mechanical Keyboard (QMK)
@@ -100,11 +71,10 @@ qmk:
 qmk_xap:
   type: blog
   title: qmk_xap
-  author: KarlK90
   url: https://github.com/qmk/qmk_xap
 qp:
   type: blog
-  title: Quantum Painter, API para GUI
+  title: Quantum Painter, API gráfica
   url: https://docs.qmk.fm/#/quantum_painter
 rmk:
   type: blog
@@ -116,52 +86,32 @@ rp2040:
   url: https://www.raspberrypi.com/products/rp2040
 rust:
   type: blog
-  title: Rust
+  title: Rust, lenguaje de programación
   url: https://www.rust-lang.org
-  note: Lenguaje de programación
 rustup:
   type: blog
-  title: rustup
+  title: rustup, instalador de Rust
   url: https://rustup.rs
-  note: Instalador/gestor de Rust
 smart-keymap:
   type: blog
   title: smart-keymap
   url: https://github.com/rgoulter/smart-keymap
 tauri:
   type: blog
-  title: Tauri
+  title: Tauri, framework para aplicaciones de multi-plataforma
   url: https://tauri.app
-  note: Librería para aplicaciones multi-plataforma
-tusb-rp2:
-  type: blog
-  title: Añadir HID a RP2040 en MicroPython
-  author: noobee
-  url: https://github.com/noobee/micropython/tree/usb-hid
 typst:
   type: blog
-  title: typst
+  title: typst, lenguaje de marcado para elaborar documentos
   url: https://typst.app
-  note: Lenguaje de marcado para elaborar documentos
-uf2:
-  type: blog
-  title: UF2
-  url: https://github.com/microsoft/uf2
-  note: Formato de archivos usado para bootloaders
-wsl:
-  type: blog
-  title: WSL
-  url: https://learn.microsoft.com/windows/wsl/about
-  note: Herramienta de Microsoft para virtualizar Linux en Windows
 xap:
   type: blog
   title: XAP, protocolo extensible de QMK
   url: https://github.com/qmk/qmk_firmware/projects/4
 yarn:
   type: blog
-  title: Yarn
+  title: yarn, gestor de paquetes para JavaScript
   url: https://yarnpkg.com/
-  note: Gestor de paquetes para JavaScript
 zephyr:
   type: blog
   title: Zephyr RTOS
