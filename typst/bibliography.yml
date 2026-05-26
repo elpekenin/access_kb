@@ -80,6 +80,11 @@ mod-usb-hid:
   type: blog
   title: Módulo para usar HID en MicroPython
   url: https://github.com/elpekenin/circuitpython/blob/peke-devel/ports/rp2/modusb_hid.c
+node:
+  type: blog
+  title: Node.js
+  url: https://nodejs.org
+  note: Intérprete de JavaScript
 paper:
   type: blog
   title: Estudios médicos sobre diseño de teclados
@@ -114,6 +119,11 @@ rust:
   title: Rust
   url: https://www.rust-lang.org
   note: Lenguaje de programación
+rustup:
+  type: blog
+  title: rustup
+  url: https://rustup.rs
+  note: Instalador/gestor de Rust
 smart-keymap:
   type: blog
   title: smart-keymap
@@ -147,10 +157,11 @@ xap:
   type: blog
   title: XAP, protocolo extensible de QMK
   url: https://github.com/qmk/qmk_firmware/projects/4
-xap-specs:
+yarn:
   type: blog
-  title: Especificación del protocolo XAP
-  url: https://github.com/qmk/qmk_firmware/blob/xap/docs/xap_protocol.md
+  title: Yarn
+  url: https://yarnpkg.com/
+  note: Gestor de paquetes para JavaScript
 zephyr:
   type: blog
   title: Zephyr RTOS

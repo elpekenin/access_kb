@@ -1,43 +1,45 @@
-#import "@preview/big-todo:0.2.0": todo
-
 #import "@elpekenin/tfm:0.1.0": cli, h, snippet, vars
 
 La idea principal es que el ordenador actúe como el orquestador del sistema.
-- Por un lado, recibirá eventos del teclado, como una pulsación en la pantalla táctil, para ejecutar acciones tales como encender una luz.
-- Por otro, se podrán monitorizar valores como la temperatura o la previsión de precipitaciones y mostrarlos en pantalla.
+- Por un lado, recibirá eventos del teclado, como la pulsación de un teclado o soltar la pantalla táctil, para ejecutar acciones tales como encender una luz.
+- Por otro, monitoriza valores como la temperatura o el número de emails sin leer y los muestra en las pantallas.
 
-Como hemos comentado anteriormente, usaremos XAP @xap la comunicación entre teclado y ordenador, entendiendo el cliente oficial de QMK: `qmk_xap` @qmk_xap. Este programa utiliza el framework Tauri @tauri, para reutilizar el mismo código en diferentes sistemas (Mac, Windows, Android, etc). Esto se logra modelando la interfaz gráfica como una web e integrando dicha página en el binario, junto con un navegador para visualizarla.
+Usaremos XAP para comunicación entre teclado y ordenador mediante `qmk_xap` @qmk_xap, el cliente oficial de QMK. Este programa usa Tauri @tauri para obtener código multiplataforma (Mac, Android, ...), esto se consigue implementando la interfaz gráfica como una aplicación web y generando binarios que integran un navegador.
 
-Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, evitamos tener que recompilar el backend (proceso lento) y obtenemos un lenguaje más sencillo de usar (TypeScript en vez de Rust), lo que agiliza el desarrollo de nuevas funcionalidades.
+Siempre que sea posible ejecutaremos la lógica en el frontend de modo que evitemos recompilar el backend (proceso lento), otro beneficio es que usaremos un lenguaje más sencillo (TypeScript vs Rust)
 
 #h[Instalación][
-  Para el _backend_ podríamos instalar Rust directamente, pero se recomienda usar `rustup`, ya que permite gestionar las instalaciones. Con este instalador obtendremos la última versión del compilador para nuestro sistema y arquitectura.
+  Para el _backend_ podríamos instalar Rust @rust directamente, pero se recomienda usar `rustup` @rustup ya que permite gestionar las instalaciones. Con este instalador obtendremos la última versión del compilador para nuestro sistema y arquitectura.
 
-  Para el frontend, instalamos Node (intérprete de JavaScript) y lo usamos para instalar el gestor de paquetes `yarn`. Una vez hecho esto, podremos instalar las librerías necesarias.
+  Para el frontend, instalamos Node @node y lo usamos para instalar `yarn` @yarn. Una vez hecho esto, podremos instalar las librerías necesarias.
   #cli(
     ```bash
+    # descargar rustup y la toolchain para nuestro sistema
     curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh
     rustup toolchain install stable
 
+    # instalar node y yarn
     sudo apt update
     sudo apt install nodejs
     npm install --global yarn
 
+    # descargar el repositorio de qmk_xap y sus dependencias
     git clone https://github.com/qmk/qmk_xap
     cd qmk_xap
     yarn install
 
+    # ejecutar qmk_xap
     yarn run dev
     ```,
     caption: [Instalación de cliente XAP],
   )
 ]
 
-#h[Manejo de mensajes personalizados][
-  Lo primero que debemos hacer es definir, mediante un `enum`, cada tipo de mensaje que se puede recibir, identificado con un `u8`. El contenido de cada uno de dichos mensajes se define con un `struct`.
+#h[Eventos del teclado][
+  Primero, definimos los mensajes que puede enviar el teclado de forma autónoma (vistos en @xap:broadcast). Esto se hace con un `enum` donde cada tipo de mensaje se define con su identificador y los parámetros que lo componen.
   #snippet(
     ```rust
-    // uno de los distintos mensajes que se van a recibir
+    // uno de los mensajes que se van a recibir
     #[derive(BinRead, Debug)]
     pub struct ScreenPressed {
       pub x: u16,
@@ -67,10 +69,11 @@ Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, e
     // necesario para conversión entre tipos
     impl XapBroadcast for UserBroadcast {}
     ```,
-    caption: [Definición de los mensajes de usuario],
+    caption: [Recepción mensaje XAP],
+    size: 7pt,
   )
 
-  A continuación, para que la aplicación pueda ejecutar lógica en base a estos mensajes, emitiremos un evento al recibirlos y tendremos código encargado de esperar y manejar dichos eventos en el frontend.
+  Para poder ejecutar lógica al recibir estos mensajes, emitimos un evento en el frontend que las diversas funcionalidades podrán recibir para actuar en consecuencia
   #snippet(
     ```diff
     --- a/src-tauri/src/rpc/events.rs
@@ -97,8 +100,8 @@ Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, e
       }
     ```,
     caption: [Evento de mensaje recibido],
+    size: 8pt,
   )
-
   #snippet(
     ```ts
     import mitt, { Emitter } from "mitt"
@@ -120,10 +123,10 @@ Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, e
       }
     }
 
-    // registramos la función para que "escuche" en el bus de QMK
+    // registramos la función para que "escuche" en el bus de qmk_xap
     eventBus.on("xap", xapHandler)
 
-    // ahora podríamos suscribirnos a estos eventos
+    // ahora podríamos suscribirnos a estos eventos en cualquier parte del frontend
     events.on("broadcast", (ev) => {
       switch (ev.kind) {
         // código
@@ -131,15 +134,41 @@ Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, e
     )
     ```,
     caption: [Manejo del evento en frontend],
+    size: 9pt,
+  )
+]
+
+#h[Control del teclado][
+  Para hacer uso de los mensajes definidos en `xap.hjson` @xap:hjson, copiamos el archivo en `xap-specs/assets/xap_user.hjson` y ejecutamos `cargo run` desde `xap-specs`. Con esto, la herramienta que genera código Rust para definir los mensajes "nativos" de XAP hará el mismo proceso con los nuestros.
+
+  En este momento, desde el frontend ya podremos ejecutar estas operaciones
+  #snippet(
+    ```ts
+    function toAsciiArray(str: string): number[] {
+      return Array.from(str, c => c.charCodeAt(0))
+    }
+
+    // NOTA: la API no es 100% legible por ser autogenerada
+    // podríamos hacer un pequeño wrapper para nombre más legible, aceptar string y rellenar el terminador
+    const ret = xap.commands.quantumPaintergetGeometry(keyboard_id, {
+      device_name: toAsciiArray("ili9341"),
+      dev_terminator: 0,
+    })
+
+    if (ret.status === "error") {
+      console.error("could not send message: ", ret.error)
+    }
+    ```,
+    caption: [Envío mensaje XAP],
+    size: 9pt,
   )
 ]
 
 #h[Variables de entorno][
-  Para proteger información sensible (contraseñas, IP, tokens, ...), la almacenamos como variables de entorno que leeremos desde el frontend a través de un plugin.
-
-  Implementamos el plugin
+  Para proteger información sensible (contraseñas, IP, tokens, ...), las almacenamos como variables de entorno, necesitaremos un plugin para leerlas desde el frontend ya que estarán definidas en el backend.
   #snippet(
     ```rs
+    // comando para obtener una variable
     #[tauri::command]
     async fn get<R: Runtime>(key: String, _app: AppHandle<R>) -> Result<String, String> {
       let ret = std::env::var(key).map_err(|e| e.to_string())?;
@@ -180,25 +209,111 @@ Siempre que sea posible, ejecutaremos la lógica en el frontend; de este modo, e
     caption: [Añadir plugin],
   )
 
-  Por último, lo usamos en el frontend con la siguiente función
+  #block(breakable: false)[
+    Lo usaremos en el frontend con la siguiente función
+    #snippet(
+      ```ts
+      import { invoke } from "@tauri-apps/api/core"
+
+      type Result<T, E> =
+        | {status: "ok", data: T}
+        | {status: "error", error: E}
+
+      export async function get(key: string): Promise<Result<string, string>> {
+        try {
+          return {status: "ok", data: await invoke("plugin:env|get", { key }) }
+        } catch (e) {
+          return {status: "error", error: e as any}
+        }
+      }
+      ```,
+      caption: [Ejecutar plugin desde frontend],
+    )
+  ]
+]
+
+#h[Integración][
+  En este punto, podemos hacer prácticamente cualquier cosa que se nos ocurra, algunas ideas:
+  - Graficar el uso de CPU y RAM del ordenador en el teclado
+  - Mostrar la fecha y hora, o predicción meteorológica
+  - Ver cámara de la mirilla en la pantalla y abrir la puerta pulsando pantalla táctil/tecla
+  - Mostar nombre y/o carátula de la canción que está sonando, junto con controles multimedia
+
+  Como ejemplo se adjunta un código que permite usar la pantalla táctil para controlar una luz. Cuando se pulsa la pantalla en un rango de coordenadas definido se encenderá la luz, al soltarla se apagará.
   #snippet(
     ```ts
-    import { invoke } from "@tauri-apps/api/core"
-
-    type Result<T, E> =
-      | {status: "ok", data: T}
-      | {status: "error", error: E}
-
-    export async function get(key: string): Promise<Result<string, string>> {
-      try {
-        return {status: "ok", data: await invoke("plugin:env|get", { key }) }
-      } catch (e) {
-        return {status: "error", error: e as any}
-      }
+    // credencial de acceso a home assistant
+    const token = await env.get("HASST_TOKEN")
+    if (token.status === "error") {
+        console.error("could not get HASST_TOKEN from env:", token.error)
+        return
     }
-    ```,
-    caption: [Ejecutar plugin desde frontend],
-  )
 
-  #todo[Añadir imagen/video IRL]
+    // direccion IP y puerto donde tenemos instalado el servicio
+    const base_url = await env.get("HASST_BASE_URL")
+    if (base_url.status === "error") {
+        console.error("could not get HASST_BASE_URL from env:", base_url.error)
+        return
+    }
+
+    // identificador de la bombilla
+    const lightbulb_id = await env.get("HASST_LIGHTBULB")
+    if (lightbulb_id.status === "error") {
+        console.error("could not get HASST_LIGHTBULB from env:", lightbulb_id.error)
+        return
+    }
+
+    // nos suscribimos al bus de eventos, solo actuaremos al pulsar o soltar la pantalla
+    elpekenin.events.on("broadcast", async event => {
+      switch (event.kind) {
+        case "ScreenPressed":
+          const data = event.data
+
+          // pulsar otra pantalla (si hubiera varias) -> nada
+          if (data.screen_id !== config.screen_id) return
+
+          // pulsar fuera del rango definido -> nada
+          if (data.x < config.x.min || data.x > config.x.max) return
+          if (data.y < config.y.min || data.y > config.y.max) return
+
+          // encender la luz
+          await fetch(`${base_url.data}/api/services/light/turn_on`, {
+            method: "POST",
+            headers: {
+              authorization: `Bearer ${token.data}`,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({
+              entity_id: lightbulb_id.data,
+            })
+          })
+
+          break
+
+        case "ScreenReleased":
+          // otra pantalla -> nad
+          if (event.data.screen_id !== config.screen_id) return
+
+          // apagar la luz
+          await fetch(`${base_url.data}/api/services/light/turn_off`, {
+            method: "POST",
+            headers: {
+              authorization: `Bearer ${token.data}`,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({
+              entity_id: lightbulb_id.data,
+            })
+          })
+
+          break
+
+        default:
+          break
+      }
+    })
+    ```,
+    caption: [Control domótico desde teclado],
+    size: 9pt,
+  )
 ]

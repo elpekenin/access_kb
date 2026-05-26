@@ -1,4 +1,3 @@
-#import "@preview/big-todo:0.2.0": todo, todo_outline
 #import "@preview/codly:1.3.0": codly, codly-init
 #import "@preview/glossarium:0.5.10": make-glossary, print-glossary, register-glossary
 
@@ -67,13 +66,14 @@
 
 // https://forum.typst.app/t/how-to-pagebreak-before-an-heading-only-if-a-certain-condition-is-achieved/1691/17
 #show heading.where(level: 1): it => {
-  let threshold = 80%
+  let threshold = 90%
   block(breakable: false, height: threshold)
   v(-threshold, weak: true)
   it
 }
 #show: make-glossary
 #show: codly-init.with()
+#show figure: set block(breakable: true)
 
 //
 // configure packages
@@ -98,13 +98,19 @@
 
 #page([])
 
-#h[Agradecimientos][
-  #include "content/acknowledgements.typ"
-]
+#heading(
+  [Agradecimientos],
+  numbering: none,
+  outlined: false,
+)
+#include "content/acknowledgements.typ"
 
-#if (vars.render_todos) {
-  todo_outline
-}
+#heading(
+  [Resumen],
+  numbering: none,
+  outlined: false,
+)
+#include "content/summary.typ"
 
 // index
 #outline(depth: 2)
@@ -144,9 +150,6 @@
 
 <__content_start>
 
-#h[Resumen][
-  #include "content/summary.typ"
-]
 
 #h[Estado del arte][
   #include "content/state_of_the_art.typ"
@@ -160,30 +163,19 @@
   #include "content/firmware.typ"
 ]
 
-#h[Software integración][
+#h[Integraciones][
   #include "content/software.typ"
 ]
 
 #h[Líneas futuras][
-  Ha habido varios fallos a tener en cuenta para no repetir en próximos diseños
-  - No se añadieron test points puesto que el diseño es relativamente sencillo. Por suerte no hubo problemas que solventar y no hicieron falta, pero definitivamente deben incorporarse
-  - Otro pequeño problema fue la elección de mount points de 2mm para anclar la placa a la caja, ya que encontrar tornillos M2 es más complicado que M3
-  - A la hora de exponer los @gpio y alimentación, por un descuido, no se hizo lo mismo con los pines @sck, @miso y @mosi. Esto implica que si se quiere usar la extensibilidad de la placa para conectar un dispositivo @spi... No se puede
-  - Reubicar las pantallas zona central (no debajo muñecas)
-  - Posición jack TRRS
-
-  Por otro lado, hay cosas que no se han hecho en este prototipo, para simplificar el proyecto, pero que se pueden mejorar
-  - Pin(es) para backlight, en vez de VCC
-  - Pantalla capacitiva
-  - LVGL
-  - Wireless (ESP/NRF, batería, zmk)
+  #include "content/future.typ"
 ]
 
 // = Anexo I: Instalación de MicroPython
 // #include "content/micropython.typ"
 
-#h[Anexo I. Código fuente del informe][
-  Aquí se pueden ver las primeras líneas del código fuente con el que he generado este documento. He utilizado un lenguaje llamado Typst, que es un proyecto en desarrollo que intenta ser un reemplazo moderno para LaTeX.
+#h[Anexo. Código fuente del informe][
+  Aquí se pueden ver las primeras líneas del archivo en el que se ha escrito este documento, usando un lenguaje llamado Typst, es un proyecto en desarrollo que intenta ser un reemplazo moderno para LaTeX.
 
   #text(size: 8pt)[
     #raw(

@@ -11,15 +11,23 @@
   assert(caption != "", message: "Provide a caption")
 
   return figure(
-    [#source],
+    source,
     caption: caption,
     kind: kind,
     supplement: supplement,
   )
 }
 
-#let snippet(source, caption: "") = {
-  return __code(source, caption, "snippet", "Código")
+#let snippet(source, caption: "", size: 11pt) = {
+  return __code(
+    text(
+      source,
+      size: size,
+    ),
+    caption,
+    "snippet",
+    "Código",
+  )
 }
 
 #let cli(source, caption: "") = {

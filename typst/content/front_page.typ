@@ -9,11 +9,13 @@
 
   #align(bottom + right)[
     #text(weight: "bold", size: 13pt)[
+      Escula Técnica Superior de Ingeniería de Telecomunicación
+
+      Máster Universitario en Ingeniería de Telecomunicación
+
       Autor: Pablo Martínez Bernal
 
       Director: José Alfonso Vera Repullo
-
-      Máster Universitario en Ingeniería de Telecomunicación
 
       #datetime.today().display(vars.date_format)
     ]
