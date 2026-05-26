@@ -176,7 +176,7 @@
 
   #text(size: 8pt)[
     #raw(
-      read("main.typ").split("\n").slice(0, count: vars.source_lines).join("\n"),
+      read("main.typ").split("\n").slice(vars.offset, count: vars.offset + vars.source_lines).join("\n"),
       lang: "typst",
     )
   ]

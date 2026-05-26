@@ -360,7 +360,7 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
       uint16_t           offset_x;
       uint16_t           offset_y;
 
-      // buscar pantalla según el nombre configurado
+      // buscar pantalla según nombre
       const painter_device_t device = get_device_by_name((const char *)arg->device_name);
       if (device != NULL) {
         // pedimos a QMK la información de la pantalla
