@@ -221,7 +221,7 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
 #h[Sensor pantalla táctil][
   Necesitaremos un driver para comunicarnos con el chip (XPT2046) y obtener la posición en la que se ha pulsado la pantalla. QMK no tiene funcionalidades similares, por lo que he tenido que implementarlo desde cero. La arquitectura del código es igual que para las pantallas, en un par de `struct`s almacenamos las variables y funciones necesarias para mandar/leer mensajes al dispositivo.
 
-  Al arrancar el teclado, ejecutamos la inicialización del sensor y lo iremos leyendo cuando de señal de salida *IRQ* nos marque que la pantalla está pulsada, evitando transmitir mensajes mientras no esté en uso.
+  Al arrancar el teclado, ejecutamos la inicialización del sensor y lo iremos leyendo cuando la señal de salida *IRQ* nos marque que la pantalla está pulsada, evitando transmitir mensajes mientras no esté en uso.
   #snippet(
     ```c
     // el parámetro `check_irq` permite forzar una lectura, ej: si IRQ no se ha conectado
@@ -272,7 +272,7 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
   )
 
   #block(breakable: false)[
-    Una cosa importante es que el sensor se puede configurar a la vez que se lee. Por ello no podemos usar la función `spi_read()`, que envía un mensaje con todos los bits a 1 y desconfigura el sensor. En su lugar, escribimos un `0` para mantener el sensor en servicio y el valor que nos llega la vez es nuestra lectura.
+    Una cosa importante es que el sensor se puede configurar a la vez que se lee. Por ello no podemos usar la función `spi_read()`, que envía un mensaje con todos los bits a 1 y desconfigura el sensor. En su lugar, escribimos un `0` para mantener el sensor en servicio y el valor que nos llega a la vez es nuestra lectura.
     #snippet(
       ```c
       static int16_t read_coord(uint8_t cmd, spi_touch_comms_config_t comms_config) {
@@ -387,15 +387,8 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
   #snippet(
     ```c
     // NOTA: enviar un identificador del sensor permite diseños multi-sensor
-    void xap_screen_pressed(uint8_t screen_id, touch_report_t report) {
-      const screen_pressed_msg_t msg = {
-        .msg_id    = SCREEN_PRESSED,
-        .screen_id = screen_id,
-        .x         = report.x,
-        .y         = report.y,
-      };
-      xap_broadcast_user(&msg, sizeof(msg));
-    }
+    const screen_pressed_msg_t msg = make_screen_pressed(touch_sensor_id, touch_sensor_reading);
+    xap_broadcast_user(&msg, sizeof(msg));
     ```,
     caption: [Envío de mensaje XAP desde teclado],
   ) <xap:broadcast>
@@ -436,7 +429,7 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
   )
 
   #block(breakable: false)[
-    Así, podemos definir una interfaz cuyas dimensiones cambian para adaptarse a configuración que usemos, dado que algunos nodos que solo existen en algunas circunstancias. Nótese el nodo con `#if IS_ENABLED(...)`
+    Así, podemos definir una interfaz cuyas dimensiones cambian para adaptarse a la configuración que usemos, dado que algunos nodos que solo existen en algunas circunstancias. Nótese el nodo con `#if IS_ENABLED(...)`
     #snippet(
       ```c
       static ui_node_t left[] = {

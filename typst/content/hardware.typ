@@ -6,7 +6,7 @@ Las teclas se van a colocar de forma ortolineal y _split_, eliminando del latera
   caption: [Distribución de las teclas],
 )
 
-La elección de MCU ha sido el RP2040 @rp2040, ya que nos brinda la oportunidad de usar tanto QMK como ZMK. Para acelerar el prototipado y evitar posibles fallos de diseño, se ha optado por el RP-Pico #footnote[Se usará un clon con USB-C porque el producto oficial tiene un conector USB-Micro], esta placa incorpora MCU y el hardware hacerla funcionar (conector USB, memoria flash, cristal, ...).
+La elección de MCU ha sido el RP2040 @rp2040, ya que nos brinda la oportunidad de usar tanto QMK como ZMK. Para acelerar el prototipado y evitar posibles fallos de diseño, se ha optado por el RP-Pico #footnote[Se usará un clon con USB-C porque el producto oficial tiene un conector USB-Micro], esta placa incorpora MCU y el hardware para hacerla funcionar (conector USB, memoria flash, cristal, ...).
 
 Si se daña alguno de sus componentes, podremos cambiar esta placa fácilmente, incluso reemplazarla con un RP-Pico *W*, con conexiones compatibles y que además incorpora un segundo MCU (CYW43439) que le otorga conectividad WiFi y BLE
 #figure(
@@ -60,7 +60,7 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
     caption: [Matriz anti-ghosting],
   )
 
-  En nuestro diseño empleamos otra idea, inspirada en el _ghoul_ @ghoul, que consiste en usar registros de desplazamiento PISO SN74HC589ADR2G conectados en serie. Este circuito utiliza unos pocos pines controlar dichos chips y un único pin para leer el estado de las teclas. Lo mejor del diseño es que se pueden seguir añadiendo teclas sin aumentar la cantidad de GPIO necesarios.
+  En nuestro diseño empleamos otra idea, inspirada en el _ghoul_ @ghoul, que consiste en usar registros de desplazamiento PISO SN74HC589ADR2G conectados en serie. Este circuito utiliza unos pocos pines para controlar dichos chips y un único pin para leer el estado de las teclas. Lo mejor del diseño es que se pueden seguir añadiendo teclas sin aumentar la cantidad de GPIO necesarios.
 ]
 
 #h[Pantallas][
@@ -86,7 +86,7 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
 #h[Esquema][
   Habiendo elegido los componentes y hecho pruebas con la mayoría de ellos en protoboard, procedemos a abrir KiCad @kicad para plasmar nuestro circuito.
 
-  Ambas mitades se han diseñado en un único archivo, en las imágenes a continuacion -del lado izquierdo- veremos el sufijo "\_L" (_left_) en muchas etiquetas.
+  Ambas mitades se han diseñado en un único archivo, en las imágenes a continuación -del lado izquierdo- veremos el sufijo "\_L" (_left_) en muchas etiquetas.
 
   Lo primero será acoplar nuestro RP-Pico a la propia PCB, conectamos la alimentación (5V, 3V3 y GND) y los GPIO que controlan los diversos periféricos.
   #figure(
@@ -142,7 +142,7 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
 
   Aunque no se han mostrado en los esquemas, cada circuito integrado irá acompañado de un condensador para estabilizar su alimentación, los veremos cerca de ellos entre 3V3 y GND.
 
-  He optado por dejar gran parte de los componentes a la vista en la parte superior; el motivo principal de esta decisión es estético, pero también permite que la cara trasera quede prácticamente lisa, con lo que es mucho más sencillo poder fabricar una caja donde montar el teclado.
+  Se ha optado por dejar gran parte de los componentes a la vista en la parte superior; el motivo principal de esta decisión es estético, pero también permite que la cara trasera quede prácticamente lisa, con lo que es mucho más sencillo poder fabricar una caja donde montar el teclado.
 
   #block(breakable: false)[
     Lo primero que ponemos es la RP-Pico, como se ve en la imagen, la cara frontal va a ser un plano de tierra, mientras que la trasera 3V3. Esto facilita la conexión de los componentes a lo largo de la placa
@@ -161,7 +161,7 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
   ]
 
   #block(breakable: false)[
-    A continuación, conectamos todas las teclas a los registros SIPO que las leen, cada una con su resistencia pull-down. Asimismo, conectamos los registros al bus SPI y entre ellos. Aquí podemos ver como queda el cableado de 2 filas
+    A continuación, conectamos todas las teclas a los registros PISO que las leen, cada una con su resistencia pull-down. Asimismo, conectamos los registros al bus SPI y entre ellos. Aquí podemos ver como queda el cableado de 2 filas
     #figure(
       images.piso_pcb,
       caption: [Lectura de las teclas],
@@ -184,13 +184,13 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
     )
   ]
 
-  Juntamos las placas todo lo posible para que reducir el área total. Las conectamos con pequeños "puentes" con _mousebits_ para mandarlas a fabricar como una pieza, más ecónomico que hacerlas por separado.
+  Juntamos las placas todo lo posible para reducir el área total. Las conectamos con pequeños "puentes" con _mousebits_ para mandarlas a fabricar como una pieza, más económico que hacerlas por separado.
   #figure(
     images.pcbs,
     caption: [Diseño terminado],
   )
 
-  Con el diseño terminado, generamos los arhivos gerber para su fabricación y los mandamos construir. Unas semanas después llega a casa el resultado, y sólo resta soldar los componentes para tener un teclado funcional.
+  Con el diseño terminado, generamos los archivos gerber para su fabricación y los mandamos construir. Unas semanas después llega a casa el resultado, y sólo resta soldar los componentes para tener un teclado funcional.
   #figure(
     images.pcb,
     caption: [Placa fabricada],

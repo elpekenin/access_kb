@@ -45,7 +45,7 @@
   )
 
   #block(breakable: false)[
-    Los teclados ortolineales surgen una alternativa donde todos los movimientos son iguales gracias a sus teclas alineadas.
+    Los teclados ortolineales surgen como una alternativa donde todos los movimientos son iguales gracias a sus teclas alineadas.
     #figure(
       images.ortholinear,
       caption: [Teclado ortolineal],
@@ -68,7 +68,7 @@
 
   También herencia de las máquinas de escribir es la distribución de las letras (QWERTY). Patentada en 1868, su objetivo era evitar los atascos mecánicos separando entre sí las combinaciones de letras más frecuentes.
 
-  Al desaparecer estas limitaciones con la electrónica, aparecen opciones que minimizan la distancia media que recorren los dedos y permiten una mayor velocidad de escritura y reducir la fatiga.
+  Al desaparecer estas limitaciones con la electrónica, aparecen opciones que minimizan la distancia media que recorren los dedos y permiten aumentar la velocidad de escritura y reducir la fatiga.
   #figure(
     align(horizon)[
       #grid(
@@ -105,11 +105,11 @@
 
   Aunque existen otras alternativas (FAK @fak, KMK @kmk, RMK @rmk, smart-keymap @smart-keymap, ...) vamos a analizar las 2 opciones más maduras y conocidas: QMK @qmk y ZMK @zmk
 
-  En lo que respecta a funcionalidad, QMK tiene una comunidad mayor, por lo que ofrece más funcionalidades _built-in_ que ZMK y resulta sencillo encontrar código de otros usuarios que adaptar y añadir a nuestro firmware.
+  En lo que respecta a funcionalidad, QMK tiene una comunidad mayor, por lo que ofrece más funcionalidades _built-in_ que ZMK y resulta sencillo encontrar código de otros usuarios que se pueda adaptar y añadir a nuestro firmware.
 
-  En cuanto a hardware, ambos son compatibles con multitud de MCU gracias los RTOS que utilizan. ZMK gana en este aspecto dado que usa Zephyr @zephyr, obteniendo acceso a un amplio catálogo @hw-zmk de dispositivos, soportando además BLE para hacer teclados inalámbricos. Por su parte, QMK puede usar ChibiOS @chibios o LUFA @lufa, lo que también le brinda un buen abanico de alternativas @hw-qmk
+  En cuanto a hardware, ambos son compatibles con multitud de MCU gracias a los RTOS que utilizan. ZMK gana en este aspecto dado que usa Zephyr @zephyr, obteniendo acceso a un amplio catálogo @hw-zmk de dispositivos, soportando además BLE para hacer teclados inalámbricos. Por su parte, QMK puede usar ChibiOS @chibios o LUFA @lufa, lo que también le brinda un buen abanico de alternativas @hw-qmk
 
-  Para configuración, ZMK resulta más sencillo en cambios pequeños (p.ej: modificar la letra asignada a una tecla) ya que tan sólo necesitamos modificar el archivo en GitHub y se compilará en la nube el nuevo binario. Sin embargo, QMK es mucho más amigable para cambios grandes (p.ej: añadir soporte para nuestro diseño hardware) ya que su _toolchain_ (compilador, linker, herramientras propias, ...) es mucho más sencillo de instalar y utilizar que los empleados por ZMK
+  Para configuración, ZMK resulta más sencillo en cambios pequeños (p.ej: modificar la letra asignada a una tecla) ya que tan sólo necesitamos modificar el archivo en GitHub y se compilará en la nube el nuevo binario. Sin embargo, QMK es mucho más amigable para cambios grandes (p.ej: añadir soporte para nuestro diseño hardware) ya que su _toolchain_ (compilador, linker, herramientas propias, ...) es mucho más sencillo de instalar y utilizar que los empleados por ZMK
 ]
 
 #h[Integraciones][

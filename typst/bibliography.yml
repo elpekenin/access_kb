@@ -2,10 +2,22 @@ ahk:
   type: blog
   title: AutoHotkey
   url: https://www.autohotkey.com
+arduino:
+  type: blog
+  title: Arduino
+  url: https://www.arduino.cc/
+atom:
+  type: blog
+  title: M5 Atom Echo
+  url: https://docs.m5stack.com/en/atom/atomecho
 chibios:
   type: blog
   title: ChibiOS
   url: https://www.chibios.org/dokuwiki/doku.php
+esp-idf:
+  type: blog
+  title: ESP-IDF
+  url: https://github.com/espressif/esp-idf
 fak:
   type: blog
   title: F.A. Keyboard Firmware (FAK)
@@ -47,6 +59,10 @@ lvgl:
   type: blog
   title: LVGL, librería gráfica para software embedido
   url: https://lvgl.io
+m5unified:
+  type: blog
+  title: M5Unified
+  url: https://github.com/m5stack/M5Unified
 macro-deck:
   type: blog
   title: Macro Deck
@@ -96,6 +112,10 @@ smart-keymap:
   type: blog
   title: smart-keymap
   url: https://github.com/rgoulter/smart-keymap
+system:
+  type: blog
+  title: Diseño de un sistema integral de atención domiciliaria con robot móvil asistencial
+  url: https://repositorio.upct.es/server/api/core/bitstreams/29a01220-2673-4fd8-be05-2b17789ff4f2/content
 tauri:
   type: blog
   title: Tauri, framework para aplicaciones de multi-plataforma

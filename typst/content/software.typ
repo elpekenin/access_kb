@@ -1,8 +1,8 @@
 #import "@elpekenin/tfm:0.1.0": cli, h, snippet, vars
 
-La idea principal es que el ordenador actúe como el orquestador del sistema.
-- Por un lado, recibirá eventos del teclado, como la pulsación de un teclado o soltar la pantalla táctil, para ejecutar acciones tales como encender una luz.
-- Por otro, monitoriza valores como la temperatura o el número de emails sin leer y los muestra en las pantallas.
+El ordenador actuará como gestor
+- Recibe eventos del teclado, como la pulsación de una tecla o un toque en la pantalla táctil, para ejecutar acciones tales como encender una luz.
+- Monitoriza valores como la temperatura o el número de emails sin leer y los muestra en las pantallas.
 
 Usaremos XAP para comunicación entre teclado y ordenador mediante `qmk_xap` @qmk_xap, el cliente oficial de QMK. Este programa usa Tauri @tauri para obtener código multiplataforma (Mac, Android, ...), esto se consigue implementando la interfaz gráfica como una aplicación web y generando binarios que integran un navegador.
 

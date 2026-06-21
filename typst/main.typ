@@ -150,6 +150,9 @@
 
 <__content_start>
 
+#h[Contexto][
+  #include "content/context.typ"
+]
 
 #h[Estado del arte][
   #include "content/state_of_the_art.typ"
@@ -163,8 +166,12 @@
   #include "content/firmware.typ"
 ]
 
-#h[Integraciones][
+#h[Software de control][
   #include "content/software.typ"
+]
+
+#h[Integración IoT][
+  #include "content/m5.typ"
 ]
 
 #h[Líneas futuras][

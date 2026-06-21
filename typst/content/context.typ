@@ -1,0 +1,5 @@
+Un grupo de investigación en la UPCT ha desarrollado un sistema de atención domiciliaria @system que combina un robot móvil, sensores y actuadores repartidos por el hogar. Su objetivo es asistir a personas con dependencia permitiéndoles controlar el entorno (luces, persianas, electrodomésticos) y comunicarse con cuidadores de forma autónoma.
+
+En este contexto, el dispositivo diseñado en el presente trabajo no es un periférico de entrada convencional, sino una interfaz de control más dentro de dicho ecosistema. Además de su función como teclado, está dotado de pantallas a color con sensor táctil, un micrófono para control por voz y conectividad IoT, lo que permite al usuario interactuar con el sistema mediante múltiples canales según sus necesidades y preferencias.
+
+Se integra en la arquitectura global a través de comunicación directa con un software de gestión en el ordenador, y comunicaciones inalámbricas hacia el ecosistema IoT (MQTT) y hacia un servidor de transcripción de voz (WebSocket). De esta forma, se convierte en un punto de interacción tangible y accesible, aprovechando elementos ya presentes en el entorno del usuario.

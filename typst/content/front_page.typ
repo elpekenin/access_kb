@@ -9,7 +9,7 @@
 
   #align(bottom + right)[
     #text(weight: "bold", size: 13pt)[
-      Escula Técnica Superior de Ingeniería de Telecomunicación
+      Escuela Técnica Superior de Ingeniería de Telecomunicación
 
       Máster Universitario en Ingeniería de Telecomunicación
 
