@@ -55,10 +55,6 @@ lufa:
   type: blog
   title: LUFA, librería para USB en AVR
   url: https://github.com/abcminiuser/lufa
-lvgl:
-  type: blog
-  title: LVGL, librería gráfica para software embedido
-  url: https://lvgl.io
 m5unified:
   type: blog
   title: M5Unified
@@ -120,10 +116,6 @@ tauri:
   type: blog
   title: Tauri, framework para aplicaciones de multi-plataforma
   url: https://tauri.app
-typst:
-  type: blog
-  title: typst, lenguaje de marcado para elaborar documentos
-  url: https://typst.app
 xap:
   type: blog
   title: XAP, protocolo extensible de QMK

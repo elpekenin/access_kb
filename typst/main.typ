@@ -28,11 +28,12 @@
   },
   // page counter with a progress bar
   footer: context {
+    let start = query(<__content_start>).first().location().page()
     text(8pt)[
       #counter(page).display(
         both: true,
         (current, total) => {
-          if (current <= locate(<__content_start>).page()) {
+          if (current <= start) {
             return
           }
 
@@ -141,7 +142,6 @@
 
 // acronyms
 #heading("Listado de acrónimos", outlined: false, numbering: none)
-// TODO: avoid centered text
 #print-glossary(
   glossary,
   show-all: true,
@@ -156,6 +156,10 @@
 
 #h[Estado del arte][
   #include "content/state_of_the_art.typ"
+]
+
+#h[Objetivos][
+  #include "content/objectives.typ"
 ]
 
 #h[Hardware][
@@ -174,25 +178,12 @@
   #include "content/m5.typ"
 ]
 
-#h[Líneas futuras][
-  #include "content/future.typ"
+#h[Resultados][
+  #include "content/results.typ"
 ]
 
-#h[Anexo. Código fuente del informe][
-  Aquí se pueden ver las primeras líneas del archivo en el que se ha escrito este documento, usando un lenguaje llamado Typst, es un proyecto en desarrollo que intenta ser un reemplazo moderno para LaTeX.
-
-  #text(size: 8pt)[
-    #raw(
-      read("main.typ").split("\n").slice(vars.offset, count: vars.offset + vars.source_lines).join("\n"),
-      lang: "typst",
-    )
-  ]
-
-  #align(right)[
-    #text(weight: "bold", style: "italic")[
-      Informe generado con Typst #sys.version
-    ]
-  ]
+#h[Llíneas futuras][
+  #include "content/future.typ"
 ]
 
 // Bibliography

@@ -10,6 +10,11 @@
     long: "Application Programming Interface",
   ),
   (
+    key: "asr",
+    short: "ASR",
+    long: "Automatic Speech Recognition",
+  ),
+  (
     key: "ble",
     short: "BLE",
     long: "Bluetooth Low Energy",
@@ -50,9 +55,19 @@
     long: "Integrated Development Environment",
   ),
   (
+    key: "iot",
+    short: "IoT",
+    long: "Internet of Things",
+  ),
+  (
     key: "led",
     short: "LED",
     long: "Light Emitting Diode",
+  ),
+  (
+    key: "llm",
+    short: "LLM",
+    long: "Large Language Model",
   ),
   (
     key: "lsb",

@@ -38,7 +38,7 @@
   )
 
 
-  Aunque esta limitación ya no existe, no se ha reflejado en un cambio de diseño, resulta inconveniente ya que la forma óptima de escribir supone forzar un poco la posición de las muñecas y los dedos realizan algunos movimientos incómodos. Incluso existen estudios @paper sobre el impacto del diseño de los teclados en la salud
+  Aunque esta limitación ya no existe, no se ha reflejado en un cambio de diseño; lo que resulta inconveniente porque la forma óptima de escribir supone forzar un poco la posición de las muñecas y los dedos realizan algunos movimientos incómodos. Incluso existen estudios sobre el impacto del diseño de los teclados en la salud @paper.
   #figure(
     images.mechanography,
     caption: [Diagrama de mecanografía],
@@ -103,25 +103,25 @@
 #h[Firmware][
   Existen diversos proyectos de código abierto que permiten a aficionados construir sus propios teclados y programarlos a placer, en vez de depender de dispositivos fabricados en masa por empresas donde las opciones de personalización son escasas o nulas.
 
-  Aunque existen otras alternativas (FAK @fak, KMK @kmk, RMK @rmk, smart-keymap @smart-keymap, ...) vamos a analizar las 2 opciones más maduras y conocidas: QMK @qmk y ZMK @zmk
+  Aunque existen otras alternativas (FAK @fak, KMK @kmk, RMK @rmk, smart-keymap @smart-keymap, ...), vamos a analizar las dos opciones más maduras y conocidas: QMK @qmk y ZMK @zmk.
 
   En lo que respecta a funcionalidad, QMK tiene una comunidad mayor, por lo que ofrece más funcionalidades _built-in_ que ZMK y resulta sencillo encontrar código de otros usuarios que se pueda adaptar y añadir a nuestro firmware.
 
-  En cuanto a hardware, ambos son compatibles con multitud de MCU gracias a los RTOS que utilizan. ZMK gana en este aspecto dado que usa Zephyr @zephyr, obteniendo acceso a un amplio catálogo @hw-zmk de dispositivos, soportando además BLE para hacer teclados inalámbricos. Por su parte, QMK puede usar ChibiOS @chibios o LUFA @lufa, lo que también le brinda un buen abanico de alternativas @hw-qmk
+  En cuanto a hardware, ambos son compatibles con multitud de MCU gracias a los RTOS que utilizan. ZMK gana en este aspecto dado que usa Zephyr @zephyr, obteniendo acceso a un amplio catálogo @hw-zmk de dispositivos, soportando además BLE para hacer teclados inalámbricos. Por su parte, QMK puede usar ChibiOS @chibios o LUFA @lufa, lo que también le brinda un buen abanico de alternativas @hw-qmk .
 
-  Para configuración, ZMK resulta más sencillo en cambios pequeños (p.ej: modificar la letra asignada a una tecla) ya que tan sólo necesitamos modificar el archivo en GitHub y se compilará en la nube el nuevo binario. Sin embargo, QMK es mucho más amigable para cambios grandes (p.ej: añadir soporte para nuestro diseño hardware) ya que su _toolchain_ (compilador, linker, herramientas propias, ...) es mucho más sencillo de instalar y utilizar que los empleados por ZMK
+  Para configuración, ZMK resulta más sencillo en cambios pequeños (p. ej. modificar la letra asignada a una tecla) ya que tan sólo necesitamos modificar el archivo en GitHub y se compilará en la nube el nuevo binario. Sin embargo, QMK es mucho más amigable para cambios grandes (p. ej. añadir soporte para nuestro diseño hardware) ya que su _toolchain_ (compilador, linker, herramientas propias, ...) es mucho más sencillo de instalar y utilizar que los empleados por ZMK.
 ]
 
 #h[Integraciones][
   #block(breakable: false)[
-    Para tener funcionalidad extra al alcance de la mano, la opción más conocida del mercado es el Stream Deck. Es un dispositivo con pocas teclas cuyo software permite automatizar tareas como abrir programas, control multimedia o escribir texto. Se pueden mostrar imágenes en sus botones ya que son transparentes y tienen una pantalla detrás. Sin embargo, su elevado precio (150€) es un gran factor en contra
+    Para tener funcionalidad extra al alcance de la mano, la opción más conocida del mercado es el Stream Deck. Es un dispositivo con pocas teclas cuyo software permite automatizar tareas como abrir programas, control multimedia o escribir texto. Se pueden mostrar imágenes en sus botones ya que son transparentes y tienen una pantalla detrás. Sin embargo, su elevado precio (150€) es un gran inconveniente.
     #figure(
       images.elgato,
       caption: [Stream Deck elgato],
     )
   ]
 
-  Otra opción popular es AutoHotkey @ahk, se trata de un programa de código abierto que puede potenciar cualquier teclado haciendo que combinaciones de teclas causen la ejecución de scripts. Estos scripts utilizan un lenguaje de programación propio y proporciona funciones para interaccionar con archivos, ejecutar DLLs, mover el ratón, etc
+  Otra opción popular es AutoHotkey @ahk, se trata de un programa de código abierto que puede potenciar cualquier teclado, haciendo que combinaciones de teclas causen la ejecución de scripts. Estos scripts utilizan un lenguaje de programación propio y proporcionan funciones para interaccionar con archivos, ejecutar DLLs, mover el ratón, etc.
 
-  Macro Deck @macro-deck, también _open source_, permite usar un dispositivo móvil como si fuera un panel con varios botones, las acciones ofrecidas son similares a los programas anteriores. Sin embargo, no parece tener una comunidad muy extensa ni ha recibido desarrollo en los últimos años
+  Macro Deck @macro-deck, también _open source_, permite usar un dispositivo móvil como si fuera un panel con varios botones. Las acciones ofrecidas son similares a las de los programas anteriores. Sin embargo, no parece tener una comunidad muy extensa ni ha recibido desarrollo en los últimos años.
 ]

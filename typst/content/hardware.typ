@@ -14,8 +14,6 @@ Si se daña alguno de sus componentes, podremos cambiar esta placa fácilmente, 
   caption: [Placa Raspberry Pi Pico],
 )
 
-El objetivo será usar la menor cantidad de GPIO posible para poder exponer los restantes junto a líneas de alimentación (GND, 5V, 3V3), permitiendo conectar más elementos a la placa. Algunas ideas podrían ser un pequeño altavoz, una tarjeta SD para almacenar información o un puente UART-USB para depurar el código imprimiendo mensajes.
-
 #h[Cableado de las teclas][
   #block(breakable: false)[
     La opción más sencilla sería soldar directamente a los GPIO. Para ello, existen dos opciones:
@@ -40,7 +38,7 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
     )
   ]
 
-  Sin embargo, este enfoque presenta un problema; pronto necesitaremos un chip con muchos GPIO -o hacer un teclado con pocas teclas- debido a la cantidad limitada de estos.
+  Sin embargo, este enfoque presenta un problema: pronto necesitaremos un chip con muchos GPIO (o hacer un teclado con pocas teclas) debido a la cantidad limitada de estos.
 
   Para solucionar esta limitación podemos usar una matriz, con un pin para cada fila y columna. Las filas se activan una a una en bucle y se leen todas las columnas (o viceversa), obteniendo así el estado de cada tecla.
   #figure(
@@ -54,13 +52,13 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
     caption: [Ghosting en una matriz],
   )
 
-  En la imagen vemos como la tecla en *(COL0, ROW1)* se va a leer como pulsada debido a la corriente circulando a traves de varios interruptores que están cerrados. La solución consiste en añadir diodos para bloquear este flujo pero permitiendo detectar las pulsaciones.
+  En la imagen vemos cómo la tecla en *(COL0, ROW1)* se va a leer como pulsada debido a la corriente circulando a través de varios interruptores que están cerrados. La solución consiste en añadir diodos para bloquear este flujo pero permitir detectar las pulsaciones.
   #figure(
     images.anti_ghosting,
     caption: [Matriz anti-ghosting],
   )
 
-  En nuestro diseño empleamos otra idea, inspirada en el _ghoul_ @ghoul, que consiste en usar registros de desplazamiento PISO SN74HC589ADR2G conectados en serie. Este circuito utiliza unos pocos pines para controlar dichos chips y un único pin para leer el estado de las teclas. Lo mejor del diseño es que se pueden seguir añadiendo teclas sin aumentar la cantidad de GPIO necesarios.
+  En nuestro diseño nos inspiramos en el _ghoul_ @ghoul, usando registros de desplazamiento PISO SN74HC589ADR2G conectados en serie. Este circuito utiliza unos pocos pines para controlar dichos chips y un único pin para leer el estado de las teclas. Lo mejor del diseño es que se pueden seguir añadiendo teclas sin aumentar la cantidad de GPIO necesarios.
 ]
 
 #h[Pantallas][
@@ -68,7 +66,7 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
 
   En nuestro diseño, vamos a incluir ILI9163 (pequeña y cuadrada) e ILI9341 (mayor tamaño, rectangular) porque son fáciles de encontrar en el mercado y QMK tiene soporte para ellas. Además, el módulo elegido para la segunda posee un sensor resistivo XPT2046 que nos permite usarla como pantalla táctil.
 
-  También usaremos una IL91874 que tenía por casa de experimentos anteriores. Es un componente antiguo y no tan sencillo de encontrar, pero su tecnología (tinta electrónica) es interesante porque solo consume energía al cambiar sus contenidos y sería perfecta para hacer un teclado inalámbrico por su reducido gasto de batería.
+  También usaremos una IL91874, procedente de un proyecto anterior. A pesar de ser un componente algo antiguo, resulta interesante por estar basado en tinta electrónica, por lo que sólo consume energía al cambiar su contenido y sería perfecta para hacer un teclado inalámbrico por su reducido gasto de batería.
 
   Todas estas pantallas se controlan mediante el protocolo SPI, con pines adicionales para otras señales de control: DC, CS y RST. Al compartir mismo bus, los GPIO necesarios son:
   - 3 compartidos para SPI (SCK, MISO, MOSI)
@@ -114,13 +112,13 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
   - La salida en serie de cada registro de desplazamiento se conecta a la entrada en serie del siguiente.
     - En el último, se conecta al pin MISO de la MCU para leer el estado.
   - Las señales CS, _latch_ y SCK son comunes a todos los integrados.
-  - La señal _latch_ resulta ser la inversa de CS por lo que no necesita un pin dedicado
+  - La señal _latch_ resulta ser la inversa de CS, por lo que no necesita un pin dedicado.
   #figure(
     images.piso,
     caption: [SN74HC589ADR2G para una fila],
   )
 
-  Los SIPO que gestionan las pantallas solo necesitan las señales estándar de SPI (SCK, MOSI, CS), se conectan en serie y expondremos los pines sobrantes
+  Los SIPO que gestionan las pantallas solo necesitan las señales estándar de SPI (SCK, MOSI, CS), se conectan en serie y expondremos los pines sobrantes.
   #figure(
     images.sipo,
     caption: [SN74HC595 para señales de control],
@@ -129,7 +127,7 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
   Las pantallas incorporan conectores de 2.54mm (los mismos usados en protoboards), solo tendremos que poner un conector hembra en nuestra PCB con las señales correspondientes.
 
   #block(breakable: false)[
-    Se añadieron LED RGB (WS2812) bajo cada tecla, estos chip también se conectan en serie. Cada uno usa 4 pines: 5V, GND, entrada y salida de la señal de datos.
+    Se añadieron LED RGB (WS2812) bajo cada tecla, estos chips también se conectan en serie. Cada uno usa 4 pines: 5V, GND, entrada y salida de la señal de datos.
     #figure(
       images.leds,
       caption: [Cadena de LEDs RGB],
@@ -145,7 +143,7 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
   Se ha optado por dejar gran parte de los componentes a la vista en la parte superior; el motivo principal de esta decisión es estético, pero también permite que la cara trasera quede prácticamente lisa, con lo que es mucho más sencillo poder fabricar una caja donde montar el teclado.
 
   #block(breakable: false)[
-    Lo primero que ponemos es la RP-Pico, como se ve en la imagen, la cara frontal va a ser un plano de tierra, mientras que la trasera 3V3. Esto facilita la conexión de los componentes a lo largo de la placa
+    Lo primero que ponemos es la RP-Pico. Como se ve en la imagen, la cara frontal va a ser un plano de tierra, mientras que la trasera, 3V3. Esto facilita la conexión de los componentes a lo largo de la placa.
     #figure(
       images.rp_pico_pcb,
       caption: [RP-Pico y conectores],
@@ -153,7 +151,7 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
   ]
 
   #block(breakable: false)[
-    Después colocamos las teclas, elemento principal que define y limita la posición de los componentes. Por cada una tenemos también en la cara opuesta de la PCB un LED y el recorte por donde asomará
+    Después colocamos las teclas, el elemento principal que define y limita la posición de los componentes. Por cada tecla tenemos también, en la cara opuesta de la PCB, un LED y el recorte por donde asomará.
     #figure(
       images.keys_pcb,
       caption: [Teclas y sus LEDs],
@@ -161,7 +159,7 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
   ]
 
   #block(breakable: false)[
-    A continuación, conectamos todas las teclas a los registros PISO que las leen, cada una con su resistencia pull-down. Asimismo, conectamos los registros al bus SPI y entre ellos. Aquí podemos ver como queda el cableado de 2 filas
+    A continuación, conectamos todas las teclas a los registros PISO que las leen, cada tecla con su resistencia pull-down. Asimismo, conectamos los registros al bus SPI y entre ellos. Aquí podemos ver como queda el cableado de 2 filas.
     #figure(
       images.piso_pcb,
       caption: [Lectura de las teclas],
@@ -169,7 +167,7 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
   ]
 
   #block(breakable: false)[
-    Como ya comentamos previamente, para la señal _latch_ tenemos que invertir CS, esto lo logramos con un MOSFET
+    Como ya comentamos previamente, para la señal _latch_ tenemos que invertir CS, esto lo logramos con un MOSFET.
     #figure(
       images.inverter,
       caption: [MOSFET como inversor],
@@ -177,22 +175,27 @@ El objetivo será usar la menor cantidad de GPIO posible para poder exponer los 
   ]
 
   #block(breakable: false)[
-    Para comunicar las MCU de ambas mitades podríamos usar cualquier cable, se ha optado por la elección más habitual para este fin: un jack de 3.5mm. Simplemente conectamos un GPIO para datos, 5V y GND (que alimentarán la segunda placa)
+    Para comunicar las MCU de ambas mitades podríamos usar cualquier cable, se ha optado por la elección más habitual para este fin: un jack de 3.5mm. Simplemente conectamos un GPIO para datos, 5V y GND (que alimentarán la segunda placa).
     #figure(
       images.jack,
       caption: [Conexión entre mitades],
     )
   ]
 
-  Juntamos las placas todo lo posible para reducir el área total. Las conectamos con pequeños "puentes" con _mousebits_ para mandarlas a fabricar como una pieza, más económico que hacerlas por separado.
+  Juntamos las placas todo lo posible para reducir el área total.   Las conectamos con pequeños "puentes" con _mouse bites_ para mandarlas a fabricar como una pieza; es más económico que hacerlas por separado.
   #figure(
     images.pcbs,
     caption: [Diseño terminado],
   )
 
-  Con el diseño terminado, generamos los archivos gerber para su fabricación y los mandamos construir. Unas semanas después llega a casa el resultado, y sólo resta soldar los componentes para tener un teclado funcional.
+  Con el diseño terminado, generamos los archivos Gerber y los mandamos a construir. Tras la fabricación del circuito impreso, sólo resta soldar los componentes para tener un teclado funcional.
   #figure(
     images.pcb,
     caption: [Placa fabricada],
+  )
+
+  #figure(
+    images.keyboard,
+    caption: [Teclado ensamblado],
   )
 ]

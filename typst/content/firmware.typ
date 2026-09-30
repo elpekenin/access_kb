@@ -74,16 +74,13 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
 ]
 
 #h[Pantallas][
-  La API estandarizada Quantum Painter @qp proporciona funciones para primitivas gráficas (puntos, líneas, etc.) y drivers para múltiples dispositivos, simplificando el desarrollo significativamente.
-
-  Las pantallas ILI9163 e ILI9341 ya están soportadas. Para la IL91874, desarrollamos un driver personalizado.
+  Quantum Painter @qp proporciona funciones para primitivas gráficas (puntos, líneas, etc.) y drivers para múltiples dispositivos, simplificando el desarrollo significativamente. Las pantallas ILI9163 e ILI9341 ya están soportadas. Para la IL91874, desarrollamos un driver personalizado.
 
   Dado que cada píxel puede ser blanco, negro o rojo, el formato de datos que se utiliza es de 2 bits por píxel. Así, si el bit que controla el color está a "1", tendremos un píxel rojo y, en caso contrario, el color vendrá determinado por el segundo bit, siendo "0" blanco y "1" negro. Además, a diferencia de otros dispositivos más modernos, esta pantalla no permite refrescar regiones aisladas, sino que requiere enviar el contenido completo cada vez que vayamos a dibujar.
 
   Debido a estas características, el código para interactuar con esta pantalla consiste en dos framebuffers donde almacenamos por separado el estado del bit rojo y el bit blanco/negro. Por suerte, QMK ya dispone de utilidades que permiten interactuar con un buffer usando la misma API de dibujo. Por tanto, nuestro código será una capa de utilidad que emplea dos de estas "pantallas virtuales".
   #snippet(
     ```c
-    // calcula la distancia entre 2 colores HSV usando Pitágoras (sin potencias para acelerar el cálculo)
     static inline uint16_t hsv_distance(HSV a, HSV b) {
         return abs(a.h - b.h) + abs(a.s - b.s) + abs(a.v - b.v);
     }
@@ -100,18 +97,18 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
       uint16_t color = hsv_distance(hsv, driver->color);
 
       // equivalente a blanco
-      bool black = false;
-      bool color = false;
+      bool is_black = false;
+      bool is_color = false;
 
       // según cuál es la menor de las distancias
       uint32_t min = QP_MIN(white, QP_MIN(black, color));
       if (min == black) {
-        black = true;
+        is_black = true;
       } else if (min == color) {
-        color = true;
+        is_color = true;
       }
 
-      uint8_t converted = (black << 1) | (color << 0);
+      uint8_t converted = (is_black << 1) | (is_color << 0);
 
       // almacenamos en el buffer de salida los 2 bits de este color
       //
@@ -219,7 +216,7 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
 ]
 
 #h[Sensor pantalla táctil][
-  Necesitaremos un driver para comunicarnos con el chip (XPT2046) y obtener la posición en la que se ha pulsado la pantalla. QMK no tiene funcionalidades similares, por lo que he tenido que implementarlo desde cero. La arquitectura del código es igual que para las pantallas, en un par de `struct`s almacenamos las variables y funciones necesarias para mandar/leer mensajes al dispositivo.
+  Necesitaremos un driver para comunicarnos con el chip (XPT2046) y obtener la posición en la que se ha pulsado la pantalla. QMK no tiene funcionalidades similares, por lo que ha sido implementado desde cero. La arquitectura del código es igual que para las pantallas, en un par de `struct`s almacenamos las variables y funciones necesarias para mandar/leer mensajes al dispositivo.
 
   Al arrancar el teclado, ejecutamos la inicialización del sensor y lo iremos leyendo cuando la señal de salida *IRQ* nos marque que la pantalla está pulsada, evitando transmitir mensajes mientras no esté en uso.
   #snippet(
@@ -301,10 +298,10 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
 ]
 
 #h[Comunicación con ordenador][
-  Para intercambiar mensajes entre dispositivos utilizaremos XAP @xap. Este protocolo definido por QMK funciona encima de HID y permite el intercambio de información. Evita problemas con los drivers del sistema operativo usando un endpoint adicional; es decir, utiliza un flujo de datos *independiente* de la comunicación convencional del teclado para reportar el estado de las teclas
+  Para intercambiar mensajes entre dispositivos utilizaremos XAP @xap. Este protocolo definido por QMK funciona encima de HID y permite el intercambio de información. Evita problemas con los drivers del sistema operativo usando un endpoint adicional; es decir, utiliza un flujo de datos *independiente* de la comunicación convencional del teclado para reportar el estado de las teclas.
 
   #block(breakable: false)[
-    Los mensajes que se reciben en el teclado para lanzar acciones o leer información se definen en el archivo `xap.hjson` #footnote[Hjson @hjson es un super-set de JSON más fácil de usar]. Por ejemplo, un mensaje para que el ordenador pueda descubrir el tamaño de una pantalla
+    Los mensajes que se reciben en el teclado para lanzar acciones o leer información se definen en el archivo `xap.hjson` #footnote[Hjson @hjson es un super-set de JSON más fácil de usar]. Por ejemplo, un mensaje para que el ordenador pueda descubrir el tamaño de una pantalla.
     #snippet(
       ```json
       // identificador del mensaje
@@ -325,7 +322,7 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
               "name": "device_name",
             },
             {
-              // siempre será '\0` - convenio en C delimitar el fin de un texto
+              // siempre será '\0' - convenio en C delimitar el fin de un texto
               "type": "u8",
               "name": "dev_terminator",
             },
@@ -342,7 +339,7 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
     ) <xap:hjson>
   ]
 
-  Lógica para responder a un mensaje
+  Lógica para responder a un mensaje.
   #snippet(
     ```c
     bool xap_execute_qp_get_geometry(
@@ -383,7 +380,7 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
     caption: [Manejo de un mensaje XAP],
   )
 
-  El teclado es capaz de mandar mensajes de forma autónoma, usando la función `xap_broadcast_user`. Este mecanismo se empleará para informar del estado de la pantalla táctil: en vez de que el ordenador esté constantemente preguntando, el teclado se encarga de enviar un mensaje cada vez que hay un cambio
+  El teclado es capaz de mandar mensajes de forma autónoma, usando la función `xap_broadcast_user`. Este mecanismo se empleará para informar del estado de la pantalla táctil: en vez de que el ordenador esté constantemente preguntando, el teclado se encarga de enviar un mensaje cada vez que hay un cambio.
   #snippet(
     ```c
     // NOTA: enviar un identificador del sensor permite diseños multi-sensor
@@ -395,11 +392,13 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
 ]
 
 #h[Interfaz de usuario][
-  Para evitar problemas al dibujar en las pantallas, es importante dividir el espacio donde mostraremos cada elemento, si no, podemos acabar con elementos que han sido sobre-escritos por otros.
+  Para evitar problemas al dibujar en las pantallas, es importante dividir el espacio donde mostraremos cada elemento, si no, podemos acabar con elementos que han sido sobre-escritos por otros. Son cálculos sencillos, pero cuando se quiere añadir o quitar algún elemento, toca rehacer todas las operaciones matemáticas que definen las coordenadas asignadas a cada componente.
 
-  Esto requiere de cálculos sencillos, pero cuando se quiere añadir o quitar algún elemento, toca rehacer a mano las sumas y multiplicaciones. Para solventar esta problemática, se implementó una pequeña librería que calcula las áreas a ocupar por cada componente a partir de las dimensiones de la pantalla y una configuración declarativa (p.ej: "la mitad derecha de pantalla van a ser 3 elementos igual de grandes ...")
+  Para solventar esta problemática, se implementó una pequeña librería que calcula las áreas a ocupar por cada componente a partir de las dimensiones de la pantalla y una configuración declarativa (p. ej. "la mitad derecha de pantalla van a ser 3 elementos igual de grandes ...") El código realizará estas operaciones, dibujando acorde a los resultados.
 
-  Esta configuración se basa en un árbol donde los nodos hoja almacenan cuándo dibujarlos de nuevo (representación dinámica) y la función a utilizar para dicha tarea, mientras que los nodos intermedios actúan como contenedores cuyo espacio se repartirá entre sus hijos.
+  Este código implica un pequeño coste de cómputo (resolver las coordenadas en el arranque) y gasta algo de RAM (almacenar configuración y resultados), pero nos brinda de gran flexibilidad y facilidad a la hora de modificar los contenidos de la pantalla.
+
+  La configuración se representa con un árbol donde los nodos hoja almacenan cuándo dibujarlos de nuevo (representación dinámica) y la función a utilizar para dicha tarea, mientras que los nodos intermedios actúan como contenedores cuyo espacio se repartirá entre sus hijos.
   #snippet(
     ```c
     typedef struct _ui_node_t {
@@ -429,7 +428,7 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
   )
 
   #block(breakable: false)[
-    Así, podemos definir una interfaz cuyas dimensiones cambian para adaptarse a la configuración que usemos, dado que algunos nodos que solo existen en algunas circunstancias. Nótese el nodo con `#if IS_ENABLED(...)`
+    Así, podemos definir una interfaz cuyas dimensiones cambian para adaptarse a la configuración que usemos, ya que algunos nodos solo existen en algunas circunstancias. Nótese el nodo con `#if IS_ENABLED(...)`
     #snippet(
       ```c
       static ui_node_t left[] = {
@@ -488,7 +487,7 @@ Gracias al uso de un framework que proporciona las bases para crear el firmware 
     )
   ]
 
-  Aquí podemos ver cómo se dibuja uno de estos nodos
+  Aquí podemos ver cómo se dibuja uno de estos nodos.
   #snippet(
     ```c
     bool layer_init(ui_node_t *self) {

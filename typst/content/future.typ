@@ -1,13 +1,9 @@
-Al diseñar la PCB hubo errores que debemos evitar repetir:
-- *Test points*. Omitidos por la sencillez del diseño y las pruebas previas. No hubo fallos en el diseño y no hicieron falta, pero deberían haberse añadido para poder depurar problemas.
-- *Mount points*. Se usaron M2, dificultando encontrar tornillos. M3 sería más accesible.
-- *Conectores SPI*. Por un descuido no se expusieron SCK, MISO, MOSI; como sí se hizo con los pines libres. Esto impide usar dispositivos SPI extra.
-- *Posición de pantallas*. En su ubicación actual, bajo las muñecas, resultan un poco incómodas; estarían mejor en una zona alejada.
-- *Conexión entre mitades*. Mover el jack hacia el exterior porque el cable choca un poco con el borde de la placa en la posición actual. Barajar otros conectores.
-
-Hay otras ideas que no se han hecho en este primer dispositivo para simplificar el proyecto, pero resultan interesantes
-- *Backlight*. La iluminación de las pantallas se ha conectado a 3V3, se podría usar PWM o un GPIO como interruptor, para poder apagarlas y reducir consumo.
-- *Pantalla táctil*. El sensor empleado es resistivo y no proporciona buena precisión, uno capacitivo daría mejores lecturas.
-- *LVGL*. Los diseños mostrados en la pantalla son muy básicos, pero usando @lvgl podría hacerse una interfaz más vistosa y con más capacidades.
-- *Diseño inalámbrico*. Podría utilizarse un MCU que proporcione conectividad mediante WiFi, BLE, Zigbee, ... Pudiendo conectarse directamente con los servicios necesarios y reduciendo (o eliminando) la necesidad de un software ejecutando en el ordenador o un segundo dispositivo inalámbrico. Un buen candidato para este uso es el NRF52840, soportado por ZMK y con un consumo energético bastante reducido
-- *Montaje*. Dado que la fábrica obliga a pedir un mínimo de 5 placas, se ha empleado una segunda PCB para dar cuerpo al teclado, usando separadores entre ellas. En futuras iteraciones sería preferible diseñar e imprimir en 3D una caja donde guardar nuestra electrónica.
+A la vista de los resultados obtenidos y fallos encontrados en el prototipo construido, se proponen las siguientes mejoras para futuras revisiones:
+- Analizar y optimizar el código para mejorar la frecuencia de escaneo. El propio código de escaneo y el dibujado en las pantallas son los principales puntos a estudiar.
+- Exponer los pines SPI para permitir la conexión de dispositivos adicionales que usen este bus.
+- Añadir puntos de prueba para poder hacer mediciones o debug de señales.- Los mount points, añadidos para poder anclar la placa a una caja, son para tornillos M2. Reemplazarlos por M3 haría más sencillo encontrar tornillería.
+- La ubicación de pantallas, bajo las muñecas, resulta un poco incómoda. Sería mejor dejar en la zona baja la pantalla táctil (accesible con el pulgar) y mover el resto a la zona superior. Además, moverlas hacia el exterior reduciría el espacio entre los bloques de teclas en cada mitad del teclado.
+- La iluminación de las pantallas LCD se ha conectado directamente a 3V3 para simplificar el diseño, en versiones posteriores se debería usar PWM para controlar el brillo y reducir consumo.
+- La conexión entre mitades a veces falla porque el cable puede chocar con el borde de las placas. Se podrían mover los conectores hacia el borde o estudiar otras alternativas (por ejemplo: USB-C).
+- Utilizar un MCU que tenga conectividad inalámbrica para conectarse directamente a los servicios y eliminando la necesidad de un segundo dispositivo o software en el ordenador para este fin. Un buen candidato para este uso es el NRF52840, soportado por ZMK y con un consumo energético reducido.
+- La pantalla táctil es resistiva, por lo que su precisión es limitada. Es preferible usar un sensor capacitivo en su lugar.

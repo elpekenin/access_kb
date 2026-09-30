@@ -1,12 +1,12 @@
 #import "@elpekenin/tfm:0.1.0": cli, h, snippet, vars
 
-El ordenador actuará como gestor
+El ordenador actuará como gestor:
 - Recibe eventos del teclado, como la pulsación de una tecla o un toque en la pantalla táctil, para ejecutar acciones tales como encender una luz.
 - Monitoriza valores como la temperatura o el número de emails sin leer y los muestra en las pantallas.
 
 Usaremos XAP para comunicación entre teclado y ordenador mediante `qmk_xap` @qmk_xap, el cliente oficial de QMK. Este programa usa Tauri @tauri para obtener código multiplataforma (Mac, Android, ...), esto se consigue implementando la interfaz gráfica como una aplicación web y generando binarios que integran un navegador.
 
-Siempre que sea posible ejecutaremos la lógica en el frontend de modo que evitemos recompilar el backend (proceso lento), otro beneficio es que usaremos un lenguaje más sencillo (TypeScript vs Rust)
+Siempre que sea posible ejecutaremos la lógica en el frontend de modo que evitemos recompilar el backend (proceso lento). Otro beneficio es que usaremos un lenguaje más sencillo, TypeScript en vez de Rust.
 
 #h[Instalación][
   Para el _backend_ podríamos instalar Rust @rust directamente, pero se recomienda usar `rustup` @rustup ya que permite gestionar las instalaciones. Con este instalador obtendremos la última versión del compilador para nuestro sistema y arquitectura.
@@ -106,7 +106,7 @@ Siempre que sea posible ejecutaremos la lógica en el frontend de modo que evite
     ```ts
     import mitt, { Emitter } from "mitt"
 
-    import { UserEvent } from "@generated/xap"
+    import { XapEvent } from "@generated/xap"
 
     // de momento, un solo tipo de evento: mensaje recibido del teclado
     type UserEvent = {
@@ -131,7 +131,7 @@ Siempre que sea posible ejecutaremos la lógica en el frontend de modo que evite
       switch (ev.kind) {
         // código
       }
-    )
+    })
     ```,
     caption: [Manejo del evento en frontend],
     size: 9pt,
@@ -233,11 +233,11 @@ Siempre que sea posible ejecutaremos la lógica en el frontend de modo que evite
 ]
 
 #h[Integración][
-  En este punto, podemos hacer prácticamente cualquier cosa que se nos ocurra, algunas ideas:
+  En este punto, la plataforma es capaz de un amplio abanico de aplicaciones, tales como control domótico o monitorización:
   - Graficar el uso de CPU y RAM del ordenador en el teclado
   - Mostrar la fecha y hora, o predicción meteorológica
   - Ver cámara de la mirilla en la pantalla y abrir la puerta pulsando pantalla táctil/tecla
-  - Mostar nombre y/o carátula de la canción que está sonando, junto con controles multimedia
+  - Mostrar nombre y/o carátula de la canción que está sonando, junto con controles multimedia
 
   Como ejemplo se adjunta un código que permite usar la pantalla táctil para controlar una luz conectándonos a la API de Home Assistant @hasst. Cuando se pulsa la pantalla en un rango de coordenadas definido se encenderá la bombilla y al soltarla se apagará.
   #snippet(
@@ -264,7 +264,7 @@ Siempre que sea posible ejecutaremos la lógica en el frontend de modo que evite
     }
 
     // nos suscribimos al bus de eventos, solo actuaremos al pulsar o soltar la pantalla
-    elpekenin.events.on("broadcast", async event => {
+    events.on("broadcast", async event => {
       switch (event.kind) {
         case "ScreenPressed":
           const data = event.data
@@ -291,7 +291,7 @@ Siempre que sea posible ejecutaremos la lógica en el frontend de modo que evite
           break
 
         case "ScreenReleased":
-          // otra pantalla -> nad
+          // otra pantalla -> nada
           if (event.data.screen_id !== config.screen_id) return
 
           // apagar la luz

@@ -1,62 +1,77 @@
 #import "@elpekenin/tfm:0.1.0": h, snippet
 
-Para hacer al teclado independiente del programa de control en el ordenador, y permitir mejor conexión con el resto del ecosistema, se le ha conectado un M5 Atom @atom. Este dispositivo está basado en un ESP32 e integra luz RGB, micrófono y altavoz. Se conectará mediante UART al teclado y se encarga de enviar mediante MQTT los mismos eventos que el teclado envía por XAP y transmitir por un WebSocket el flujo de audio capturado por el micrófono. El LED se utiliza para mostrar el estado (azul: grabando, apagado: inactivo), el altavoz por ahora queda sin uso.
+Para hacer al teclado independiente del programa de control en el ordenador, y permitir mejor conexión con el resto del ecosistema, se le ha conectado un M5 Atom @atom. Este dispositivo está basado en un ESP32 e integra luz RGB, micrófono y altavoz. Se conecta mediante UART al teclado y se encarga de enviar mediante MQTT los mismos eventos que el teclado envía por XAP, y de transmitir por un WebSocket el flujo de audio capturado por el micrófono. El LED se utiliza para mostrar el estado (azul: grabando, apagado: inactivo), el altavoz por ahora queda sin uso.
 
 #h[Firmware][
   Para desarrollar el código, empleamos la librería proporcionada por el fabricante @m5unified. Es compatible tanto con Arduino @arduino como ESP-IDF @esp-idf. Usamos la primera opción ya que proporciona más funcionalidades y librerías, agilizando la implementación.
 
-  Para notificar de los eventos, el teclado creará la estructura de datos y la envía por UART
+  Para notificar de los eventos, el teclado creará la estructura de datos y la envía por UART. A veces el M5 se encuentra ocupado enviando por WiFi cuando se reciben datos por UART, por lo que se pueden acumular varios mensajes en el buffer de recepción, para localizar el inicio y final de cada mensaje y poder detectar errores, encapsulamos los datos en un "frame" con el siguiente formato: `[START] [LEN] [payload...] [XOR of payload] [END]`
   #snippet(
     ```c
-    void m5_send(const void *data, size_t data_len) {
-      const uint8_t *ptr = data;
-      if (IS_ENABLED(M5_DEBUG)) {
-        printf("[m5] sending: {");
-        for (size_t i = 0; i < data_len; ++i) {
-            printf(" %d", ptr[i]);
-        }
-        printf(" }\n");
+    void m5_send(const void *ptr, size_t data_len) {
+      const uint8_t *data = ptr;
+
+      uint8_t frame[4 + data_len];
+
+      frame[0] = M5_FRAME_START;
+      frame[1] = (uint8_t)data_len;
+
+      // copiar data al frame y calcular checksum
+      uint8_t xor_sum = 0;
+      for (size_t i = 0; i < data_len; ++i) {
+        frame[2 + i] = data[i];
+        xor_sum ^= data[i];
       }
 
-      uart_transmit(ptr, data_len);
+      frame[2 + data_len] = xor_sum;
+      frame[3 + data_len] = M5_FRAME_END;
+
+      uart_transmit(frame, 4 + data_len);
     }
 
+    // un envío
     const screen_pressed_msg_t msg = make_screen_pressed(touch_sensor_id, touch_sensor_reading);
     m5_send(&msg, sizeof(msg));
     ```,
     caption: [Envío de evento al M5],
+    size: 9pt,
   )
 
-  Por su parte, el M5 leerá los mensajes recibidos y los publicará en MQTT
-  #snippet(
-    ```c
-    // en MQTT, los mensajes son cadenas de texto
-    // esta función permite generarlos cómodamente, parecido a `printf`
-    void mqtt_send(const char *topic, const char *fmt, ...) {
-      char buffer[64];
+  #block(breakable: false)[
+    Por su parte, el M5 leerá los mensajes recibidos y los publicará en MQTT.
+    #snippet(
+      ```c
+      // en MQTT, los mensajes son cadenas de texto
+      // esta función permite generarlos cómodamente, parecido a `printf`
+      void mqtt_send(const char *topic, const char *fmt, ...) {
+        char buffer[64];
 
-      va_list va;
+        va_list va;
 
-      va_start(va, fmt);
-      vsnprintf(buffer, sizeof(buffer), fmt, va);
-      va_end(va);
+        va_start(va, fmt);
+        vsnprintf(buffer, sizeof(buffer), fmt, va);
+        va_end(va);
 
-      mqtt.publish(topic, buffer);
-    }
+        mqtt.publish(topic, buffer);
+      }
 
-    // mirando el primer byte (id), sabemos el tipo de mensaje
-    switch (data[0]) {
-    case SCREEN_PRESSED: {
-      // interpretamos los bytes acorde al mensaje en cuestión
-      const screen_pressed_msg_t *msg = (screen_pressed_msg_t *)data;
+      // NOTA: se decodifican los mensajes para obtener sus `payload`
 
-      // enviamos la información al broker
-      mqtt_send("event/screen_pressed", "%d|%d|%d", msg->screen_id, msg->x, msg->y);
-      break;
-    }
-    ```,
-    caption: [Re-envío de eventos a MQTT],
-  )
+      // mirando el primer byte (id), sabemos el tipo de mensaje
+      switch (payload[0]) {
+      case SCREEN_PRESSED: {
+        // interpretamos los bytes acorde al mensaje en cuestión
+        const screen_pressed_msg_t *msg = (screen_pressed_msg_t *)payload;
+
+        // enviamos la información al broker
+        mqtt_send("event/screen_pressed", "%d|%d|%d", msg->screen_id, msg->x, msg->y);
+        break;
+      }
+      ```,
+      caption: [Re-envío de eventos a MQTT],
+      size: 8pt,
+    )
+  ]
 ]
 
 #h[Servidor][
@@ -70,7 +85,7 @@ Para hacer al teclado independiente del programa de control en el ordenador, y p
       chunk = np.frombuffer(raw, dtype=np.int16)
       self._buf.append(chunk)
 
-      # si el nivel medio es bajo -> silencio
+      # nivel medio: alto=hablando, bajo=silencio
       if np.abs(chunk).mean() > _THRESHOLD:
         self._in_speech = True
         self._silence_counter = 0
@@ -99,6 +114,7 @@ Para hacer al teclado independiente del programa de control en el ordenador, y p
       return {"action": "listening"}
     ```,
     caption: [Procesado del audio],
+    size: 8pt,
   )
 
   #snippet(
@@ -115,7 +131,7 @@ Para hacer al teclado independiente del programa de control en el ordenador, y p
 
       async for msg in connection:
         if not isinstance(msg, bytes):
-            continue
+          continue
 
         state = buffer.add(msg)
         if state["action"] == "silence":
@@ -131,12 +147,12 @@ Para hacer al teclado independiente del programa de control en el ordenador, y p
 
         client.publish("event/user_mic", prompt)
 
-
     server = await websockets.serve(handler, address, port)
     await server.wait_closed()
     ```,
     caption: [Lógica del servidor],
+    size: 8pt,
   )
 
-  Terminada la grabación, ejecutamos un modelo ASR #footnote[Automatic Speech Recognition] para transcribirla a texto. El resultado obtenido se publica por MQTT a un topic que se usa de prompt para un LLM #footnote[Large Language Model] local que coordina y controla todos los elementos del sistema.
+  Terminada la grabación, ejecutamos un modelo @asr para transcribirla a texto. El resultado se publica en un topic MQTT usado como entrada de un LLM #footnote[Large Language Model] local que coordina y controla todos los elementos del sistema.
 ]
